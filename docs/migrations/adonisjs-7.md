@@ -637,3 +637,78 @@ Cible : 46/46 pass.
 - **Tuyau + TanStack Query** type-safe — déjà partiellement en place avec `@tuyau/inertia`, peut être enrichi
 - **Bull v4 → BullMQ v5** — modernisation queue
 - **Edge-Markdown** — si besoin de Markdown dans les emails ou pages
+
+---
+
+## Résultats finaux de la migration (2026-05-09)
+
+### Tests
+| Métrique | Baseline v6 | v7 final |
+|---|---|---|
+| Tests passed | 334 | **334** ✅ |
+| Tests failed | 12 (préexistants) | **12 mêmes** ✅ |
+| Total | 346 | **346** ✅ |
+| Régression | — | **AUCUNE** ✅ |
+
+### Build
+- `npm run test` : 334/346 (même delta que v6) ✅
+- `npm run build -- --ignore-ts-errors` : succeeds ✅
+- `node ace --help` : succeeds ✅
+
+### Commits sur la branche `chore/adonisjs-7-migration`
+
+```
+25cb87b refactor(adonisjs7): drop assetsBundler from adonisrc
+7291b4e feat(adonisjs7): InertiaMiddleware replaces config-level sharedData
+5ab7df5 refactor(adonisjs7): add explicit .as() names to disambiguate duplicate routes
+0cd43b9 refactor(adonisjs7): fix vite.config.ts imports for v7
+2844fa6 refactor(adonisjs7): replace cuid() with randomUUID for v7 compat
+9e5a9ba refactor(adonisjs7): move encryption config to dedicated file
+669943a chore(adonisjs7): add #generated and #transformers subpath imports
+d06bdf7 refactor(adonisjs7): rename adonisrc hooks, drop experimental flags, fix test glob
+0ef1ee2 refactor(adonisjs7): replace ts-node-maintained with @poppinss/ts-exec
+7a65917 chore(adonisjs7): bump @adonisjs/* and related packages to v7
+7344a97 chore: prepare AdonisJS 7 migration baseline
+```
+
+### Bugs préexistants découverts pendant la migration (hors scope v7)
+
+1. **`.env.example` désaligné avec `start/env.ts`** : manque `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `EMAIL_FROM_NAME`, `TEST_DB_*`. Les credentials DB par défaut ne matchent pas le `docker-compose.yml`. À fixer en commit séparé.
+
+2. **Routes dupliquées (`/api/sessions/*` et `/account/sessions/*`)** : utilisent les mêmes méthodes du même controller. Ça marchait silencieusement en v6, ça crashe en v7 (auto-naming). Workaround : `.as()` explicites distincts. Idem pour `/notifications` (page Inertia + API). Réfléchir à une consolidation route plus tard.
+
+3. **Les 12 tests qui échouent (controllers retournent `{}`)** : pattern dominant dans `NotificationsController` et `SessionController`. Probablement causé par le commit `dcbf8db` (app_settings middleware) qui court-circuite des responses. À investiguer **après** la migration.
+
+### Dette technique post-migration v7
+
+**359 erreurs TypeScript** détectées, principalement dues à la nouvelle feature de **type-safety end-to-end de v7** :
+
+| Code TS | Nb | Cause |
+|---|---|---|
+| TS2345 | 57 | `inertia.render('foo')` → `'foo'` not assignable to `never` (Inertia infère désormais les pages valides depuis `inertia/pages/`) |
+| TS2339 | 53 | Property does not exist (Stripe `Invoice.paid`, etc.) |
+| TS18047 | 53 | `'X' is possibly null` (TS 5.9 strict null checks plus stricts) |
+| TS2775 | 43 | "Assertions require explicit type annotation" (TS 5.9) |
+| TS6133 | 31 | Variable declared but never read (warnings) |
+| TS2554 | 14 | `inertia.render(...)` exige désormais 2-3 args (props typées) |
+
+**Plan de remédiation TS** (PR séparé après la migration) :
+1. **Activer le générateur de types Inertia v7** : `node ace inertia:generate-types` pour produire `.adonisjs/generated/*.d.ts` avec les noms de pages valides → résout TS2345 et TS2554
+2. **Ajouter `as const` ou explicit types** sur les `inertia.render()` → résout TS2775
+3. **Null-safety guards** sur les tests (`result!` ou `if (!result) throw`) → résout TS18047
+4. **Audit Stripe SDK v19 changelog** pour `Invoice.paid` et autres renommages
+5. **Eslint --fix** pour les TS6133 (unused imports)
+
+### Phase 4 (cosmétique) reportée
+
+Le restructure Inertia (move `inertia/app/{app,ssr}.tsx` → `inertia/{app,ssr}.tsx`, créer `tsconfig.inertia.json`) est **cosmétique** et **ne bloque rien**. Les paths actuels marchent en v7. À planifier comme PR séparé pour aligner sur la convention v7.
+
+### Prochaines étapes
+1. ✅ Migration runtime fonctionnelle
+2. ⏳ QA manuelle dev (`npm run dev` + golden path : login, org, upload, notifications, Stripe webhook)
+3. ⏳ Push branche + ouvrir PR
+4. ⏳ Déploiement staging + monitoring 24h
+5. ⏳ PR séparé : dette TS (1-2 jours)
+6. ⏳ PR séparé : fix `.env.example`, fix routes dupliquées
+7. ⏳ PR séparé : restructure Inertia files (Phase 4 cosmétique)
+8. ⏳ Investiguer les 12 tests qui retournent `{}` (ancienne dette préexistante)
