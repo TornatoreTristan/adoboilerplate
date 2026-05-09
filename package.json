@@ -1,6 +1,6 @@
 {
-  "name": "boilerplate-adonisjs6",
-  "version": "0.0.0",
+  "name": "adoboilerplate",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "engines": {

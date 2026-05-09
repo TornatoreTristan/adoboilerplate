@@ -3,6 +3,9 @@ node_modules
 build
 tmp
 
+# AdonisJS 7 codegen output (#generated/* alias)
+.adonisjs
+
 # Secrets
 .env
 .env.local
