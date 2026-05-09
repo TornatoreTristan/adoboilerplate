@@ -92,8 +92,8 @@ export default class GdprService {
         id: sub.id,
         planName: 'Plan', // TODO: preload plan
         status: sub.status,
-        currentPeriodStart: sub.currentPeriodStart.toISO()!,
-        currentPeriodEnd: sub.currentPeriodEnd.toISO()!,
+        currentPeriodStart: sub.currentPeriodStart?.toISO() ?? null,
+        currentPeriodEnd: sub.currentPeriodEnd?.toISO() ?? null,
       })),
     }
 

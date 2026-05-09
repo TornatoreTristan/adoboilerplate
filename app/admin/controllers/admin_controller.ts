@@ -18,7 +18,7 @@ export default class AdminController {
     const userRepository = getService<UserRepository>(TYPES.UserRepository)
     const adminService = getService<AdminService>(TYPES.AdminService)
 
-    const user = await userRepository.findById(userId)
+    const user = await userRepository.findByIdOrFail(userId)
     const stats = await adminService.getDashboardStats(30)
 
     return inertia.render('admin/index', {
@@ -57,7 +57,7 @@ export default class AdminController {
     const adminService = getService<AdminService>(TYPES.AdminService)
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const user = await userRepository.findById(params.id)
+    const user = await userRepository.findByIdOrFail(params.id)
     const sessions = await adminService.getUserSessions(params.id)
     const auditLogs = await auditLogService.getUserLogs(params.id, 50)
 

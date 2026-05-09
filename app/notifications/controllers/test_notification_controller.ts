@@ -31,6 +31,10 @@ export default class TestNotificationController {
       },
     })
 
+    if (!notification) {
+      return response.internalServerError({ error: 'Failed to create notification' })
+    }
+
     return response.ok({
       success: true,
       message: 'Test notification created and broadcasted',

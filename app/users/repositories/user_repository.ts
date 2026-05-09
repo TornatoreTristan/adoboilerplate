@@ -101,7 +101,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    */
   protected async afterCreate(user: UserModel): Promise<void> {
     await super.afterCreate(user)
-    await this.cache.invalidateTags(['user_email'])
+    await this.cache?.invalidateTags(['user_email'])
   }
 
   /**
@@ -109,6 +109,6 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    */
   protected async afterUpdate(user: UserModel): Promise<void> {
     await super.afterUpdate(user)
-    await this.cache.invalidateTags(['user_email'])
+    await this.cache?.invalidateTags(['user_email'])
   }
 }

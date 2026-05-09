@@ -205,7 +205,7 @@ export default class AuthorizationService {
     })
 
     // Invalider les caches d'autorisation pour cet utilisateur
-    await this.cache.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
   }
 
   /**
@@ -220,7 +220,7 @@ export default class AuthorizationService {
       .delete()
 
     // Invalider les caches d'autorisation pour cet utilisateur
-    await this.cache.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
   }
 
   /**
@@ -240,7 +240,7 @@ export default class AuthorizationService {
     })
 
     // Invalider les caches d'autorisation pour cet utilisateur
-    await this.cache.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
   }
 
   /**
@@ -259,6 +259,6 @@ export default class AuthorizationService {
       .delete()
 
     // Invalider les caches d'autorisation pour cet utilisateur
-    await this.cache.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
   }
 }

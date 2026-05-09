@@ -132,33 +132,33 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
 
   protected async afterCreate(log: EmailLog): Promise<void> {
     await super.afterCreate(log)
-    await this.cache.invalidateTags([
+    await this.cache?.invalidateTags([
       'email_logs',
       `category_${log.category}`,
       `status_${log.status}`,
     ])
     if (log.userId) {
-      await this.cache.invalidateTags([`user_email_logs_${log.userId}`])
+      await this.cache?.invalidateTags([`user_email_logs_${log.userId}`])
     }
   }
 
   protected async afterUpdate(log: EmailLog): Promise<void> {
     await super.afterUpdate(log)
-    await this.cache.invalidateTags([
+    await this.cache?.invalidateTags([
       'email_logs',
       `category_${log.category}`,
       `status_${log.status}`,
     ])
     if (log.userId) {
-      await this.cache.invalidateTags([`user_email_logs_${log.userId}`])
+      await this.cache?.invalidateTags([`user_email_logs_${log.userId}`])
     }
   }
 
   protected async afterDelete(log: EmailLog): Promise<void> {
     await super.afterDelete(log)
-    await this.cache.invalidateTags(['email_logs', `category_${log.category}`])
+    await this.cache?.invalidateTags(['email_logs', `category_${log.category}`])
     if (log.userId) {
-      await this.cache.invalidateTags([`user_email_logs_${log.userId}`])
+      await this.cache?.invalidateTags([`user_email_logs_${log.userId}`])
     }
   }
 }
