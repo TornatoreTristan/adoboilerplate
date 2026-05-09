@@ -63,10 +63,18 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Variables for configuring email (Resend)
+  | Variables for configuring email
   |----------------------------------------------------------
+  | Provider-agnostic: SMTP works with Scaleway TEM, Mailgun,
+  | SendGrid, Postmark, Brevo, etc. Switch to `log` driver in
+  | development/test to capture mails without sending.
   */
-  RESEND_API_KEY: Env.schema.string(),
+  MAIL_DRIVER: Env.schema.enum(['smtp', 'log'] as const),
+  MAIL_SMTP_HOST: Env.schema.string.optionalWhen(process.env.MAIL_DRIVER !== 'smtp'),
+  MAIL_SMTP_PORT: Env.schema.number.optionalWhen(process.env.MAIL_DRIVER !== 'smtp'),
+  MAIL_SMTP_SECURE: Env.schema.boolean.optionalWhen(process.env.MAIL_DRIVER !== 'smtp'),
+  MAIL_SMTP_USER: Env.schema.string.optionalWhen(process.env.MAIL_DRIVER !== 'smtp'),
+  MAIL_SMTP_PASSWORD: Env.schema.string.optionalWhen(process.env.MAIL_DRIVER !== 'smtp'),
   EMAIL_FROM_ADDRESS: Env.schema.string(),
   EMAIL_FROM_NAME: Env.schema.string(),
 

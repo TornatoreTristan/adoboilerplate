@@ -11,6 +11,9 @@ import EventBusService from '#shared/services/event_bus_service'
 import QueueService from '#shared/services/queue_service'
 import RateLimitService from '#shared/services/rate_limit_service'
 import EmailService from '#mailing/services/email_service'
+import type { MailProvider } from '#mailing/providers/mail_provider'
+import SmtpMailProvider from '#mailing/providers/smtp_provider'
+import LogMailProvider from '#mailing/providers/log_provider'
 import LocaleService from '#shared/services/locale_service'
 
 // Repositories
@@ -128,6 +131,14 @@ export function configureContainer(): Container {
 
   // Rate Limit Service
   container.bind<RateLimitService>(TYPES.RateLimitService).to(RateLimitService).inSingletonScope()
+
+  // Mail Provider (driver-based, swappable via MAIL_DRIVER env)
+  const mailDriver = process.env.MAIL_DRIVER || 'smtp'
+  if (mailDriver === 'log') {
+    container.bind<MailProvider>(TYPES.MailProvider).to(LogMailProvider).inSingletonScope()
+  } else {
+    container.bind<MailProvider>(TYPES.MailProvider).to(SmtpMailProvider).inSingletonScope()
+  }
 
   // Email Service
   container.bind<EmailService>(TYPES.EmailService).to(EmailService).inSingletonScope()

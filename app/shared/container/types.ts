@@ -77,6 +77,7 @@ export const TYPES = {
   Logger: Symbol.for('Logger'),
   RateLimitService: Symbol.for('RateLimitService'),
   EmailService: Symbol.for('EmailService'),
+  MailProvider: Symbol.for('MailProvider'),
   LocaleService: Symbol.for('LocaleService'),
 
   // Listeners
