@@ -275,4 +275,6 @@ export class ExceptionHelpers {
 }
 
 // Export des helpers sous un nom plus court pour l'usage quotidien
-export const E = ExceptionHelpers
+// TS 5.9 requires assertion-function call targets (E.assertUserExists, ...)
+// to be declared with an explicit type annotation.
+export const E: typeof ExceptionHelpers = ExceptionHelpers
