@@ -33,9 +33,12 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
           }
         : { user: null },
 
+      // v7: never return `null` from a shared-data callback — the new
+      // InertiaSerializer throws "Cannot serialize an item with null value".
+      // Use { current: null, list: [] } as the empty shape instead.
       organizations: async () => {
         if (!ctx.user) {
-          return null
+          return { current: null, list: [] }
         }
         try {
           const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
@@ -60,7 +63,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
             })),
           }
         } catch {
-          return null
+          return { current: null, list: [] }
         }
       },
 
