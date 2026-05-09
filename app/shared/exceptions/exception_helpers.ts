@@ -5,7 +5,6 @@ import {
   OrganizationNotFoundException,
   SessionNotFoundException,
   ResourceNotFoundException,
-  ForbiddenException,
   InvalidCredentialsException,
   ValidationException,
   UserEmailAlreadyExistsException,

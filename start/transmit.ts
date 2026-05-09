@@ -1,6 +1,5 @@
 import transmit from '@adonisjs/transmit/services/main'
 import type { HttpContext } from '@adonisjs/core/http'
-import logger from '@adonisjs/core/services/logger'
 
 /**
  * Transmit Authorization Rules

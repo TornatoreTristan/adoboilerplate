@@ -53,7 +53,7 @@ export function Cacheable(options: CacheableOptions = {}) {
  * Décorateur pour invalider le cache après l'exécution d'une méthode
  */
 export function CacheEvict(options: CacheEvictOptions = {}) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
     descriptor.value = async function (...args: any[]) {

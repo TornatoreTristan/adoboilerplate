@@ -112,7 +112,7 @@ export default class AdminController {
       })
     }
 
-    const user = await userRepository.update(params.id, data)
+    await userRepository.update(params.id, data)
 
     session.flash('success', 'Utilisateur mis à jour avec succès')
     return response.redirect().back()

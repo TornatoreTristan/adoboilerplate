@@ -12,8 +12,6 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   }
 
   async findByUserIdSortedByPriority(userId: string): Promise<Notification[]> {
-    const priorityOrder = { urgent: 1, high: 2, normal: 3, low: 4 }
-
     return this.buildBaseQuery()
       .where('user_id', userId)
       .orderByRaw(`

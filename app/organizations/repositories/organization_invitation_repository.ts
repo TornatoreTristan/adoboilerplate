@@ -37,7 +37,7 @@ export default class OrganizationInvitationRepository extends BaseRepository<
   }
 
   async markAsAccepted(id: string): Promise<OrganizationInvitation> {
-    const invitation = await this.findByIdOrFail(id)
+    await this.findByIdOrFail(id)
 
     return this.update(
       id,

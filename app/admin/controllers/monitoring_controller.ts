@@ -19,7 +19,6 @@ export default class MonitoringController {
   async history({ request, response }: HttpContext) {
     const monitoringService = getService<MonitoringService>(TYPES.MonitoringService)
 
-    const hours = request.input('hours', 24)
     const startDate = request.input('startDate')
     const endDate = request.input('endDate')
 

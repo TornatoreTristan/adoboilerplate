@@ -43,7 +43,7 @@ export default class SentryService {
       integrations: [nodeProfilingIntegration()],
 
       // Ne pas envoyer les données sensibles
-      beforeSend(event, hint) {
+      beforeSend(event, _hint) {
         // Filtrer les erreurs de validation (pas critique)
         if (event.exception?.values?.[0]?.type === 'ValidationException') {
           return null

@@ -16,7 +16,7 @@ export default class SubscriptionsController {
   /**
    * Créer une session Stripe Checkout pour souscrire à un plan
    */
-  async createCheckoutSession({ request, response, user, organization, inertia }: HttpContext) {
+  async createCheckoutSession({ request, user, organization, inertia }: HttpContext) {
     E.assertUserExists(user)
     E.assertOrganizationExists(organization)
 

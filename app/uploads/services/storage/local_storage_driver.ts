@@ -7,7 +7,7 @@ import type { StorageDriver, StorageOptions } from '#uploads/types/upload'
 export default class LocalStorageDriver implements StorageDriver {
   private storagePath = path.join(process.cwd(), 'storage', 'uploads')
 
-  async store(file: Buffer, filePath: string, options: StorageOptions): Promise<string> {
+  async store(file: Buffer, filePath: string, _options: StorageOptions): Promise<string> {
     const fullPath = path.join(this.storagePath, filePath)
     const directory = path.dirname(fullPath)
 
