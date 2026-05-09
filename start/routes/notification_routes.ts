@@ -9,7 +9,7 @@ const TestNotificationController = () =>
 
 router
   .group(() => {
-    router.get('/notifications', [NotificationsController, 'index'])
+    router.get('/notifications', [NotificationsController, 'index']).as('api.notifications.index')
     router.get('/notifications/unread-count', [NotificationsController, 'unreadCount'])
     router.patch('/notifications/mark-all-read', [NotificationsController, 'markAllAsRead'])
     router.patch('/notifications/:id/read', [NotificationsController, 'markAsRead'])

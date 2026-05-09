@@ -33,6 +33,7 @@ router
 const NotificationsController = () => import('#notifications/controllers/notifications_controller')
 router
   .get('/notifications', [NotificationsController, 'index'])
+  .as('notifications.page')
   .use([
     middleware.auth(),
     middleware.requireOrganization(),

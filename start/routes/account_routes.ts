@@ -16,9 +16,9 @@ router
     router.delete('/delete', [UsersController, 'deleteAccount'])
 
     // Mes sessions
-    router.get('/sessions', [SessionController, 'page'])
-    router.delete('/sessions/:id', [SessionController, 'destroy'])
-    router.delete('/sessions/others', [SessionController, 'destroyOthers'])
+    router.get('/sessions', [SessionController, 'page']).as('account.sessions.page')
+    router.delete('/sessions/:id', [SessionController, 'destroy']).as('account.sessions.destroy')
+    router.delete('/sessions/others', [SessionController, 'destroyOthers']).as('account.sessions.destroyOthers')
 
     // Mes préférences
     router.get('/preferences', async ({ inertia, session }) => {
