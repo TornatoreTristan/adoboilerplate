@@ -181,7 +181,7 @@ test.group('PasswordResetController', (group) => {
 
     // Vérifier que le mot de passe a été changé
     await user.refresh()
-    assert.isTrue(await hash.verify(user.password, newPassword))
+    assert.isTrue(await hash.verify(user.password!, newPassword))
 
     // Vérifier que le token a été marqué comme utilisé
     await resetToken.refresh()

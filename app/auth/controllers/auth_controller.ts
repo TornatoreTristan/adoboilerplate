@@ -29,7 +29,7 @@ export default class AuthController {
           error: { message: result.error }
         })
       }
-      session.flashErrors({ email: result.error })
+      session.flashErrors({ email: result.error || '' })
       return response.redirect().back()
     }
 
@@ -129,7 +129,7 @@ export default class AuthController {
 
     // Si l'inscription échoue, rediriger avec erreur
     if (!result.success) {
-      session.flashErrors({ email: result.error })
+      session.flashErrors({ email: result.error || '' })
       return response.redirect().back()
     }
 

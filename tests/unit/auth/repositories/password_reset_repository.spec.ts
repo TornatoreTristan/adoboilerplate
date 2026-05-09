@@ -3,7 +3,6 @@ import PasswordResetRepository from '#auth/repositories/password_reset_repositor
 import PasswordResetToken from '#auth/models/password_reset_token'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
-import db from '@adonisjs/lucid/services/db'
 
 test.group('PasswordResetRepository', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -25,7 +24,7 @@ test.group('PasswordResetRepository', (group) => {
     assert.equal(result.email, tokenData.email)
     assert.equal(result.token, tokenData.token)
     assert.isString(result.id)
-    assert.instanceOf(result.expiresAt, DateTime)
+    assert.instanceOf(result.expiresAt, DateTime as any)
   })
 
   test('devrait trouver un token par sa valeur', async ({ assert }) => {
@@ -75,7 +74,7 @@ test.group('PasswordResetRepository', (group) => {
     // Assert
     const updatedToken = await PasswordResetToken.find(token.id)
     assert.isNotNull(updatedToken?.usedAt)
-    assert.instanceOf(updatedToken?.usedAt, DateTime)
+    assert.instanceOf(updatedToken?.usedAt, DateTime as any)
   })
 
   test('devrait supprimer les tokens expirés', async ({ assert }) => {

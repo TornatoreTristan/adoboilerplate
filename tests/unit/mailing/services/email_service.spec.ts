@@ -32,7 +32,7 @@ test.group('EmailService - Logging', (group) => {
     const emailService = getService<EmailService>(TYPES.EmailService)
     const emailLogRepo = getService<EmailLogRepository>(TYPES.EmailLogRepository)
 
-    const result = await emailService.send({
+    await emailService.send({
       to: 'invalid-email-that-will-fail@',
       subject: 'Test Failure',
       html: '<p>This should fail</p>',
@@ -102,9 +102,9 @@ test.group('EmailService - Logging', (group) => {
     const log = logs[0]
 
     assert.isDefined(log.metadata)
-    assert.equal(log.metadata.tags.campaign, 'launch')
-    assert.isDefined(log.metadata.cc)
-    assert.isDefined(log.metadata.bcc)
+    assert.equal(log.metadata!.tags.campaign, 'launch')
+    assert.isDefined(log.metadata!.cc)
+    assert.isDefined(log.metadata!.bcc)
 
     assert.isDefined(log.attachmentsMetadata)
     assert.equal(log.attachmentsMetadata!.length, 1)

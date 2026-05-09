@@ -31,7 +31,7 @@ test.group('Notification Listeners', (group) => {
       email: 'newuser@example.com',
       fullName: 'John Doe',
       createdAt: new Date(),
-    } as User
+    } as unknown as User
 
     // Register listeners
     listeners.register()
@@ -43,7 +43,7 @@ test.group('Notification Listeners', (group) => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Assert - Vérifier qu'une notification a été créée
-    const notifications = await notificationService.getNotifications(mockUser.id, {
+    const notifications = await notificationService.getUserNotifications(mockUser.id, {
       type: 'system.announcement',
     })
 
@@ -70,14 +70,14 @@ test.group('Notification Listeners', (group) => {
       inviter: {
         fullName: 'Jane Smith',
         email: 'jane@example.com',
-      } as User,
-    } as OrganizationInvitation
+      } as unknown as User,
+    } as unknown as OrganizationInvitation
 
     // Créer un utilisateur avec cet email
     const inviteeUser = {
       id: 'invitee-user-id',
       email: 'invitee@example.com',
-    } as User
+    } as unknown as User
 
     // Register listeners
     listeners.register()
@@ -93,7 +93,7 @@ test.group('Notification Listeners', (group) => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Assert
-    const notifications = await notificationService.getNotifications(inviteeUser.id, {
+    const notifications = await notificationService.getUserNotifications(inviteeUser.id, {
       type: 'org.invitation',
     })
 
@@ -126,7 +126,7 @@ test.group('Notification Listeners', (group) => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Assert
-    const notifications = await notificationService.getNotifications(mockSubscription.userId, {
+    const notifications = await notificationService.getUserNotifications(mockSubscription.userId, {
       type: 'system.announcement',
     })
 
@@ -139,7 +139,7 @@ test.group('Notification Listeners', (group) => {
     // Arrange
     const incompleteUser = {
       id: 'user-incomplete',
-    } as User
+    } as unknown as User
 
     listeners.register()
 

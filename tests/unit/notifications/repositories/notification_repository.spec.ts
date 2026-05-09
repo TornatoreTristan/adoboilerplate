@@ -141,7 +141,7 @@ test.group('NotificationRepository', (group) => {
 
     const updated = await Notification.find(notification.id)
     assert.isNotNull(updated?.readAt)
-    assert.instanceOf(updated?.readAt, DateTime)
+    assert.instanceOf(updated?.readAt, DateTime as any)
   })
 
   test('devrait marquer plusieurs notifications comme lues', async ({ assert }) => {

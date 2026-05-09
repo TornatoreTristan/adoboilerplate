@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 export interface CreateUserData {
   email: string
   password: string
+  fullName?: string
 }
 
 export interface User {
