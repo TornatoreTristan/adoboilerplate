@@ -30,7 +30,7 @@ server.use([
   () => import('#middleware/detect_user_locale_middleware'),
   () => import('#middleware/app_settings_middleware'),
   () => import('@adonisjs/vite/vite_middleware'),
-  () => import('@adonisjs/inertia/inertia_middleware'),
+  () => import('#middleware/inertia_middleware'),
 ])
 
 /**

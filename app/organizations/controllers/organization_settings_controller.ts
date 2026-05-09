@@ -9,14 +9,13 @@ import { inviteMemberValidator } from '#organizations/validators/invite_member_v
 import { updateMemberRoleValidator } from '#organizations/validators/update_member_role_validator'
 import { removeMemberValidator } from '#organizations/validators/remove_member_validator'
 import app from '@adonisjs/core/services/app'
-import { cuid } from '@adonisjs/core/helpers'
 import type UserRepository from '#users/repositories/user_repository'
 import type OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type PlanRepository from '#billing/repositories/plan_repository'
 import type SubscriptionService from '#billing/services/subscription_service'
 import { DateTime } from 'luxon'
-import { randomBytes } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 
 export default class OrganizationSettingsController {
   async index({ inertia, user, organization }: HttpContext) {
@@ -272,7 +271,7 @@ export default class OrganizationSettingsController {
       return response.redirect('/organizations/settings')
     }
 
-    const fileName = `${cuid()}.${logo.extname}`
+    const fileName = `${randomUUID()}.${logo.extname}`
     const uploadPath = app.makePath('public/uploads/logos')
 
     await logo.move(uploadPath, {
