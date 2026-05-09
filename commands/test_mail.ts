@@ -1,5 +1,6 @@
 import { BaseCommand, args, flags } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
+import type EmailService from '#mailing/services/email_service'
 
 export default class TestMail extends BaseCommand {
   static commandName = 'mail:test'
@@ -18,7 +19,6 @@ export default class TestMail extends BaseCommand {
   async run() {
     const { getService } = await import('#shared/container/container')
     const { TYPES } = await import('#shared/container/types')
-    const { default: EmailService } = await import('#mailing/services/email_service')
 
     const emailService = getService<EmailService>(TYPES.EmailService)
 

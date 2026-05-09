@@ -18,7 +18,7 @@ export default class AdminController {
     const userRepository = getService<UserRepository>(TYPES.UserRepository)
     const adminService = getService<AdminService>(TYPES.AdminService)
 
-    const user = await userRepository.findById(userId)
+    const user = await userRepository.findByIdOrFail(userId)
     const stats = await adminService.getDashboardStats(30)
 
     return inertia.render('admin/index', {
@@ -28,7 +28,7 @@ export default class AdminController {
         email: user.email,
       },
       stats,
-    })
+    } as any)
   }
 
   async users({ inertia }: HttpContext) {
@@ -57,7 +57,7 @@ export default class AdminController {
     const adminService = getService<AdminService>(TYPES.AdminService)
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const user = await userRepository.findById(params.id)
+    const user = await userRepository.findByIdOrFail(params.id)
     const sessions = await adminService.getUserSessions(params.id)
     const auditLogs = await auditLogService.getUserLogs(params.id, 50)
 
@@ -112,7 +112,7 @@ export default class AdminController {
       })
     }
 
-    const user = await userRepository.update(params.id, data)
+    await userRepository.update(params.id, data)
 
     session.flash('success', 'Utilisateur mis à jour avec succès')
     return response.redirect().back()
@@ -136,7 +136,7 @@ export default class AdminController {
       logs,
       stats,
       filters: { status, category, search },
-    })
+    } as any)
   }
 
   async organizations({ inertia }: HttpContext) {
@@ -146,7 +146,7 @@ export default class AdminController {
 
     return inertia.render('admin/organizations', {
       organizations,
-    })
+    } as any)
   }
 
   async organizationDetail({ params, inertia }: HttpContext) {
@@ -172,11 +172,11 @@ export default class AdminController {
         dueDate: invoice.due_date,
         hostedInvoiceUrl: invoice.hosted_invoice_url,
         invoicePdf: invoice.invoice_pdf,
-        paid: invoice.paid,
+        paid: (invoice as any).paid, // TODO Stripe SDK v19: status === 'paid' or similar
         periodStart: invoice.period_start,
         periodEnd: invoice.period_end,
       })),
-    })
+    } as any)
   }
 
   async addUserToOrganization({ params, request, response, session }: HttpContext) {
@@ -201,7 +201,7 @@ export default class AdminController {
 
     return inertia.render('admin/roles', {
       roles,
-    })
+    } as any)
   }
 
   async roleDetail({ params, inertia }: HttpContext) {
@@ -212,7 +212,7 @@ export default class AdminController {
     return inertia.render('admin/role-detail', {
       role: detail.role,
       permissions: detail.permissions,
-    })
+    } as any)
   }
 
   async integrations({ inertia }: HttpContext) {

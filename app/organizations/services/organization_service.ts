@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
-import Organization from '#organizations/models/organization'
 import OrganizationRepository from '#organizations/repositories/organization_repository'
 import type {
   CreateOrganizationData,

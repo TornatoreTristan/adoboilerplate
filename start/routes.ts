@@ -26,7 +26,7 @@ router.post('/locale', [LocaleController, 'update'])
 // Page d'accueil (protégée par authentification et nécessite une organisation)
 router
   .on('/')
-  .renderInertia('home')
+  .renderInertia('home', {})
   .use([middleware.auth(), middleware.requireOrganization(), middleware.organizationContext()])
 
 // Page des notifications

@@ -8,7 +8,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate flat price correctly', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'flat'
     plan.price = 29.99
 
@@ -22,7 +22,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate per-seat price correctly', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'per_seat'
     plan.price = 29
     plan.baseUsers = 5
@@ -38,7 +38,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate tiered price correctly', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'tiered'
     plan.pricingTiers = [
       { minUsers: 1, maxUsers: 10, price: 99 },
@@ -59,7 +59,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate volume price correctly', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'volume'
     plan.pricingTiers = [
       { minUsers: 1, maxUsers: 10, pricePerUser: 10 },
@@ -80,7 +80,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate quantity for flat pricing', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'flat'
 
     const quantity = calculator.calculateQuantity(plan, 10)
@@ -90,7 +90,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate quantity for per-seat pricing', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'per_seat'
     plan.baseUsers = 5
 
@@ -104,7 +104,7 @@ test.group('PricingCalculatorService', () => {
   test('should calculate quantity for tiered pricing', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'tiered'
 
     const quantity = calculator.calculateQuantity(plan, 25)
@@ -114,7 +114,7 @@ test.group('PricingCalculatorService', () => {
   test('should throw error for invalid user count', async ({ assert }) => {
     const calculator = getService<PricingCalculatorService>(TYPES.PricingCalculatorService)
 
-    const plan = new Plan()
+    const plan = new Plan() as any
     plan.pricingModel = 'flat'
     plan.price = 29
 

@@ -8,7 +8,7 @@ export default class SentryExceptionHandler extends ExceptionHandler {
    * In debug mode, the exception handler will display verbose errors
    * with pretty printed stack traces.
    */
-  protected debug = !import.meta.env.PROD
+  protected debug = process.env.NODE_ENV !== 'production'
 
   /**
    * The method is used for reporting exception to the logging service or
@@ -49,8 +49,9 @@ export default class SentryExceptionHandler extends ExceptionHandler {
 
   /**
    * The method is used to render the exception to a HTTP response.
+   * v7 renamed ExceptionHandler.render → ExceptionHandler.handle.
    */
-  async render(error: unknown, ctx: HttpContext) {
-    return super.render(error, ctx)
+  async handle(error: unknown, ctx: HttpContext) {
+    return super.handle(error, ctx)
   }
 }

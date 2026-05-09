@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 
 export default class MonitoringController {
   async index({ inertia }: HttpContext) {
-    return inertia.render('admin/monitoring')
+    return inertia.render('admin/monitoring', {})
   }
 
   async data({ response }: HttpContext) {
@@ -19,7 +19,6 @@ export default class MonitoringController {
   async history({ request, response }: HttpContext) {
     const monitoringService = getService<MonitoringService>(TYPES.MonitoringService)
 
-    const hours = request.input('hours', 24)
     const startDate = request.input('startDate')
     const endDate = request.input('endDate')
 

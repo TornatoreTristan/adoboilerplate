@@ -6,7 +6,6 @@ import OrganizationService from '#organizations/services/organization_service'
 import OrganizationRepository from '#organizations/repositories/organization_repository'
 import UserService from '#users/services/user_service'
 import type { CreateOrganizationData } from '#shared/types/organization'
-import type { CreateUserData } from '#shared/types/user'
 
 test.group('OrganizationService', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -88,7 +87,6 @@ test.group('OrganizationService', (group) => {
     // Arrange
     const userService = getService<UserService>(TYPES.UserService)
     const orgService = getService<OrganizationService>(TYPES.OrganizationService)
-    const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
 
     const ownerUser = await userService.create({
       email: 'owner@example.com',

@@ -10,7 +10,7 @@ router
   .group(() => {
     // Mes informations
     router.get('/profile', async ({ inertia }) => {
-      return inertia.render('account/profile')
+      return inertia.render('account/profile', {})
     })
     router.put('/profile', [UsersController, 'updateProfile'])
     router.delete('/delete', [UsersController, 'deleteAccount'])

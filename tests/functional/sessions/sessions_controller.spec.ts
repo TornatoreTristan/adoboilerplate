@@ -9,7 +9,7 @@ import type { CreateUserData } from '#shared/types/user'
 test.group('SessionController', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('GET /api/sessions - should list user sessions', async ({ client, assert }) => {
+  test('GET /api/sessions - should list user sessions', async ({ client }) => {
     // Arrange - Créer utilisateur et plusieurs sessions
     const userData: CreateUserData = {
       email: 'user@example.com',

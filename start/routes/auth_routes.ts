@@ -7,14 +7,14 @@ const PasswordResetController = () => import('#auth/controllers/password_reset_c
 // Page de connexion (GET) - Seulement pour les non-connectés
 router
   .get('/login', async ({ inertia }) => {
-    return inertia.render('auth/login')
+    return inertia.render('auth/login', {})
   })
   .use(middleware.guest())
 
 // Page d'inscription (GET) - Seulement pour les non-connectés
 router
   .get('/register', async ({ inertia }) => {
-    return inertia.render('auth/register')
+    return inertia.render('auth/register', {})
   })
   .use(middleware.guest())
 

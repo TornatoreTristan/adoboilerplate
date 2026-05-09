@@ -1,4 +1,4 @@
-import { inject, injectable } from 'inversify'
+import { injectable } from 'inversify'
 import { HttpContext } from '@adonisjs/core/http'
 import type { TranslatableField, TranslatableFieldNullable } from '#shared/helpers/translatable'
 import app from '@adonisjs/core/services/app'

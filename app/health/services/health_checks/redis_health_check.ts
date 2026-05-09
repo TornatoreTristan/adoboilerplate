@@ -15,7 +15,7 @@ export default class RedisHealthCheck extends BaseHealthCheck {
 
   async check(): Promise<HealthCheckResult> {
     try {
-      const { result, latency } = await this.measureLatency(async () => {
+      const { latency } = await this.measureLatency(async () => {
         return await this.withTimeout(this.redis.ping(), this.config.timeout)
       })
 

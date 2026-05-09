@@ -26,7 +26,7 @@ export default class RequireOrganizationMiddleware {
       // Handle Inertia requests
       if (ctx.request.header('x-inertia')) {
         ctx.response.header('X-Inertia-Location', '/organizations/create')
-        return ctx.response.status(409).send()
+        return ctx.response.status(409).send('')
       }
 
       return ctx.response.redirect('/organizations/create')

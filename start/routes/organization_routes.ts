@@ -11,7 +11,7 @@ const SubscriptionsController = () => import('#billing/controllers/subscriptions
 // Organization creation route - accessible even without existing organization
 router
   .get('/organizations/create', async ({ inertia }) => {
-    return inertia.render('organizations/create')
+    return inertia.render('organizations/create', {})
   })
   .use([middleware.auth()])
 

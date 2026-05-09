@@ -6,7 +6,7 @@ import type { LogFilters } from '#logs/types/log'
 
 export default class LogsController {
   async index({ inertia }: HttpContext) {
-    return inertia.render('admin/logs')
+    return inertia.render('admin/logs', {})
   }
 
   async list({ request, response }: HttpContext) {

@@ -37,7 +37,7 @@ export default class OrganizationInvitationRepository extends BaseRepository<
   }
 
   async markAsAccepted(id: string): Promise<OrganizationInvitation> {
-    const invitation = await this.findByIdOrFail(id)
+    await this.findByIdOrFail(id)
 
     return this.update(
       id,
@@ -57,7 +57,7 @@ export default class OrganizationInvitationRepository extends BaseRepository<
       .whereNull('accepted_at')
       .delete()
 
-    await this.cache.invalidateTags(['invitations'])
+    await this.cache?.invalidateTags(['invitations'])
 
     return result
   }
@@ -69,11 +69,11 @@ export default class OrganizationInvitationRepository extends BaseRepository<
 
   protected async afterCreate(invitation: OrganizationInvitation): Promise<void> {
     await super.afterCreate(invitation)
-    await this.cache.invalidateTags(['invitations'])
+    await this.cache?.invalidateTags(['invitations'])
   }
 
   protected async afterUpdate(invitation: OrganizationInvitation): Promise<void> {
     await super.afterUpdate(invitation)
-    await this.cache.invalidateTags(['invitations', `invitation_${invitation.id}`])
+    await this.cache?.invalidateTags(['invitations', `invitation_${invitation.id}`])
   }
 }

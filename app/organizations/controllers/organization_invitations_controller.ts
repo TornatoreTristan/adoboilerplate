@@ -4,7 +4,6 @@ import { TYPES } from '#shared/container/types'
 import type OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
 import type UserRepository from '#users/repositories/user_repository'
-import { E } from '#shared/exceptions/index'
 
 export default class OrganizationInvitationsController {
   async accept({ params, response, session, auth }: HttpContext) {
@@ -14,7 +13,6 @@ export default class OrganizationInvitationsController {
       TYPES.OrganizationInvitationRepository
     )
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
-    const userRepo = getService<UserRepository>(TYPES.UserRepository)
 
     const invitation = await invitationRepo.findByToken(token)
 
@@ -68,7 +66,7 @@ export default class OrganizationInvitationsController {
     return response.redirect('/')
   }
 
-  async handlePostAuth({ session, response, auth }: HttpContext) {
+  async handlePostAuth({ session, response }: HttpContext) {
     const invitationToken = session.get('invitation_token')
 
     if (!invitationToken) {

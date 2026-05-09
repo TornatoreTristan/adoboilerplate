@@ -70,7 +70,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
     })
 
     // Invalider les caches
-    await this.cache.invalidateTags(['sessions', `user_sessions_${userId}`])
+    await this.cache?.invalidateTags(['sessions', `user_sessions_${userId}`])
   }
 
   /**
@@ -96,7 +96,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
       })
 
     // Invalider tous les caches de sessions
-    await this.cache.invalidateTags(['sessions'])
+    await this.cache?.invalidateTags(['sessions'])
 
     return count
   }
@@ -155,7 +155,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterCreate(session: UserSession): Promise<void> {
     await super.afterCreate(session)
-    await this.cache.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
   }
 
   /**
@@ -163,7 +163,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterUpdate(session: UserSession): Promise<void> {
     await super.afterUpdate(session)
-    await this.cache.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
   }
 
   /**
@@ -171,6 +171,6 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterDelete(session: UserSession): Promise<void> {
     await super.afterDelete(session)
-    await this.cache.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
   }
 }

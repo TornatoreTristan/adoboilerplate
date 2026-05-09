@@ -5,7 +5,6 @@ import AppSettingsService from '#app_settings/services/app_settings_service'
 import UploadService from '#uploads/services/upload_service'
 import vine from '@vinejs/vine'
 import { E } from '#shared/exceptions/index'
-import type { MultipartFile } from '@adonisjs/core/types/bodyparser'
 import { readFile } from 'node:fs/promises'
 
 const updateBrandingValidator = vine.compile(

@@ -115,7 +115,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     })
 
     // Invalider les caches
-    await this.cache.invalidateTags(['organizations', 'org_members', 'user_organizations'])
+    await this.cache?.invalidateTags(['organizations', 'org_members', 'user_organizations'])
   }
 
   /**
@@ -127,7 +127,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     await org.related('users').detach([userId])
 
     // Invalider les caches
-    await this.cache.invalidateTags(['organizations', 'org_members', 'user_organizations'])
+    await this.cache?.invalidateTags(['organizations', 'org_members', 'user_organizations'])
   }
 
   /**
@@ -143,7 +143,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     await org.related('users').pivotQuery().where('user_id', userId).update({ role })
 
     // Invalider les caches
-    await this.cache.invalidateTags(['organizations', 'org_members'])
+    await this.cache?.invalidateTags(['organizations', 'org_members'])
   }
 
   /**
@@ -192,7 +192,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
    */
   protected async afterCreate(org: Organization): Promise<void> {
     await super.afterCreate(org)
-    await this.cache.invalidateTags(['org_slug'])
+    await this.cache?.invalidateTags(['org_slug'])
   }
 
   /**
@@ -200,6 +200,6 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
    */
   protected async afterUpdate(org: Organization): Promise<void> {
     await super.afterUpdate(org)
-    await this.cache.invalidateTags(['org_slug'])
+    await this.cache?.invalidateTags(['org_slug'])
   }
 }

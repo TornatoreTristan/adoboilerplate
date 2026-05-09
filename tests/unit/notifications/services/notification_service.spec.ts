@@ -6,7 +6,7 @@ import Notification from '#notifications/models/notification'
 import User from '#users/models/user'
 import Organization from '#organizations/models/organization'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { serviceContainer, getService } from '#shared/container/container'
+import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 
 test.group('NotificationService', (group) => {
@@ -47,9 +47,9 @@ test.group('NotificationService', (group) => {
     })
 
     assert.isObject(result)
-    assert.equal(result.userId, user.id)
-    assert.equal(result.type, 'user.mentioned')
-    assert.equal(result.title, 'Nouvelle mention')
+    assert.equal(result!.userId, user.id)
+    assert.equal(result!.type, 'user.mentioned')
+    assert.equal(result!.title, 'Nouvelle mention')
   })
 
   test('devrait créer une notification système sans organization', async ({ assert }) => {
@@ -61,8 +61,8 @@ test.group('NotificationService', (group) => {
     })
 
     assert.isObject(result)
-    assert.equal(result.userId, user.id)
-    assert.isTrue(result.organizationId === null || result.organizationId === undefined)
+    assert.equal(result!.userId, user.id)
+    assert.isTrue(result!.organizationId === null || result!.organizationId === undefined)
   })
 
   test('devrait marquer une notification comme lue', async ({ assert }) => {
@@ -73,9 +73,9 @@ test.group('NotificationService', (group) => {
       message: 'Message test',
     })
 
-    await service.markAsRead(notification.id)
+    await service.markAsRead(notification!.id)
 
-    const updated = await repository.findById(notification.id)
+    const updated = await repository.findById(notification!.id)
     assert.isNotNull(updated?.readAt)
   })
 
@@ -94,12 +94,12 @@ test.group('NotificationService', (group) => {
       message: 'Message 2',
     })
 
-    const count = await service.markAsReadBulk([notif1.id, notif2.id])
+    const count = await service.markAsReadBulk([notif1!.id, notif2!.id])
 
     assert.equal(count, 2)
 
-    const updated1 = await repository.findById(notif1.id)
-    const updated2 = await repository.findById(notif2.id)
+    const updated1 = await repository.findById(notif1!.id)
+    const updated2 = await repository.findById(notif2!.id)
 
     assert.isNotNull(updated1?.readAt)
     assert.isNotNull(updated2?.readAt)
@@ -197,7 +197,7 @@ test.group('NotificationService', (group) => {
       message: 'Read message',
     })
 
-    await repository.markAsRead(readNotif.id)
+    await repository.markAsRead(readNotif!.id)
 
     const result = await service.getUserNotifications(user.id, { unreadOnly: true })
 
@@ -238,9 +238,9 @@ test.group('NotificationService', (group) => {
       message: 'Message',
     })
 
-    await service.deleteNotification(notification.id)
+    await service.deleteNotification(notification!.id)
 
-    const deleted = await Notification.find(notification.id)
+    const deleted = await Notification.find(notification!.id)
     assert.isNotNull(deleted?.deleted_at)
   })
 
@@ -265,10 +265,10 @@ test.group('NotificationService', (group) => {
     })
 
     assert.isObject(result)
-    assert.isArray(result.actions)
-    assert.lengthOf(result.actions!, 1)
-    assert.equal(result.actions![0].label, 'Accepter')
-    assert.equal(result.priority, 'high')
+    assert.isArray(result!.actions)
+    assert.lengthOf(result!.actions!, 1)
+    assert.equal(result!.actions![0].label, 'Accepter')
+    assert.equal(result!.priority, 'high')
   })
 
   test('devrait exécuter une action de notification', async ({ assert }) => {
@@ -290,7 +290,7 @@ test.group('NotificationService', (group) => {
       actions,
     })
 
-    const result = await service.executeNotificationAction(notification.id, 0, user.id)
+    const result = await service.executeNotificationAction(notification!.id, 0, user.id)
 
     assert.isObject(result)
     assert.property(result, 'success')
@@ -308,7 +308,7 @@ test.group('NotificationService', (group) => {
     })
 
     await assert.rejects(
-      () => service.executeNotificationAction(notification.id, 0, user.id),
+      () => service.executeNotificationAction(notification!.id, 0, user.id),
       'No actions available for this notification'
     )
   })
@@ -332,7 +332,7 @@ test.group('NotificationService', (group) => {
     })
 
     await assert.rejects(
-      () => service.executeNotificationAction(notification.id, 5, user.id),
+      () => service.executeNotificationAction(notification!.id, 5, user.id),
       'Invalid action index'
     )
   })

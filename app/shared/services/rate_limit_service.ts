@@ -9,8 +9,6 @@ export default class RateLimitService {
       maxRequests,
       windowMs,
       keyPrefix = 'default',
-      skipSuccessfulRequests = false,
-      skipFailedRequests = false,
     } = config
 
     const key = this.buildKey(identifier, keyPrefix)

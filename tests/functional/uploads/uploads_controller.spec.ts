@@ -19,7 +19,7 @@ test.group('UploadsController', (group) => {
     }
   })
 
-  test('should upload a file via POST /api/uploads', async ({ client, assert }) => {
+  test('should upload a file via POST /api/uploads', async ({ client }) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
 
     const user = await userRepo.create({
@@ -128,7 +128,7 @@ test.group('UploadsController', (group) => {
     assert.equal(response.body().uploads[0].visibility, 'public')
   })
 
-  test('should get upload by id via GET /api/uploads/:id', async ({ client, assert }) => {
+  test('should get upload by id via GET /api/uploads/:id', async ({ client }) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const uploadService = getService<UploadService>(TYPES.UploadService)
 

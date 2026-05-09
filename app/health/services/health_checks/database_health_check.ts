@@ -9,7 +9,7 @@ export default class DatabaseHealthCheck extends BaseHealthCheck {
 
   async check(): Promise<HealthCheckResult> {
     try {
-      const { result, latency } = await this.measureLatency(async () => {
+      const { latency } = await this.measureLatency(async () => {
         return await this.withTimeout(db.rawQuery('SELECT 1 as result'), this.config.timeout)
       })
 

@@ -4,7 +4,6 @@ import { TYPES } from '#shared/container/types'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
 import { E } from '#shared/exceptions/index'
 import { updateOrganizationValidator } from '#organizations/validators/update_organization_validator'
-import { uploadLogoValidator } from '#organizations/validators/upload_logo_validator'
 import { inviteMemberValidator } from '#organizations/validators/invite_member_validator'
 import { updateMemberRoleValidator } from '#organizations/validators/update_member_role_validator'
 import { removeMemberValidator } from '#organizations/validators/remove_member_validator'
@@ -98,7 +97,7 @@ export default class OrganizationSettingsController {
   }
 
   async integrations({ inertia }: HttpContext) {
-    return inertia.render('organizations/settings-integrations')
+    return inertia.render('organizations/settings-integrations', {})
   }
 
   async users({ inertia, user, organization }: HttpContext) {
