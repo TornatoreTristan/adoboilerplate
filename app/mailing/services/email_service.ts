@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify'
-import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import env from '#start/env'
 import { TYPES } from '#shared/container/types'
 import type QueueService from '#shared/services/queue_service'
 import type EmailLogRepository from '#mailing/repositories/email_log_repository'
+import type { MailProvider } from '#mailing/providers/mail_provider'
 import type {
   SendEmailData,
   EmailResult,
@@ -15,14 +15,11 @@ import type {
 
 @injectable()
 export default class EmailService {
-  private resend: Resend
-
   constructor(
     @inject(TYPES.QueueService) private queueService: QueueService,
-    @inject(TYPES.EmailLogRepository) private emailLogRepo: EmailLogRepository
-  ) {
-    this.resend = new Resend(env.get('RESEND_API_KEY'))
-  }
+    @inject(TYPES.EmailLogRepository) private emailLogRepo: EmailLogRepository,
+    @inject(TYPES.MailProvider) private mailProvider: MailProvider
+  ) {}
 
   async send(emailData: SendEmailData, userId?: string): Promise<EmailResult> {
     const recipient = Array.isArray(emailData.to)
@@ -64,28 +61,27 @@ export default class EmailService {
         html = await render(emailData.react)
       }
 
-      const result = await this.resend.emails.send({
-        from: `${env.get('EMAIL_FROM_NAME')} <${env.get('EMAIL_FROM_ADDRESS')}>`,
+      const result = await this.mailProvider.send({
+        from: {
+          email: env.get('EMAIL_FROM_ADDRESS'),
+          name: env.get('EMAIL_FROM_NAME'),
+        },
         to: emailData.to,
         subject: emailData.subject,
         html,
         text: emailData.text,
-        reply_to: emailData.replyTo,
+        replyTo: emailData.replyTo,
         cc: emailData.cc,
         bcc: emailData.bcc,
         attachments: emailData.attachments,
         tags: emailData.tags,
-      } as any)
-
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
+      })
 
       await this.emailLogRepo.updateStatus(log.id, 'sent')
-      await this.emailLogRepo.update(log.id, { provider_id: result.data!.id } as any)
+      await this.emailLogRepo.update(log.id, { provider_id: result.id } as any)
 
       return {
-        id: result.data!.id,
+        id: result.id,
         success: true,
       }
     } catch (error) {
@@ -175,5 +171,4 @@ export default class EmailService {
       { priority: 1 }
     )
   }
-
 }

@@ -1,15 +1,17 @@
 # 📧 Système d'Emailing
 
-Système d'envoi d'emails avec Resend, support des queues asynchrones et templates HTML.
+Système d'envoi d'emails **provider-agnostic** basé sur SMTP, support des queues asynchrones et templates HTML / React Email.
 
 ## 🎯 Fonctionnalités
 
+- ✅ Provider-agnostic via interface `MailProvider` (SMTP par défaut, fallback `log` pour dev/test)
+- ✅ Compatible avec n'importe quel provider SMTP (Scaleway TEM, Mailgun, SendGrid, Postmark, Brevo, ...)
 - ✅ Envoi synchrone et asynchrone via queue
-- ✅ Templates HTML personnalisables
+- ✅ Templates HTML et React Email
 - ✅ Gestion des priorités (high, normal, low)
 - ✅ Support des pièces jointes
 - ✅ CC, BCC, Reply-To
-- ✅ Tags pour tracking
+- ✅ Tags pour tracking (transmis en headers SMTP `X-Mail-Tag-*`)
 - ✅ Retry automatique avec backoff exponentiel
 
 ## 📦 Configuration
@@ -17,10 +19,38 @@ Système d'envoi d'emails avec Resend, support des queues asynchrones et templat
 ### Variables d'environnement
 
 ```env
-RESEND_API_KEY=re_your_api_key
+# Driver: smtp | log
+MAIL_DRIVER=smtp
+
+# Configuration SMTP (Scaleway TEM par défaut)
+MAIL_SMTP_HOST=smtp.tem.scw.cloud
+MAIL_SMTP_PORT=587
+MAIL_SMTP_SECURE=false
+MAIL_SMTP_USER=your-smtp-username
+MAIL_SMTP_PASSWORD=your-smtp-password
+
 EMAIL_FROM_ADDRESS=noreply@yourdomain.com
 EMAIL_FROM_NAME=Mon Application
 ```
+
+### Drivers disponibles
+
+| Driver | Usage | Description |
+|--------|-------|-------------|
+| `smtp` | Production / staging | Envoi réel via nodemailer (universel SMTP) |
+| `log` | Tests / dev local | Logue chaque mail dans la sortie applicative, n'envoie rien |
+
+### Changer de provider SMTP
+
+Il suffit de modifier les `MAIL_SMTP_*`. Pour utiliser **SendGrid**, **Mailgun**, **Postmark**, **Brevo**, etc., il n'y a aucun changement de code à faire — uniquement les credentials SMTP.
+
+| Provider | Host | Port | Secure |
+|----------|------|------|--------|
+| Scaleway TEM | `smtp.tem.scw.cloud` | 587 | false |
+| Mailgun | `smtp.mailgun.org` | 587 | false |
+| SendGrid | `smtp.sendgrid.net` | 587 | false |
+| Postmark | `smtp.postmarkapp.com` | 587 | false |
+| Brevo | `smtp-relay.brevo.com` | 587 | false |
 
 ## 🚀 Utilisation
 
@@ -218,24 +248,31 @@ En cas d'erreur :
 
 ```
 app/mailing/
+├── providers/
+│   ├── mail_provider.ts        # Interface MailProvider (Strategy pattern)
+│   ├── smtp_provider.ts        # Driver nodemailer (production)
+│   └── log_provider.ts         # Driver dev/test (no-op + log)
 ├── services/
-│   └── email_service.ts       # Service principal
+│   └── email_service.ts        # Service principal — consomme MailProvider via DI
 ├── jobs/
-│   └── send_email_job.ts      # Job queue processor
+│   └── send_email_job.ts       # Job queue processor
 ├── templates/
-│   ├── welcome_email.ts       # Template bienvenue
+│   ├── welcome_email.ts        # Template bienvenue
 │   └── password_reset_email.ts # Template reset password
 └── types/
-    └── email.ts               # Types TypeScript
+    └── email.ts                # Types TypeScript
 ```
+
+`EmailService` ne connaît jamais le provider concret : il reçoit un `MailProvider` via le container IoC. Le binding est conditionnel sur `MAIL_DRIVER` dans `app/shared/container/container.ts`. Pour ajouter un nouveau provider (ex : driver natif d'un SaaS), il suffit d'implémenter `MailProvider` et d'ajouter le binding.
 
 ## 🎯 Bonnes pratiques
 
 1. **Toujours utiliser la queue** pour les envois non critiques
-2. **Utiliser les tags** pour tracker les emails dans Resend
+2. **Utiliser les tags** pour tracker les emails (transmis en headers SMTP)
 3. **Tester les templates** avec différentes tailles de données
 4. **Limiter les pièces jointes** à 10MB max
 5. **Valider les emails** avant envoi
+6. **En tests** : `MAIL_DRIVER=log` évite toute dépendance externe
 
 ## 🚨 Gestion d'erreurs
 
@@ -279,6 +316,7 @@ interface QueueEmailData extends SendEmailData {
 
 ## 🔗 Ressources
 
-- [Resend Documentation](https://resend.com/docs)
+- [Nodemailer (SMTP)](https://nodemailer.com/about/)
+- [Scaleway TEM SMTP](https://www.scaleway.com/en/docs/transactional-email/)
 - [Bull Queue](https://github.com/OptimalBits/bull)
 - [HTML Email Best Practices](https://www.campaignmonitor.com/css/)
