@@ -172,7 +172,7 @@ export default class AdminController {
         dueDate: invoice.due_date,
         hostedInvoiceUrl: invoice.hosted_invoice_url,
         invoicePdf: invoice.invoice_pdf,
-        paid: invoice.paid,
+        paid: (invoice as any).paid, // TODO Stripe SDK v19: status === 'paid' or similar
         periodStart: invoice.period_start,
         periodEnd: invoice.period_end,
       })),
