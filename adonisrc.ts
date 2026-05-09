@@ -110,7 +110,6 @@ export default defineConfig({
     }
   ],
 
-  assetsBundler: false,
   hooks: {
     buildStarting: [() => import('@adonisjs/vite/build_hook')],
   },
