@@ -27,7 +27,7 @@ export default class StripeWebhookController {
     }
 
     const stripe = new Stripe(env.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-10-29.clover',
     })
 
     let event: Stripe.Event
@@ -104,7 +104,7 @@ export default class StripeWebhookController {
 
     // Récupérer les détails de l'abonnement Stripe
     const stripe = new Stripe(env.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: '2025-10-29.clover',
     })
     const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId)
 

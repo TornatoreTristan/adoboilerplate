@@ -41,7 +41,7 @@ export default class AuditLogsController {
       hasMore,
       filters,
       stats,
-    })
+    } as any)
   }
 
   /**

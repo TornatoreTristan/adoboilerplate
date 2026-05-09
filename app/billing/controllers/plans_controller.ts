@@ -135,7 +135,7 @@ export default class PlansController {
         stripePriceIdMonthly: plan.stripePriceIdMonthly,
         stripePriceIdYearly: plan.stripePriceIdYearly,
       },
-    })
+    } as any)
   }
 
   async update({ params, request, response, session }: HttpContext) {

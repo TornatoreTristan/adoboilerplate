@@ -28,7 +28,7 @@ export default class AdminController {
         email: user.email,
       },
       stats,
-    })
+    } as any)
   }
 
   async users({ inertia }: HttpContext) {
@@ -136,7 +136,7 @@ export default class AdminController {
       logs,
       stats,
       filters: { status, category, search },
-    })
+    } as any)
   }
 
   async organizations({ inertia }: HttpContext) {
@@ -146,7 +146,7 @@ export default class AdminController {
 
     return inertia.render('admin/organizations', {
       organizations,
-    })
+    } as any)
   }
 
   async organizationDetail({ params, inertia }: HttpContext) {
@@ -176,7 +176,7 @@ export default class AdminController {
         periodStart: invoice.period_start,
         periodEnd: invoice.period_end,
       })),
-    })
+    } as any)
   }
 
   async addUserToOrganization({ params, request, response, session }: HttpContext) {
@@ -201,7 +201,7 @@ export default class AdminController {
 
     return inertia.render('admin/roles', {
       roles,
-    })
+    } as any)
   }
 
   async roleDetail({ params, inertia }: HttpContext) {
@@ -212,7 +212,7 @@ export default class AdminController {
     return inertia.render('admin/role-detail', {
       role: detail.role,
       permissions: detail.permissions,
-    })
+    } as any)
   }
 
   async integrations({ inertia }: HttpContext) {
