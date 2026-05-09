@@ -8,7 +8,7 @@ export default class GdprController {
    * Page de gestion des données personnelles
    */
   async index({ inertia }: HttpContext) {
-    return inertia.render('account/data-privacy')
+    return inertia.render('account/data-privacy', {})
   }
 
   /**

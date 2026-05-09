@@ -53,7 +53,7 @@ export default class AuditLogsController {
     const log = await auditLogService.getById(params.id)
 
     if (!log) {
-      return inertia.render('errors/not_found')
+      return inertia.render('errors/not_found', {})
     }
 
     return inertia.render('admin/audit-logs/show', {

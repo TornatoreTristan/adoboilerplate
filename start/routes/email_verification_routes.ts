@@ -5,7 +5,7 @@ const EmailVerificationController = () => import('#auth/controllers/email_verifi
 
 // Page de notice de vérification (accessible par tous)
 router.get('/auth/verify-email-notice', async ({ inertia }) => {
-  return inertia.render('auth/verify-email-notice')
+  return inertia.render('auth/verify-email-notice', {})
 })
 
 // Routes publiques (vérification de token)

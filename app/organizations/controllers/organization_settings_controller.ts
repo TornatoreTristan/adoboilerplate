@@ -98,7 +98,7 @@ export default class OrganizationSettingsController {
   }
 
   async integrations({ inertia }: HttpContext) {
-    return inertia.render('organizations/settings-integrations')
+    return inertia.render('organizations/settings-integrations', {})
   }
 
   async users({ inertia, user, organization }: HttpContext) {

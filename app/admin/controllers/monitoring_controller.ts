@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 
 export default class MonitoringController {
   async index({ inertia }: HttpContext) {
-    return inertia.render('admin/monitoring')
+    return inertia.render('admin/monitoring', {})
   }
 
   async data({ response }: HttpContext) {

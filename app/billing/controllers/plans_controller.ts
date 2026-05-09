@@ -93,7 +93,7 @@ export default class PlansController {
   }
 
   async create({ inertia }: HttpContext) {
-    return inertia.render('admin/plans/create')
+    return inertia.render('admin/plans/create', {})
   }
 
   async store({ request, response, session }: HttpContext) {
