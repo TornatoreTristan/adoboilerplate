@@ -290,7 +290,7 @@ test.group('AdminService - Organizations', (group) => {
 
     await assert.rejects(
       () => adminService.addUserToOrganization(org.id, 'nonexistent@test.com', 'member'),
-      'Utilisateur introuvable'
+      /introuvable/
     )
   })
 

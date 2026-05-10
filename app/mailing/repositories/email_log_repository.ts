@@ -4,6 +4,32 @@ import EmailLog from '#mailing/models/email_log'
 import type { EmailLogStatus } from '#mailing/models/email_log'
 import { BaseRepository } from '#shared/repositories/base_repository'
 
+export interface EmailLogFilters {
+  page?: number
+  perPage?: number
+  status?: EmailLogStatus
+  category?: string
+  search?: string
+}
+
+export interface PaginatedEmailLogs {
+  data: EmailLog[]
+  meta: {
+    total: number
+    perPage: number
+    currentPage: number
+    lastPage: number
+  }
+}
+
+export interface EmailLogStatusCounts {
+  total: number
+  sent: number
+  failed: number
+  delivered: number
+  pending: number
+}
+
 @injectable()
 export default class EmailLogRepository extends BaseRepository<typeof EmailLog> {
   protected model = EmailLog
@@ -63,6 +89,63 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
         currentPage: page,
       },
     }
+  }
+
+  async findPaginatedWithFilters(filters: EmailLogFilters = {}): Promise<PaginatedEmailLogs> {
+    const page = filters.page ?? 1
+    const perPage = filters.perPage ?? 20
+
+    const query = this.buildBaseQuery()
+
+    if (filters.status) {
+      query.where('status', filters.status)
+    }
+    if (filters.category) {
+      query.where('category', filters.category)
+    }
+    if (filters.search) {
+      query.where('recipient', 'LIKE', `%${filters.search}%`)
+    }
+
+    const totalResult = await query.clone().count('* as total')
+    const total = Number(totalResult[0].$extras.total)
+
+    const data = await query
+      .orderBy('created_at', 'desc')
+      .offset((page - 1) * perPage)
+      .limit(perPage)
+
+    return {
+      data,
+      meta: {
+        total,
+        perPage,
+        currentPage: page,
+        lastPage: Math.ceil(total / perPage),
+      },
+    }
+  }
+
+  async getStatusCounts(): Promise<EmailLogStatusCounts> {
+    const rows = await this.buildBaseQuery()
+      .select('status')
+      .count('* as count')
+      .groupBy('status')
+
+    const counts: EmailLogStatusCounts = {
+      total: 0, sent: 0, failed: 0, delivered: 0, pending: 0,
+    }
+
+    for (const row of rows) {
+      const r: any = row
+      const c = Number(r.$extras?.count ?? 0)
+      counts.total += c
+      if (r.status in counts) {
+        ;(counts as any)[r.status] = c
+      }
+    }
+
+    return counts
   }
 
   async getStatsByCategory(): Promise<{ category: string; count: number }[]> {

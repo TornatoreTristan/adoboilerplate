@@ -1,7 +1,31 @@
 import { injectable } from 'inversify'
+import { DateTime } from 'luxon'
 import { BaseRepository } from '#shared/repositories/base_repository'
 import Subscription from '#billing/models/subscription'
-import type { SubscriptionStatus } from '#billing/models/subscription'
+import type { SubscriptionStatus, PlanInterval } from '#billing/models/subscription'
+
+export interface AdminSubscriptionFilters {
+  status?: string
+  planId?: string
+  search?: string
+}
+
+export interface SubscriptionStatusCounts {
+  total: number
+  active: number
+  trialing: number
+  paused: number
+  canceled: number
+  pastDue: number
+}
+
+export interface RevenueSubscription {
+  price: number
+  currency: string
+  billingInterval: PlanInterval
+  createdAt: DateTime
+  status: SubscriptionStatus
+}
 
 @injectable()
 export default class SubscriptionRepository extends BaseRepository<typeof Subscription> {
@@ -50,5 +74,65 @@ export default class SubscriptionRepository extends BaseRepository<typeof Subscr
       .count('* as total')
 
     return Number(result[0].$extras.total)
+  }
+
+  async findAllWithOrgAndPlan(filters: AdminSubscriptionFilters = {}): Promise<Subscription[]> {
+    const query = this.buildBaseQuery()
+      .preload('organization')
+      .preload('plan')
+      .orderBy('created_at', 'desc')
+
+    if (filters.status) {
+      query.where('status', filters.status)
+    }
+    if (filters.planId) {
+      query.where('plan_id', filters.planId)
+    }
+    if (filters.search) {
+      query.whereHas('organization', (orgQuery) => {
+        orgQuery.whereILike('name', `%${filters.search}%`)
+      })
+    }
+
+    return query
+  }
+
+  async getStatusCounts(): Promise<SubscriptionStatusCounts> {
+    const rows = await this.buildBaseQuery()
+      .select('status')
+      .count('* as count')
+      .groupBy('status')
+
+    const counts: SubscriptionStatusCounts = {
+      total: 0, active: 0, trialing: 0, paused: 0, canceled: 0, pastDue: 0,
+    }
+
+    for (const row of rows) {
+      const count = Number(row.$extras.count)
+      counts.total += count
+      switch (row.status) {
+        case 'active': counts.active = count; break
+        case 'trialing': counts.trialing = count; break
+        case 'paused': counts.paused = count; break
+        case 'canceled': counts.canceled = count; break
+        case 'past_due': counts.pastDue = count; break
+      }
+    }
+
+    return counts
+  }
+
+  async findActiveAndTrialingForRevenue(): Promise<RevenueSubscription[]> {
+    const rows = await this.buildBaseQuery()
+      .select('price', 'currency', 'billing_interval', 'created_at', 'status')
+      .whereIn('status', ['active', 'trialing'])
+
+    return rows.map((row) => ({
+      price: Number(row.price),
+      currency: row.currency,
+      billingInterval: row.billingInterval,
+      createdAt: row.createdAt,
+      status: row.status,
+    }))
   }
 }

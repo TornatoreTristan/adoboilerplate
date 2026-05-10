@@ -3,6 +3,11 @@ import { DateTime } from 'luxon'
 import UserSession from '#sessions/models/user_session'
 import { BaseRepository } from '#shared/repositories/base_repository'
 
+export interface DayCount {
+  date: string
+  count: number
+}
+
 @injectable()
 export default class SessionRepository extends BaseRepository<typeof UserSession> {
   protected model = UserSession
@@ -137,6 +142,78 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
       active: Number.parseInt(active.toString()),
       today: Number.parseInt(todaySessions.toString()),
     }
+  }
+
+  async countByDayStarted(sinceDate: string): Promise<DayCount[]> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const rows = await this.buildBaseQuery()
+      .select(db.raw('DATE(started_at) as date'))
+      .count('* as count')
+      .where('started_at', '>=', sinceDate)
+      .groupByRaw('DATE(started_at)')
+      .orderBy('date', 'asc')
+
+    return rows.map((row: any) => {
+      const extras = row.$extras || {}
+      const rawDate = extras.date ?? row.date
+      const date = rawDate instanceof Date
+        ? rawDate.toISOString().slice(0, 10)
+        : String(rawDate).slice(0, 10)
+      return {
+        date,
+        count: Number(extras.count ?? row.count),
+      }
+    })
+  }
+
+  async countDistinctActiveUserIds(thresholdDate: string): Promise<number> {
+    const rows = await this.buildBaseQuery()
+      .select('user_id')
+      .where('last_activity', '>=', thresholdDate)
+      .groupBy('user_id')
+
+    return rows.length
+  }
+
+  async getAverageSessionsPerUser(): Promise<number> {
+    const rows = await this.buildBaseQuery()
+      .select('user_id')
+      .count('* as session_count')
+      .groupBy('user_id')
+
+    if (rows.length === 0) return 0
+
+    const totalSessions = rows.reduce(
+      (sum: number, row: any) => sum + Number(row.$extras?.session_count ?? row.session_count ?? 0),
+      0
+    )
+
+    return Math.round((totalSessions / rows.length) * 100) / 100
+  }
+
+  async getLastActivityByUser(): Promise<Map<string, DateTime>> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const rows = await this.buildBaseQuery()
+      .select('user_id')
+      .select(db.raw('MAX(last_activity) as last_activity'))
+      .groupBy('user_id')
+
+    const map = new Map<string, DateTime>()
+    for (const row of rows) {
+      const extras = (row as any).$extras || {}
+      const rawValue = extras.last_activity ?? (row as any).lastActivity ?? (row as any).last_activity
+      const userId = (row as any).userId ?? (row as any).user_id
+      if (rawValue && userId) {
+        const dt = rawValue instanceof Date
+          ? DateTime.fromJSDate(rawValue)
+          : DateTime.fromISO(String(rawValue))
+        if (dt.isValid) {
+          map.set(userId, dt)
+        }
+      }
+    }
+
+    return map
   }
 
   /**

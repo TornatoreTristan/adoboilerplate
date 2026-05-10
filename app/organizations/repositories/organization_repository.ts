@@ -2,6 +2,35 @@ import { injectable } from 'inversify'
 import Organization from '#organizations/models/organization'
 import { BaseRepository } from '#shared/repositories/base_repository'
 
+export interface OrganizationWithMemberCount {
+  id: string
+  name: string
+  slug: string
+  descriptionI18n: { fr?: string | null; en?: string | null } | null
+  website: string | null
+  isActive: boolean
+  createdAt: string
+  membersCount: number
+}
+
+export interface OrganizationMember {
+  id: string
+  fullName: string | null
+  email: string
+  avatarUrl: string | null
+  role: string
+  joinedAt: string
+}
+
+export interface PaginatedOrganizations {
+  data: OrganizationWithMemberCount[]
+  meta: {
+    total: number
+    perPage: number
+    currentPage: number
+  }
+}
+
 @injectable()
 export default class OrganizationRepository extends BaseRepository<typeof Organization> {
   protected model = Organization
@@ -185,6 +214,75 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
       .first()
 
     return membership?.role || null
+  }
+
+  async findPaginatedWithMemberCounts(
+    page: number = 1,
+    perPage: number = 20
+  ): Promise<PaginatedOrganizations> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const offset = (page - 1) * perPage
+
+    const [orgs, totalRow, memberRows] = await Promise.all([
+      this.buildBaseQuery()
+        .orderBy('created_at', 'desc')
+        .offset(offset)
+        .limit(perPage),
+      this.buildBaseQuery().count('* as total').first(),
+      db
+        .from('user_organizations')
+        .select('organization_id')
+        .count('* as members_count')
+        .groupBy('organization_id'),
+    ])
+
+    const total = Number((totalRow as any)?.$extras?.total ?? (totalRow as any)?.total ?? 0)
+
+    const membersCountMap = new Map<string, number>()
+    for (const row of memberRows) {
+      const r: any = row
+      if (r.organization_id !== undefined) {
+        membersCountMap.set(String(r.organization_id), Number(r.members_count))
+      }
+    }
+
+    const data: OrganizationWithMemberCount[] = orgs.map((org) => ({
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      descriptionI18n: org.descriptionI18n ?? null,
+      website: org.website ?? null,
+      isActive: Boolean(org.isActive),
+      createdAt: org.createdAt.toISO()!,
+      membersCount: membersCountMap.get(String(org.id)) ?? 0,
+    }))
+
+    return { data, meta: { total, perPage, currentPage: page } }
+  }
+
+  async getMembers(organizationId: string | number): Promise<OrganizationMember[]> {
+    const org = await this.findByIdOrFail(organizationId)
+    await org.load('users')
+
+    return org.users.map((user) => {
+      const extras: any = (user as any).$extras ?? {}
+      const joinedAtRaw = extras.pivot_joined_at
+
+      const joinedAt = joinedAtRaw instanceof Date
+        ? joinedAtRaw.toISOString()
+        : joinedAtRaw
+        ? new Date(joinedAtRaw).toISOString()
+        : ''
+
+      return {
+        id: user.id,
+        fullName: user.fullName ?? null,
+        email: user.email,
+        avatarUrl: (user as any).avatarUrl ?? null,
+        role: extras.pivot_role ?? '',
+        joinedAt,
+      }
+    })
   }
 
   /**

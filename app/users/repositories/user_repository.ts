@@ -3,6 +3,11 @@ import type { CreateUserData } from '#shared/types/user'
 import UserModel from '#users/models/user'
 import { BaseRepository } from '#shared/repositories/base_repository'
 
+export interface DayCount {
+  date: string
+  count: number
+}
+
 @injectable()
 export default class UserRepository extends BaseRepository<typeof UserModel> {
   protected model = UserModel
@@ -94,6 +99,28 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    */
   async restoreDeletedUser(id: string): Promise<UserModel> {
     return this.restore(id)
+  }
+
+  async countByDay(sinceDate: string): Promise<DayCount[]> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const rows = await this.buildBaseQuery()
+      .select(db.raw('DATE(created_at) as date'))
+      .count('* as count')
+      .where('created_at', '>=', sinceDate)
+      .groupByRaw('DATE(created_at)')
+      .orderBy('date', 'asc')
+
+    return rows.map((row: any) => {
+      const extras = row.$extras || {}
+      const rawDate = extras.date ?? row.date
+      const date = rawDate instanceof Date
+        ? rawDate.toISOString().slice(0, 10)
+        : String(rawDate).slice(0, 10)
+      return {
+        date,
+        count: Number(extras.count ?? row.count),
+      }
+    })
   }
 
   /**
