@@ -13,14 +13,18 @@ export default class RoleMiddleware {
 
   async handle(ctx: HttpContext, next: NextFn) {
     const userId = ctx.session.get('user_id')
-    const organizationId = ctx.request.input('organization_id') || ctx.params.organizationId
+    // Always source the organization from the trusted context populated by
+    // OrganizationContextMiddleware — never from user-controlled inputs like
+    // request.input('organization_id'), which would let a member of org A
+    // claim a role check against org B.
+    const organizationId = ctx.organization?.id
 
     if (!userId) {
       E.unauthorized('Non authentifié')
     }
 
     if (!organizationId) {
-      E.badRequest('Organization ID requis')
+      E.forbidden('accéder à cette ressource sans contexte d\'organisation')
     }
 
     const authService = getService<AuthorizationService>(TYPES.AuthorizationService)
