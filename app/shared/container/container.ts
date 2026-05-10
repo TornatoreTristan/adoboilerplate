@@ -51,6 +51,7 @@ import SessionService from '#sessions/services/session_service'
 import GoogleAuthService from '#auth/services/google_auth_service'
 import AccountLockoutService from '#auth/services/account_lockout_service'
 import TwoFactorService from '#auth/services/two_factor_service'
+import PasswordStrengthService from '#auth/services/password_strength_service'
 import EmailVerificationService from '#auth/services/email_verification_service'
 import NotificationService from '#notifications/services/notification_service'
 import UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
@@ -255,6 +256,10 @@ export function configureContainer(): Container {
     .to(AccountLockoutService)
     .inSingletonScope()
   container.bind<TwoFactorService>(TYPES.TwoFactorService).to(TwoFactorService)
+  container
+    .bind<PasswordStrengthService>(TYPES.PasswordStrengthService)
+    .to(PasswordStrengthService)
+    .inSingletonScope()
   container
     .bind<EmailVerificationService>(TYPES.EmailVerificationService)
     .to(EmailVerificationService)

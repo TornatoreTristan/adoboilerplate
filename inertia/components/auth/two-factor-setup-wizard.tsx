@@ -135,9 +135,7 @@ export default function TwoFactorSetupWizard({ onComplete, onCancel }: Props) {
         </div>
 
         <div className="space-y-2 border-t pt-6">
-          <h3 className="text-base font-medium">
-            {t('account.security.setup_step2_title')}
-          </h3>
+          <h3 className="text-base font-medium">{t('account.security.setup_step2_title')}</h3>
           <p className="text-sm text-muted-foreground">
             {t('account.security.setup_step2_description')}
           </p>

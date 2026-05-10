@@ -6,7 +6,7 @@ import vine from '@vinejs/vine'
 export const registerValidator = vine.compile(
   vine.object({
     email: vine.string().email().normalizeEmail().trim(),
-    password: vine.string().minLength(8).maxLength(255),
+    password: vine.string().minLength(12).maxLength(128),
     confirmPassword: vine.string(),
     fullName: vine.string().trim().optional(),
   })

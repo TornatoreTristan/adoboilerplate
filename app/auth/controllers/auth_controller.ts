@@ -10,6 +10,7 @@ import type SessionService from '#sessions/services/session_service'
 import type EmailVerificationService from '#auth/services/email_verification_service'
 import type AccountLockoutService from '#auth/services/account_lockout_service'
 import type TwoFactorService from '#auth/services/two_factor_service'
+import type PasswordStrengthService from '#auth/services/password_strength_service'
 import RateLimitService from '#shared/services/rate_limit_service'
 import logger from '@adonisjs/core/services/logger'
 
@@ -188,6 +189,26 @@ export default class AuthController {
   async register({ request, response, session }: HttpContext) {
     // Valider les données avec Vine
     const registerData = await request.validateUsing(registerValidator)
+
+    // Strong-password gate: complexity + HIBP pwned-password lookup. The
+    // service fails-open on third-party outages so a HIBP downtime never
+    // blocks new signups, but it always rejects passwords that don't meet
+    // the local complexity rules.
+    const passwordStrengthService = getService<PasswordStrengthService>(
+      TYPES.PasswordStrengthService
+    )
+    const passwordCheck = await passwordStrengthService.check(registerData.password)
+    if (!passwordCheck.ok) {
+      const reason = passwordCheck.reason ?? 'too_short'
+      session.flashErrors({ password: `password.${reason}` })
+      if (this.isApiRequest(request)) {
+        return response.status(422).json({
+          success: false,
+          error: { code: 'WEAK_PASSWORD', reason },
+        })
+      }
+      return response.redirect().back()
+    }
 
     // Récupérer les services
     const authService = getService<AuthService>(TYPES.AuthService)

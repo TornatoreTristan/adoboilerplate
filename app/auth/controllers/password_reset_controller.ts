@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type PasswordResetService from '#auth/services/password_reset_service'
+import type PasswordStrengthService from '#auth/services/password_strength_service'
 import type EmailService from '#mailing/services/email_service'
 import {
   forgotPasswordValidator,
@@ -90,7 +91,22 @@ export default class PasswordResetController {
       // Valider les données
       const { token, password } = await request.validateUsing(resetPasswordValidator)
 
-      // Vérifier le token d'abord
+      // Even though we don't track previous passwords here, a reset is the
+      // perfect moment to enforce the same strong-password policy applied at
+      // registration — otherwise the policy is trivially bypassable by going
+      // through the reset flow.
+      const passwordStrengthService = getService<PasswordStrengthService>(
+        TYPES.PasswordStrengthService
+      )
+      const passwordCheck = await passwordStrengthService.check(password)
+      if (!passwordCheck.ok) {
+        return response.unprocessableEntity({
+          success: false,
+          error: { code: 'WEAK_PASSWORD', reason: passwordCheck.reason },
+        })
+      }
+
+      // Vérifier le token
       const validation = await passwordResetService.validateToken(token)
       if (!validation.valid) {
         return response.badRequest({

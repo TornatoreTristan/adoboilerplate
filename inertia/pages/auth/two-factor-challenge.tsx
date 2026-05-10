@@ -2,12 +2,7 @@ import { Head, router } from '@inertiajs/react'
 import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldDescription,
-} from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel, FieldDescription } from '@/components/ui/field'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { GalleryVerticalEnd, AlertCircle, ShieldCheck } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
@@ -85,9 +80,7 @@ export default function TwoFactorChallenge() {
                 <FieldGroup>
                   <div className="flex flex-col items-center gap-1 text-center">
                     <ShieldCheck className="mb-2 size-8 text-primary" />
-                    <h1 className="text-2xl font-bold">
-                      {t('auth.two_factor.challenge_title')}
-                    </h1>
+                    <h1 className="text-2xl font-bold">{t('auth.two_factor.challenge_title')}</h1>
                     <p className="text-muted-foreground text-sm text-balance">
                       {t('auth.two_factor.challenge_subtitle')}
                     </p>
@@ -133,9 +126,7 @@ export default function TwoFactorChallenge() {
 
                   <Field>
                     <Button type="submit" disabled={submitting || code.length === 0}>
-                      {submitting
-                        ? t('auth.two_factor.submitting')
-                        : t('auth.two_factor.submit')}
+                      {submitting ? t('auth.two_factor.submitting') : t('auth.two_factor.submit')}
                     </Button>
                   </Field>
                 </FieldGroup>

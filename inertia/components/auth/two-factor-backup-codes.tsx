@@ -45,9 +45,7 @@ export default function TwoFactorBackupCodes({ codes, onDone }: Props) {
       <CardContent className="space-y-4">
         <Alert>
           <ShieldAlert className="h-4 w-4" />
-          <AlertDescription>
-            {t('account.security.backup_codes_save_warning')}
-          </AlertDescription>
+          <AlertDescription>{t('account.security.backup_codes_save_warning')}</AlertDescription>
         </Alert>
 
         <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/50 p-4 font-mono text-sm sm:grid-cols-4">

@@ -40,7 +40,7 @@ test.group('UploadService', (group) => {
       size: mockFile.length,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -71,7 +71,7 @@ test.group('UploadService', (group) => {
       disk: 'local',
       visibility: 'public',
       storagePath: 'avatars/custom/image.jpg',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.equal(upload.storagePath, 'avatars/custom/image.jpg')
@@ -128,7 +128,7 @@ test.group('UploadService', (group) => {
       visibility: 'private',
       uploadableType: 'Post',
       uploadableId: '123e4567-e89b-12d3-a456-426614174000',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.equal(upload.uploadableType, 'Post')
@@ -153,7 +153,7 @@ test.group('UploadService', (group) => {
       size: 5,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     await uploadService.uploadFile({
@@ -164,7 +164,7 @@ test.group('UploadService', (group) => {
       size: 5,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     const uploads = await uploadService.getUserUploads(user.id)
@@ -191,7 +191,7 @@ test.group('UploadService', (group) => {
       size: 12,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     await uploadService.uploadFile({
@@ -202,7 +202,7 @@ test.group('UploadService', (group) => {
       size: 11,
       disk: 'local',
       visibility: 'public',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     const privateUploads = await uploadService.getUploads({
@@ -236,7 +236,7 @@ test.group('UploadService', (group) => {
       size: 15,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     const signedUrl = await uploadService.getSignedUrl(upload.id, 3600)
@@ -263,7 +263,7 @@ test.group('UploadService', (group) => {
       size: 14,
       disk: 'local',
       visibility: 'public',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     const publicUrl = await uploadService.getPublicUrl(upload.id)
@@ -291,7 +291,7 @@ test.group('UploadService', (group) => {
       size: 9,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     await uploadService.deleteUpload(upload.id)
@@ -318,7 +318,7 @@ test.group('UploadService', (group) => {
       size: 8,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     const found = await uploadService.getUploadById(created.id)
@@ -347,7 +347,7 @@ test.group('UploadService', (group) => {
       size: mockFile.length,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -375,7 +375,7 @@ test.group('UploadService', (group) => {
       disk: 'local',
       visibility: 'private',
       skipVirusScan: true,
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -412,7 +412,7 @@ test.group('UploadService', (group) => {
       size: testImage.length,
       disk: 'local',
       visibility: 'public',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -457,7 +457,7 @@ test.group('UploadService', (group) => {
       disk: 'local',
       visibility: 'private',
       skipImageOptimization: true,
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -484,7 +484,7 @@ test.group('UploadService', (group) => {
       size: pdfFile.length,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -520,7 +520,7 @@ test.group('UploadService', (group) => {
       size: testImage.length,
       disk: 'local',
       visibility: 'public',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -555,7 +555,7 @@ test.group('UploadService', (group) => {
       size: testImage.length,
       disk: 'local',
       visibility: 'private',
-          skipMimeVerification: true,
+      skipMimeVerification: true,
     })
 
     assert.exists(upload.id)
@@ -567,9 +567,7 @@ test.group('UploadService', (group) => {
     assert.exists(upload.metadata?.height)
   })
 
-  test('rejects an upload whose magic bytes don\'t match the declared MIME', async ({
-    assert,
-  }) => {
+  test("rejects an upload whose magic bytes don't match the declared MIME", async ({ assert }) => {
     const uploadService = getService<UploadService>(TYPES.UploadService)
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
 

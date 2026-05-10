@@ -117,10 +117,7 @@ export default function Security({ status }: Props) {
           {view === 'backup-codes' && freshBackupCodes ? (
             <TwoFactorBackupCodes codes={freshBackupCodes} onDone={onCloseBackupCodes} />
           ) : view === 'setup' ? (
-            <TwoFactorSetupWizard
-              onComplete={onSetupComplete}
-              onCancel={() => setView('idle')}
-            />
+            <TwoFactorSetupWizard onComplete={onSetupComplete} onCancel={() => setView('idle')} />
           ) : (
             <Card>
               <CardHeader>
@@ -131,10 +128,7 @@ export default function Security({ status }: Props) {
                     <ShieldOff className="h-5 w-5 text-muted-foreground" />
                   )}
                   <CardTitle>{t('account.security.two_factor_card_title')}</CardTitle>
-                  <Badge
-                    variant={status.enabled ? 'default' : 'secondary'}
-                    className="ml-auto"
-                  >
+                  <Badge variant={status.enabled ? 'default' : 'secondary'} className="ml-auto">
                     {status.enabled
                       ? t('account.security.status_enabled')
                       : t('account.security.status_disabled')}
@@ -207,9 +201,7 @@ export default function Security({ status }: Props) {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="destructive">
-                            {t('account.security.disable_2fa')}
-                          </Button>
+                          <Button variant="destructive">{t('account.security.disable_2fa')}</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>

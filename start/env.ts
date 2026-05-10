@@ -102,6 +102,15 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Password policy
+  |----------------------------------------------------------
+  */
+  // Set to 'false' to skip the HIBP pwned-passwords range API at registration
+  // / reset. Local complexity rules still apply.
+  PWNED_PASSWORD_CHECK_ENABLED: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for image optimization
   |----------------------------------------------------------
   */
