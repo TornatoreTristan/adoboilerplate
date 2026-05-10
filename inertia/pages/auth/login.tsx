@@ -2,11 +2,13 @@ import { Head } from '@inertiajs/react'
 
 import LoginForm from '@/components/forms/auth/login-form'
 import { GalleryVerticalEnd } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 export default function Login() {
+  const { t } = useI18n()
   return (
     <>
-      <Head title="Connexion" />
+      <Head title={t('auth.login')} />
 
       <div className="grid min-h-svh lg:grid-cols-2">
         <div className="flex flex-col gap-4 p-6 md:p-10">

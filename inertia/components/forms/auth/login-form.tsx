@@ -12,8 +12,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useForm } from '@inertiajs/react'
 import { FormEvent } from 'react'
 import { AlertCircle } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
+  const { t } = useI18n()
   const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
@@ -37,24 +39,24 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
       >
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold">Connexion à votre compte</h1>
+            <h1 className="text-2xl font-bold">{t('auth.login_form.title')}</h1>
             <p className="text-muted-foreground text-sm text-balance">
-              Entrez vos informations de connexion ci-dessous
+              {t('auth.login_form.subtitle')}
             </p>
           </div>
           {hasErrors && (
             <Alert variant="destructive">
               <AlertCircle className="size-4" />
-              <AlertTitle>Erreur de connexion</AlertTitle>
+              <AlertTitle>{t('auth.login_form.error')}</AlertTitle>
               <AlertDescription>{firstError}</AlertDescription>
             </Alert>
           )}
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="email">{t('auth.email')}</FieldLabel>
             <Input
               id="email"
               type="email"
-              placeholder="alan.turing@enigma.com"
+              placeholder={t('auth.login_form.email_placeholder')}
               value={data.email}
               onChange={(e) => setData('email', e.target.value)}
               required
@@ -62,12 +64,12 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
           </Field>
           <Field>
             <div className="flex items-center">
-              <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+              <FieldLabel htmlFor="password">{t('auth.password')}</FieldLabel>
               <a
                 href="/password/forgot"
                 className="ml-auto text-sm underline-offset-4 hover:underline"
               >
-                Mot de passe oublié ?
+                {t('auth.forgot_password')}
               </a>
             </div>
             <Input
@@ -80,10 +82,10 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
           </Field>
           <Field>
             <Button type="submit" disabled={processing}>
-              {processing ? 'Connexion...' : 'Me connecter'}
+              {processing ? t('auth.login_form.submitting') : t('auth.login_form.submit')}
             </Button>
           </Field>
-          <FieldSeparator>Connectez vous avec</FieldSeparator>
+          <FieldSeparator>{t('auth.login_form.or_with')}</FieldSeparator>
           <Field>
             <Button variant="outline" type="button" asChild>
               <a href="/auth/google/redirect">
@@ -105,13 +107,13 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
                     fill="#EA4335"
                   />
                 </svg>
-                Connexion avec Google
+                {t('auth.login_form.with_google')}
               </a>
             </Button>
             <FieldDescription className="text-center">
-              Vous n'avez pas encore de compte ?<br />
+              {t('auth.login_form.no_account')}<br />
               <a href="/register" className="underline underline-offset-4">
-                Créer un compte maintenant
+                {t('auth.login_form.register_now')}
               </a>
             </FieldDescription>
           </Field>

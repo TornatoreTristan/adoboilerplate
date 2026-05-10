@@ -2,11 +2,13 @@ import { Head } from '@inertiajs/react'
 
 import RegisterForm from '@/components/forms/auth/register-form'
 import { GalleryVerticalEnd } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 export default function Register() {
+  const { t } = useI18n()
   return (
     <>
-      <Head title="Créer un compte" />
+      <Head title={t('auth.register_form.title')} />
 
       <div className="grid min-h-svh lg:grid-cols-2">
         <div className="flex flex-col gap-4 p-6 md:p-10">

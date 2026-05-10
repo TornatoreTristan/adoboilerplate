@@ -12,8 +12,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useForm } from '@inertiajs/react'
 import { FormEvent } from 'react'
 import { AlertCircle } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
+  const { t } = useI18n()
   const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
@@ -38,41 +40,41 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
       >
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold">Créer un compte</h1>
+            <h1 className="text-2xl font-bold">{t('auth.register_form.title')}</h1>
             <p className="text-muted-foreground text-sm text-balance">
-              Remplissez le formulaire pour créer votre compte
+              {t('auth.register_form.subtitle')}
             </p>
           </div>
           {hasErrors && (
             <Alert variant="destructive">
               <AlertCircle className="size-4" />
-              <AlertTitle>Erreur d'inscription</AlertTitle>
+              <AlertTitle>{t('auth.register_form.error')}</AlertTitle>
               <AlertDescription>{firstError}</AlertDescription>
             </Alert>
           )}
           <Field>
-            <FieldLabel htmlFor="fullName">Nom complet</FieldLabel>
+            <FieldLabel htmlFor="fullName">{t('auth.register_form.full_name')}</FieldLabel>
             <Input
               id="fullName"
               type="text"
-              placeholder="Jean Dupont"
+              placeholder={t('auth.register_form.full_name_placeholder')}
               value={data.fullName}
               onChange={(e) => setData('fullName', e.target.value)}
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="email">{t('auth.email')}</FieldLabel>
             <Input
               id="email"
               type="email"
-              placeholder="jean.dupont@example.com"
+              placeholder={t('auth.register_form.email_placeholder')}
               value={data.email}
               onChange={(e) => setData('email', e.target.value)}
               required
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+            <FieldLabel htmlFor="password">{t('auth.password')}</FieldLabel>
             <Input
               id="password"
               type="password"
@@ -82,7 +84,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="confirmPassword">Confirmer le mot de passe</FieldLabel>
+            <FieldLabel htmlFor="confirmPassword">{t('auth.register_form.confirm_password')}</FieldLabel>
             <Input
               id="confirmPassword"
               type="password"
@@ -93,10 +95,10 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
           </Field>
           <Field>
             <Button type="submit" className="w-full" disabled={processing}>
-              {processing ? 'Création en cours...' : 'Créer mon compte'}
+              {processing ? t('auth.register_form.submitting') : t('auth.register_form.submit')}
             </Button>
           </Field>
-          <FieldSeparator>Ou inscrivez-vous avec</FieldSeparator>
+          <FieldSeparator>{t('auth.register_form.or_with')}</FieldSeparator>
           <Field>
             <Button variant="outline" type="button" className="w-full" asChild>
               <a href="/auth/google/redirect">
@@ -118,13 +120,13 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
                     fill="#EA4335"
                   />
                 </svg>
-                Inscription avec Google
+                {t('auth.register_form.with_google')}
               </a>
             </Button>
             <FieldDescription className="text-center">
-              Vous avez déjà un compte ?<br />
+              {t('auth.register_form.have_account')}<br />
               <a href="/login" className="underline underline-offset-4">
-                Se connecter maintenant
+                {t('auth.register_form.login_now')}
               </a>
             </FieldDescription>
           </Field>

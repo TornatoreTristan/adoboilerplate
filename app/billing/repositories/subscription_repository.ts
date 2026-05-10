@@ -2,7 +2,8 @@ import { injectable } from 'inversify'
 import { DateTime } from 'luxon'
 import { BaseRepository } from '#shared/repositories/base_repository'
 import Subscription from '#billing/models/subscription'
-import type { SubscriptionStatus, PlanInterval } from '#billing/models/subscription'
+import type { SubscriptionStatus } from '#billing/models/subscription'
+import type { PlanInterval } from '#billing/models/plan'
 
 export interface AdminSubscriptionFilters {
   status?: string
@@ -110,13 +111,12 @@ export default class SubscriptionRepository extends BaseRepository<typeof Subscr
     for (const row of rows) {
       const count = Number(row.$extras.count)
       counts.total += count
-      switch (row.status) {
-        case 'active': counts.active = count; break
-        case 'trialing': counts.trialing = count; break
-        case 'paused': counts.paused = count; break
-        case 'canceled': counts.canceled = count; break
-        case 'past_due': counts.pastDue = count; break
-      }
+      const status = row.status as string
+      if (status === 'active') counts.active = count
+      else if (status === 'trialing') counts.trialing = count
+      else if (status === 'paused') counts.paused = count
+      else if (status === 'canceled') counts.canceled = count
+      else if (status === 'past_due') counts.pastDue = count
     }
 
     return counts

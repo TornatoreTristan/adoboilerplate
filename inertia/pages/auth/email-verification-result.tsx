@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface EmailVerificationResultProps {
   success: boolean
@@ -11,9 +12,12 @@ export default function EmailVerificationResult({
   success,
   error,
 }: EmailVerificationResultProps) {
+  const { t } = useI18n()
   return (
     <>
-      <Head title={success ? 'Email vérifié' : 'Erreur de vérification'} />
+      <Head
+        title={success ? t('auth.verification_result.head_success') : t('auth.verification_result.head_error')}
+      />
 
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="w-full max-w-md space-y-8">
@@ -25,11 +29,13 @@ export default function EmailVerificationResult({
                 </div>
 
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tight">Email vérifié !</h1>
+                  <h1 className="text-3xl font-bold tracking-tight">
+                    {t('auth.verification_result.success_title')}
+                  </h1>
                   <p className="text-muted-foreground text-balance">
-                    Votre adresse email a été vérifiée avec succès.
+                    {t('auth.verification_result.success_line_1')}
                     <br />
-                    Vous allez être redirigé vers l'accueil...
+                    {t('auth.verification_result.success_line_2')}
                   </p>
                 </div>
               </>
@@ -40,26 +46,28 @@ export default function EmailVerificationResult({
                 </div>
 
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tight">Erreur de vérification</h1>
+                  <h1 className="text-3xl font-bold tracking-tight">
+                    {t('auth.verification_result.error_title')}
+                  </h1>
                   <p className="text-muted-foreground text-balance">
-                    {error || 'Une erreur est survenue lors de la vérification de votre email.'}
+                    {error || t('auth.verification_result.default_error')}
                   </p>
                 </div>
 
                 <div className="bg-muted w-full rounded-lg p-4">
                   <p className="text-sm">
-                    <strong>Que faire ?</strong>
+                    <strong>{t('auth.verification_result.what_to_do')}</strong>
                     <br />
-                    • Le lien peut avoir expiré (valide 24h)
+                    • {t('auth.verification_result.tip_expired')}
                     <br />
-                    • Le lien a déjà été utilisé
-                    <br />• Demandez un nouveau lien de vérification
+                    • {t('auth.verification_result.tip_used')}
+                    <br />• {t('auth.verification_result.tip_request_new')}
                   </p>
                 </div>
 
                 <div className="flex w-full flex-col gap-2">
                   <Button asChild>
-                    <a href="/login">Retour à la connexion</a>
+                    <a href="/login">{t('auth.verification_result.back_to_login')}</a>
                   </Button>
                 </div>
               </>

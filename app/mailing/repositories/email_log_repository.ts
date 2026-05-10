@@ -69,28 +69,6 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
       .orderBy('created_at', 'desc')
   }
 
-  async paginate(
-    page: number,
-    perPage: number = 20
-  ): Promise<{ data: EmailLog[]; meta: { total: number; perPage: number; currentPage: number } }> {
-    const query = this.buildBaseQuery()
-
-    const total = await query.clone().count('* as total')
-    const data = await query
-      .orderBy('created_at', 'desc')
-      .offset((page - 1) * perPage)
-      .limit(perPage)
-
-    return {
-      data,
-      meta: {
-        total: Number(total[0].$extras.total),
-        perPage,
-        currentPage: page,
-      },
-    }
-  }
-
   async findPaginatedWithFilters(filters: EmailLogFilters = {}): Promise<PaginatedEmailLogs> {
     const page = filters.page ?? 1
     const perPage = filters.perPage ?? 20

@@ -4,44 +4,46 @@ import AppLayout from '@/components/layouts/app-layout'
 import { PageHeader } from '@/components/core/page-header'
 import { Info, Plug, Users, CreditCard } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface OrganizationSettingsLayoutProps {
   children: ReactNode
 }
 
-const menuItems = [
-  {
-    title: 'Informations',
-    href: '/organizations/settings',
-    icon: Info,
-  },
-  {
-    title: 'Integrations',
-    href: '/organizations/settings/integrations',
-    icon: Plug,
-  },
-  {
-    title: 'Utilisateurs',
-    href: '/organizations/settings/users',
-    icon: Users,
-  },
-  {
-    title: 'Abonnements',
-    href: '/organizations/settings/subscriptions',
-    icon: CreditCard,
-  },
-]
-
 export default function OrganizationSettingsLayout({ children }: OrganizationSettingsLayoutProps) {
   const { url } = usePage()
+  const { t } = useI18n()
   const currentPath = url
+
+  const menuItems = [
+    {
+      title: t('common.informations'),
+      href: '/organizations/settings',
+      icon: Info,
+    },
+    {
+      title: t('common.integrations'),
+      href: '/organizations/settings/integrations',
+      icon: Plug,
+    },
+    {
+      title: t('common.users'),
+      href: '/organizations/settings/users',
+      icon: Users,
+    },
+    {
+      title: t('common.subscriptions'),
+      href: '/organizations/settings/subscriptions',
+      icon: CreditCard,
+    },
+  ]
 
   return (
     <AppLayout>
       <div className="flex flex-col gap-6 p-6">
         <PageHeader
-          title="Paramètres de l'organisation"
-          description="Gérez les paramètres de votre organisation"
+          title={t('common.organization_settings')}
+          description={t('common.manage_organization_settings')}
         />
 
         <div className="flex gap-6">

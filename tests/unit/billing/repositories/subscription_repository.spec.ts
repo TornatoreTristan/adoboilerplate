@@ -190,6 +190,6 @@ test.group('SubscriptionRepository - admin methods', (group) => {
     assert.exists(result[0].billingInterval)
     assert.exists(result[0].createdAt)
     assert.exists(result[0].status)
-    assert.instanceOf(result[0].createdAt, DateTime)
+    assert.isTrue(DateTime.isDateTime(result[0].createdAt))
   })
 })

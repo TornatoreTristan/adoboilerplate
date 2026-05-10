@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Shield } from 'lucide-react'
 import { ThemeToggle } from '@/components/core/theme-toggle'
 import { useFlashMessages } from '@/hooks/use-flash-messages'
+import { useI18n } from '@/hooks/use-i18n'
 
 export interface BreadcrumbItemType {
   label: string
@@ -26,6 +27,7 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children, breadcrumbs = [] }: AdminLayoutProps) => {
   useFlashMessages()
+  const { t } = useI18n()
 
   return (
     <SidebarProvider>
@@ -37,13 +39,13 @@ const AdminLayout = ({ children, breadcrumbs = [] }: AdminLayoutProps) => {
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-500">
               <Shield className="h-4 w-4" />
-              <span className="text-sm font-medium">Administration</span>
+              <span className="text-sm font-medium">{t('common.administration')}</span>
             </div>
             <Separator orientation="vertical" className="mx-2 h-4" />
             <Breadcrumb className="font-medium text-xs">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink href="/admin">{t('admin.dashboard')}</BreadcrumbLink>
                 </BreadcrumbItem>
                 {breadcrumbs.map((item, index) => (
                   <div key={index} className="flex items-center gap-1.5">
