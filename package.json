@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint && npm run test",
     "email:dev": "email dev --dir inertia/emails"
   },
   "imports": {
