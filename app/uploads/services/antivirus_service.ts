@@ -2,6 +2,7 @@ import { injectable } from 'inversify'
 import NodeClam from 'clamscan'
 import logger from '@adonisjs/core/services/logger'
 import env from '#start/env'
+import { E } from '#shared/exceptions/index'
 
 export interface ScanResult {
   isInfected: boolean
@@ -14,8 +15,16 @@ export default class AntivirusService {
   private clamscan: NodeClam | null = null
   private isAvailable: boolean = false
   private initPromise: Promise<void> | null = null
+  private failClosed: boolean
 
   constructor() {
+    // Fail-closed in production by default, or whenever CLAMAV_REQUIRED is set.
+    // When fail-closed, an upload is rejected instead of being silently allowed
+    // through if ClamAV is unavailable or the scan errors out.
+    this.failClosed =
+      env.get('CLAMAV_REQUIRED') === 'true' ||
+      (env.get('NODE_ENV') === 'production' && env.get('CLAMAV_ENABLED') === 'true')
+
     // Initialize ClamAV asynchronously
     this.initPromise = this.initialize()
   }
@@ -76,6 +85,14 @@ export default class AntivirusService {
     await this.initPromise
 
     if (!this.isAvailable || !this.clamscan) {
+      if (this.failClosed) {
+        logger.error(`Refusing upload — ClamAV is required but not available`, {
+          file: filePath,
+        })
+        E.uploadFailed('Service antivirus indisponible — upload refusé', {
+          reason: 'antivirus_unavailable',
+        })
+      }
       logger.warn(`⚠️  Skipping virus scan for ${filePath} - ClamAV not available`)
       return {
         isInfected: false,
@@ -104,7 +121,13 @@ export default class AntivirusService {
         error: error.message,
       })
 
-      // On error, allow upload with warning (don't block workflow)
+      if (this.failClosed) {
+        E.uploadFailed('Échec du scan antivirus — upload refusé', {
+          reason: 'antivirus_scan_error',
+          underlying: error.message,
+        })
+      }
+
       logger.warn(
         `⚠️  Virus scan failed for ${filePath}, allowing upload (error: ${error.message})`
       )
@@ -123,6 +146,14 @@ export default class AntivirusService {
     await this.initPromise
 
     if (!this.isAvailable || !this.clamscan) {
+      if (this.failClosed) {
+        logger.error(`Refusing upload — ClamAV is required but not available`, {
+          file: filename,
+        })
+        E.uploadFailed('Service antivirus indisponible — upload refusé', {
+          reason: 'antivirus_unavailable',
+        })
+      }
       logger.warn(`⚠️  Skipping virus scan for buffer - ClamAV not available`)
       return {
         isInfected: false,
@@ -151,7 +182,13 @@ export default class AntivirusService {
         error: error.message,
       })
 
-      // On error, allow upload with warning
+      if (this.failClosed) {
+        E.uploadFailed('Échec du scan antivirus — upload refusé', {
+          reason: 'antivirus_scan_error',
+          underlying: error.message,
+        })
+      }
+
       logger.warn(
         `⚠️  Virus scan failed for buffer ${filename}, allowing upload (error: ${error.message})`
       )

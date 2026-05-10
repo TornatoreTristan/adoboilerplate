@@ -96,6 +96,9 @@ export default await Env.create(new URL('../', import.meta.url), {
   CLAMAV_SOCKET: Env.schema.string.optional(),
   CLAMAV_HOST: Env.schema.string.optional(),
   CLAMAV_PORT: Env.schema.string.optional(),
+  // When true, an init failure or scan error rejects the upload instead of
+  // letting it through (fail-closed). Recommended in production.
+  CLAMAV_REQUIRED: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
