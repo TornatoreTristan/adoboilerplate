@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { formatDate } from '@/lib/utils'
 import { getTranslation } from '@/lib/translatable'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import {
   SUBSCRIPTION_MANAGER_ROLES,
   SUBSCRIPTION_STATUS_COLORS,
@@ -37,16 +38,11 @@ interface Props {
  * manage the subscription.
  */
 export function CurrentSubscriptionCard({ subscription, userRole }: Props) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatPrice = useFormatCurrency()
   const canManage = SUBSCRIPTION_MANAGER_ROLES.has(userRole)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-
-  const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(price)
 
   const statusLabel = (status: string) => {
     const known = ['active', 'trialing', 'past_due', 'canceled', 'incomplete', 'incomplete_expired']
@@ -100,7 +96,7 @@ export function CurrentSubscriptionCard({ subscription, userRole }: Props) {
                 subscription.billingInterval === 'month'
                   ? subscription.plan.priceMonthly
                   : subscription.plan.priceYearly,
-                subscription.plan.currency
+                subscription.plan.currency.toUpperCase()
               )}
             </div>
             <div className="text-sm text-muted-foreground">

@@ -19,10 +19,10 @@ const formatUptime = (seconds: number, t: (k: string, p?: Record<string, unknown
 }
 
 export default function Monitoring() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   // The page is currently always-on auto-refresh; the hook supports
   // toggling but no UI exposes it yet.
-  const { data, history, loading, lastUpdate, refresh } = useMonitoringData(true, locale)
+  const { data, history, loading, lastUpdate, refresh } = useMonitoringData(true)
 
   if (loading) {
     return (

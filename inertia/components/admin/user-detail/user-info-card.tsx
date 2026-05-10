@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { KeyValueRow } from '@/components/core/key-value-row'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 import type { User } from './types'
 
 interface FormData {
@@ -21,12 +22,8 @@ interface Props {
 }
 
 export function UserInfoCard({ user, isEditing, data, setData, errors }: Props) {
-  const { t, locale } = useI18n()
-  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
-  const formatDateTime = (iso: string) =>
-    new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium', timeStyle: 'short' }).format(
-      new Date(iso)
-    )
+  const { t } = useI18n()
+  const formatDate = useFormatDate()
 
   const initials = user.fullName
     ? user.fullName
@@ -112,11 +109,11 @@ export function UserInfoCard({ user, isEditing, data, setData, errors }: Props) 
           />
           <KeyValueRow
             label={t('admin.user_detail.field_signup')}
-            value={formatDateTime(user.createdAt)}
+            value={formatDate(user.createdAt, 'datetime')}
           />
           <KeyValueRow
             label={t('admin.user_detail.field_updated_at')}
-            value={formatDateTime(user.updatedAt)}
+            value={formatDate(user.updatedAt, 'datetime')}
           />
         </div>
       </CardContent>

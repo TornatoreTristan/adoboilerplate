@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Activity, MemoryStick } from 'lucide-react'
 import { KeyValueRow } from '@/components/core/key-value-row'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatNumber } from '@/hooks/use-format-number'
 import type { MonitoringData } from './types'
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 
 export function MonitoringSystemCards({ metrics }: Props) {
   const { t } = useI18n()
+  const formatNumber = useFormatNumber()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -72,7 +74,7 @@ export function MonitoringSystemCards({ metrics }: Props) {
           />
           <KeyValueRow
             label={t('admin.monitoring.metric_keys')}
-            value={metrics.cache.keyCount.toLocaleString()}
+            value={formatNumber(metrics.cache.keyCount)}
             valueClassName="font-medium"
           />
         </CardContent>

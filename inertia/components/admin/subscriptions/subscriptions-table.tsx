@@ -11,20 +11,14 @@ import {
 import { Receipt } from 'lucide-react'
 import { getTranslation } from '@/lib/translatable'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import { SubscriptionActionsMenu } from './subscription-actions-menu'
 import type { Subscription } from './types'
 
 interface Props {
   subscriptions: Subscription[]
 }
-
-const formatLocale = (locale: string) => (locale === 'en' ? 'en-US' : 'fr-FR')
-
-const formatPrice = (price: number, currency: string, locale: string) =>
-  new Intl.NumberFormat(formatLocale(locale), {
-    style: 'currency',
-    currency,
-  }).format(price)
 
 const monthsBetween = (start: Date, end: Date) =>
   Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44))
@@ -53,11 +47,13 @@ const estimateTotalRevenue = (subscription: Subscription): number => {
 }
 
 export function SubscriptionsTable({ subscriptions }: Props) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatDateValue = useFormatDate()
+  const formatCurrency = useFormatCurrency()
 
   const formatDate = (date: string | null) => {
     if (!date) return t('admin.subscriptions.date_na')
-    return new Date(date).toLocaleDateString(formatLocale(locale))
+    return formatDateValue(date, 'short')
   }
 
   const getTimeSinceCreation = (createdAt: string) => {
@@ -141,16 +137,15 @@ export function SubscriptionsTable({ subscriptions }: Props) {
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <span className="font-medium">
-                          {formatPrice(
+                          {formatCurrency(
                             subscription.subscriptionPrice,
-                            subscription.subscriptionCurrency,
-                            locale
+                            subscription.subscriptionCurrency
                           )}
                         </span>
                         {isOutdated && (
                           <Badge variant="outline" className="w-fit text-orange-600 text-xs">
                             {t('admin.subscriptions.new_price_label', {
-                              price: formatPrice(planPrice, subscription.planCurrency, locale),
+                              price: formatCurrency(planPrice, subscription.planCurrency),
                             })}
                           </Badge>
                         )}
@@ -158,7 +153,7 @@ export function SubscriptionsTable({ subscriptions }: Props) {
                     </TableCell>
                     <TableCell>{getStatusBadge(subscription.status)}</TableCell>
                     <TableCell className="font-medium text-green-600">
-                      {formatPrice(totalRevenue, subscription.subscriptionCurrency, locale)}
+                      {formatCurrency(totalRevenue, subscription.subscriptionCurrency)}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(subscription.currentPeriodStart)} →{' '}

@@ -5,6 +5,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 import { LogLevelBadge } from './log-level-badge'
 import type { Log } from './types'
 
@@ -14,7 +15,8 @@ interface Props {
 }
 
 export function LogDetailDialog({ log, onOpenChange }: Props) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatDate = useFormatDate()
 
   return (
     <Dialog open={!!log} onOpenChange={onOpenChange}>
@@ -95,15 +97,7 @@ export function LogDetailDialog({ log, onOpenChange }: Props) {
 
             <div>
               <h4 className="font-semibold mb-2">{t('admin.logs.detail_timestamp')}</h4>
-              <p className="text-sm">
-                {new Date(log.createdAt).toLocaleString(
-                  locale === 'en' ? 'en-US' : 'fr-FR',
-                  {
-                    dateStyle: 'full',
-                    timeStyle: 'long',
-                  }
-                )}
-              </p>
+              <p className="text-sm">{formatDate(log.createdAt, 'datetime-long')}</p>
             </div>
           </div>
         )}

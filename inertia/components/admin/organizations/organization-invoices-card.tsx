@@ -2,7 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Receipt, ExternalLink, Download } from 'lucide-react'
+import { EmptyState } from '@/components/core/empty-state'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import type { Invoice } from './types'
 
 interface Props {
@@ -10,17 +13,12 @@ interface Props {
 }
 
 export function OrganizationInvoicesCard({ invoices }: Props) {
-  const { t, locale } = useI18n()
-  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+  const { t } = useI18n()
+  const formatDateValue = useFormatDate()
+  const formatCurrency = useFormatCurrency()
 
-  const formatPrice = (amount: number, currency: string) =>
-    new Intl.NumberFormat(dateLocale, {
-      style: 'currency',
-      currency,
-    }).format(amount)
-
-  const formatDate = (timestamp: number) =>
-    new Date(timestamp * 1000).toLocaleDateString(dateLocale, { dateStyle: 'medium' })
+  const formatStripeDate = (timestamp: number) =>
+    formatDateValue(new Date(timestamp * 1000), 'medium')
 
   const renderStatusBadge = (status: string | null, paid: boolean) => {
     if (paid) {
@@ -58,15 +56,12 @@ export function OrganizationInvoicesCard({ invoices }: Props) {
       </CardHeader>
       <CardContent>
         {invoices.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-            <p className="text-lg font-medium">
-              {t('admin.organization_detail.empty_invoices_title')}
-            </p>
-            <p className="text-sm mt-2">
-              {t('admin.organization_detail.empty_invoices_subtitle')}
-            </p>
-          </div>
+          <EmptyState
+            icon={Receipt}
+            title={t('admin.organization_detail.empty_invoices_title')}
+            message={t('admin.organization_detail.empty_invoices_subtitle')}
+            className="py-12"
+          />
         ) : (
           <div className="space-y-3">
             {invoices.map((invoice) => (
@@ -87,14 +82,14 @@ export function OrganizationInvoicesCard({ invoices }: Props) {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>
                       {t('admin.organization_detail.invoice_created_label', {
-                        date: formatDate(invoice.created),
+                        date: formatStripeDate(invoice.created),
                       })}
                     </span>
                     {invoice.periodStart && invoice.periodEnd && (
                       <span>
                         {t('admin.organization_detail.invoice_period_label', {
-                          start: formatDate(invoice.periodStart),
-                          end: formatDate(invoice.periodEnd),
+                          start: formatStripeDate(invoice.periodStart),
+                          end: formatStripeDate(invoice.periodEnd),
                         })}
                       </span>
                     )}
@@ -103,7 +98,7 @@ export function OrganizationInvoicesCard({ invoices }: Props) {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="font-semibold text-lg">
-                      {formatPrice(
+                      {formatCurrency(
                         invoice.paid ? invoice.amountPaid : invoice.amountDue,
                         invoice.currency
                       )}
@@ -111,7 +106,7 @@ export function OrganizationInvoicesCard({ invoices }: Props) {
                     {!invoice.paid && invoice.dueDate && (
                       <div className="text-xs text-muted-foreground">
                         {t('admin.organization_detail.invoice_due_label', {
-                          date: formatDate(invoice.dueDate),
+                          date: formatStripeDate(invoice.dueDate),
                         })}
                       </div>
                     )}

@@ -14,6 +14,7 @@ import {
   type TranslatableFieldNullable,
 } from '@/lib/translatable'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 
 interface Plan {
   id: string
@@ -46,7 +47,8 @@ interface Props {
 }
 
 const OrganizationPricingPage = ({ userRole, availablePlans, currentSubscription }: Props) => {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatCurrency = useFormatCurrency()
   const canManageSubscription = ['owner', 'admin'].includes(userRole)
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -55,10 +57,7 @@ const OrganizationPricingPage = ({ userRole, availablePlans, currentSubscription
   void usePage
 
   const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(price)
+    formatCurrency(price, currency.toUpperCase())
 
   const maxSavings = Math.max(
     ...availablePlans.map((plan) => {

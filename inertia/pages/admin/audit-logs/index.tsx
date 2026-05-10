@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Shield } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
 import { useRelativeDate } from '@/hooks/use-relative-date'
+import { useFormatNumber } from '@/hooks/use-format-number'
+import { StatTile } from '@/components/core/stat-tile'
 import { DataTable } from '@/components/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter'
 import { isWithinInterval } from 'date-fns'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Activity, User, Building2 } from 'lucide-react'
 
 interface AuditLog {
@@ -72,6 +73,7 @@ const formatAction = (action: string): string => {
 export default function AuditLogs({ logs, total, hasMore, filters, stats }: Props) {
   const { t } = useI18n()
   const formatRelative = useRelativeDate()
+  const formatNumber = useFormatNumber()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const filteredLogs = useMemo(() => {
@@ -179,62 +181,35 @@ export default function AuditLogs({ logs, total, hasMore, filters, stats }: Prop
 
           {/* Statistics Cards */}
           <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t('admin.audit_logs.stats.total_logs')}
-                </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalLogs.toLocaleString()}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t('admin.audit_logs.stats.unique_users')}
-                </CardTitle>
-                <User className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.uniqueUsers.toLocaleString()}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t('admin.audit_logs.stats.unique_organizations')}
-                </CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats.uniqueOrganizations.toLocaleString()}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t('admin.audit_logs.stats.top_action')}
-                </CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm font-medium">
+            <StatTile
+              title={t('admin.audit_logs.stats.total_logs')}
+              value={formatNumber(stats.totalLogs)}
+              icon={Activity}
+            />
+            <StatTile
+              title={t('admin.audit_logs.stats.unique_users')}
+              value={formatNumber(stats.uniqueUsers)}
+              icon={User}
+            />
+            <StatTile
+              title={t('admin.audit_logs.stats.unique_organizations')}
+              value={formatNumber(stats.uniqueOrganizations)}
+              icon={Building2}
+            />
+            <StatTile
+              title={t('admin.audit_logs.stats.top_action')}
+              value={
+                <span className="text-sm font-medium">
                   {stats.topActions[0]
                     ? formatAction(stats.topActions[0].action)
                     : t('common.none')}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {stats.topActions[0] ? `${stats.topActions[0].count} ${t('common.times')}` : '-'}
-                </p>
-              </CardContent>
-            </Card>
+                </span>
+              }
+              subtitle={
+                stats.topActions[0] ? `${stats.topActions[0].count} ${t('common.times')}` : '-'
+              }
+              icon={Activity}
+            />
           </div>
 
           {/* Audit Logs Table */}

@@ -17,6 +17,7 @@ import { Monitor, Smartphone, Tablet } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 
 interface Session {
   id: string
@@ -33,7 +34,8 @@ interface Session {
 type TabType = 'active' | 'history'
 
 export default function Sessions() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatDateValue = useFormatDate()
   const { activeSessions, inactiveSessions } = usePage<{
     activeSessions: Session[]
     inactiveSessions: Session[]
@@ -55,13 +57,7 @@ export default function Sessions() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-US', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(date)
-  }
+  const formatDate = (dateString: string) => formatDateValue(dateString, 'datetime')
 
   const handleDisconnectSession = () => {
     if (!sessionToDisconnect) return

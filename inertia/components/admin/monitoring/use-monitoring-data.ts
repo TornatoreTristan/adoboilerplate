@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useFormatDate } from '@/hooks/use-format-date'
 import type { HistoryPoint, MonitoringData } from './types'
 
 interface MonitoringHistoryItem {
@@ -24,11 +25,12 @@ const HISTORY_LIMIT = 50
  * polling every 10s. The `lastUpdate` timestamp is exposed so the
  * page header can show a "X seconds ago" indicator.
  */
-export function useMonitoringData(autoRefresh: boolean, locale: string) {
+export function useMonitoringData(autoRefresh: boolean) {
   const [data, setData] = useState<MonitoringData | null>(null)
   const [history, setHistory] = useState<HistoryPoint[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState(new Date())
+  const formatDate = useFormatDate()
 
   const fetchData = useCallback(async () => {
     try {
@@ -60,10 +62,7 @@ export function useMonitoringData(autoRefresh: boolean, locale: string) {
         .slice(0, HISTORY_LIMIT)
         .reverse()
         .map((item) => ({
-          time: new Date(item.createdAt).toLocaleTimeString(locale === 'en' ? 'en-US' : 'fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          time: formatDate(item.createdAt, { hour: '2-digit', minute: '2-digit' }),
           database: item.healthData?.database?.latency || 0,
           redis: item.healthData?.redis?.latency || 0,
           cpu: item.metricsData?.process?.cpuUsagePercent || 0,
@@ -75,7 +74,7 @@ export function useMonitoringData(autoRefresh: boolean, locale: string) {
       console.error('Failed to fetch monitoring history', error)
       setHistory([])
     }
-  }, [locale])
+  }, [formatDate])
 
   useEffect(() => {
     fetchData()

@@ -5,6 +5,7 @@ import { Shield, UserCog, Users } from 'lucide-react'
 import { StatusBadge, type StatusBadgeVariant } from '@/components/core/status-badge'
 import { EmptyState } from '@/components/core/empty-state'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 import { AddMemberDialog } from './add-member-dialog'
 import type { Member } from './types'
 
@@ -14,10 +15,8 @@ interface Props {
 }
 
 export function OrganizationMembersCard({ organizationId, members }: Props) {
-  const { t, locale } = useI18n()
-  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
-  const formatDateOnly = (iso: string) =>
-    new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium' }).format(new Date(iso))
+  const { t } = useI18n()
+  const formatDate = useFormatDate()
 
   const renderRoleBadge = (role: string) => {
     const variants: Record<string, StatusBadgeVariant> = {
@@ -79,7 +78,7 @@ export function OrganizationMembersCard({ organizationId, members }: Props) {
                     <p className="text-xs text-muted-foreground">{member.email}</p>
                     <p className="text-xs text-muted-foreground">
                       {t('admin.organization_detail.member_since', {
-                        date: formatDateOnly(member.joinedAt),
+                        date: formatDate(member.joinedAt, 'medium'),
                       })}
                     </p>
                   </div>

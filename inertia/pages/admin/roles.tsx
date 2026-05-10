@@ -9,6 +9,7 @@ import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filt
 import { useState, useMemo } from 'react'
 import { isWithinInterval } from 'date-fns'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 
 interface Role {
   id: string
@@ -25,7 +26,8 @@ interface RolesPageProps {
 }
 
 const RolesPage = ({ roles }: RolesPageProps) => {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatDate = useFormatDate()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const filteredRoles = useMemo(() => {
@@ -117,20 +119,14 @@ const RolesPage = ({ roles }: RolesPageProps) => {
       {
         accessorKey: 'createdAt',
         header: t('admin.roles_list.col_created_at'),
-        cell: ({ row }) => {
-          const dateString = row.getValue('createdAt') as string
-          const date = new Date(dateString)
-          return (
-            <span className="text-sm text-muted-foreground">
-              {new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-                dateStyle: 'medium',
-              }).format(date)}
-            </span>
-          )
-        },
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {formatDate(row.getValue('createdAt') as string, 'medium')}
+          </span>
+        ),
       },
     ],
-    [t, locale]
+    [t, formatDate]
   )
 
   return (

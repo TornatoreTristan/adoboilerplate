@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Download, ExternalLink, FileText } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import { INVOICE_STATUS_COLORS, type Invoice } from './types'
 
 interface Props {
@@ -11,13 +12,8 @@ interface Props {
 }
 
 export function InvoicesList({ invoices }: Props) {
-  const { t, locale } = useI18n()
-
-  const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(price)
+  const { t } = useI18n()
+  const formatCurrency = useFormatCurrency()
 
   const statusLabel = (status: string) => {
     const known = ['paid', 'open', 'void', 'uncollectible', 'draft']
@@ -75,7 +71,7 @@ export function InvoicesList({ invoices }: Props) {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <p className="font-semibold">
-                      {formatPrice(invoice.amountDue / 100, invoice.currency)}
+                      {formatCurrency(invoice.amountDue / 100, invoice.currency.toUpperCase())}
                     </p>
                     {invoice.status === 'paid' && invoice.amountPaid > 0 && (
                       <p className="text-sm text-green-600 dark:text-green-400">

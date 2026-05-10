@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import {
   getTranslation,
   type TranslatableField,
@@ -48,12 +49,8 @@ interface PlansIndexProps {
 }
 
 const PlansIndexPage = ({ plans }: PlansIndexProps) => {
-  const { t, locale } = useI18n()
-  const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-      style: 'currency',
-      currency,
-    }).format(price)
+  const { t } = useI18n()
+  const formatPrice = useFormatCurrency()
 
   const handleDelete = (planId: string, planName: string) => {
     if (confirm(t('admin.plans_list.delete_confirm', { name: planName }))) {

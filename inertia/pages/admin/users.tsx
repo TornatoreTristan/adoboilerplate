@@ -10,6 +10,7 @@ import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filt
 import { useState, useMemo } from 'react'
 import { isWithinInterval } from 'date-fns'
 import { useRelativeDate } from '@/hooks/use-relative-date'
+import { useFormatDate } from '@/hooks/use-format-date'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +39,7 @@ interface UsersPageProps {
 const UsersPage = ({ users }: UsersPageProps) => {
   const { t } = useI18n()
   const formatRelative = useRelativeDate()
+  const formatDate = useFormatDate()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const filteredUsers = useMemo(() => {
@@ -151,17 +153,11 @@ const UsersPage = ({ users }: UsersPageProps) => {
       {
         accessorKey: 'createdAt',
         header: t('admin.users.column_signup'),
-        cell: ({ row }) => {
-          const dateString = row.getValue('createdAt') as string
-          const date = new Date(dateString)
-          return (
-            <span className="text-sm text-muted-foreground">
-              {new Intl.DateTimeFormat('fr-FR', {
-                dateStyle: 'medium',
-              }).format(date)}
-            </span>
-          )
-        },
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {formatDate(row.getValue('createdAt') as string, 'medium')}
+          </span>
+        ),
       },
       {
         accessorKey: 'lastActivity',

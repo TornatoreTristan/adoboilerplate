@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Shield, Key, Lock, FileText } from 'lucide-react'
 import { Separator } from '#inertia/components/ui/separator'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 
 interface Role {
   id: string
@@ -53,13 +54,9 @@ const getActionBadge = (action: string) => {
 }
 
 const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
-  const { t, locale } = useI18n()
-  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
-  const formatDateTime = (iso: string) =>
-    new Intl.DateTimeFormat(dateLocale, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(iso))
+  const { t } = useI18n()
+  const formatDate = useFormatDate()
+  const formatDateTime = (iso: string) => formatDate(iso, 'datetime')
 
   const permissionsByResource = permissions.reduce(
     (acc, permission) => {

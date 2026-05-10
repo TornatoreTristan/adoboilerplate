@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, Check, DollarSign, Users } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 
 interface PlanSummary {
   priceMonthly: number
@@ -29,12 +30,8 @@ interface Props {
  * the plan-show page (pricing / subscriptions count / status).
  */
 export function PlanSummaryCards({ plan, subscriptions }: Props) {
-  const { t, locale } = useI18n()
-  const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
-      style: 'currency',
-      currency,
-    }).format(price)
+  const { t } = useI18n()
+  const formatCurrency = useFormatCurrency()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -49,13 +46,13 @@ export function PlanSummaryCards({ plan, subscriptions }: Props) {
           <div className="space-y-3">
             <div>
               <div className="text-2xl font-bold">
-                {formatPrice(plan.priceMonthly, plan.currency)}
+                {formatCurrency(plan.priceMonthly, plan.currency)}
               </div>
               <div className="text-xs text-muted-foreground">{t('admin.plan_show.per_month')}</div>
             </div>
             <div>
               <div className="text-2xl font-bold">
-                {formatPrice(plan.priceYearly, plan.currency)}
+                {formatCurrency(plan.priceYearly, plan.currency)}
               </div>
               <div className="text-xs text-muted-foreground">{t('admin.plan_show.per_year')}</div>
             </div>

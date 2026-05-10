@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ShieldCheck, ShieldOff, AlertTriangle } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 
 interface Props {
   status: {
@@ -35,6 +36,7 @@ type ViewMode = 'idle' | 'setup' | 'backup-codes'
 
 export default function Security({ status }: Props) {
   const { t } = useI18n()
+  const formatDate = useFormatDate()
   const [view, setView] = useState<ViewMode>('idle')
   const [freshBackupCodes, setFreshBackupCodes] = useState<string[] | null>(null)
 
@@ -142,7 +144,7 @@ export default function Security({ status }: Props) {
                 {status.enabled && status.confirmedAt && (
                   <p className="text-sm text-muted-foreground">
                     {t('account.security.status_enabled_since', {
-                      date: new Date(status.confirmedAt).toLocaleDateString(),
+                      date: formatDate(status.confirmedAt, 'short'),
                     })}
                   </p>
                 )}

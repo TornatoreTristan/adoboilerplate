@@ -28,6 +28,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatDate } from '@/hooks/use-format-date'
 
 interface Subscription {
   id: string
@@ -58,11 +59,12 @@ export function PlanSubscriptionsTable({
   stripePriceIdMonthly,
   stripePriceIdYearly,
 }: Props) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
+  const formatDateValue = useFormatDate()
 
   const formatDate = (date: string | null) => {
     if (!date) return t('admin.plan_show.date_na')
-    return new Date(date).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
+    return formatDateValue(date, 'short')
   }
 
   const getStatusBadge = (status: string) => {

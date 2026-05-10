@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { KeyValueRow } from '@/components/core/key-value-row'
 import { useI18n } from '@/hooks/use-i18n'
 import { useRelativeDate } from '@/hooks/use-relative-date'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 import type { Member, Invoice } from './types'
 
 interface Props {
@@ -10,17 +11,14 @@ interface Props {
 }
 
 export function OrganizationStatsCard({ members, invoices }: Props) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const formatRelative = useRelativeDate()
-  const intlLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+  const formatCurrency = useFormatCurrency()
 
   const adminCount = members.filter((m) => m.role === 'admin' || m.role === 'owner').length
   const totalRevenue = invoices
     .filter((inv) => inv.paid)
     .reduce((sum, inv) => sum + inv.amountPaid, 0)
-
-  const formatPrice = (amount: number, currency: string) =>
-    new Intl.NumberFormat(intlLocale, { style: 'currency', currency }).format(amount)
 
   return (
     <Card>
@@ -45,7 +43,9 @@ export function OrganizationStatsCard({ members, invoices }: Props) {
         />
         <KeyValueRow
           label={t('admin.organization_detail.stats_total_revenue')}
-          value={invoices.length > 0 ? formatPrice(totalRevenue, invoices[0].currency) : '0 €'}
+          value={
+            invoices.length > 0 ? formatCurrency(totalRevenue, invoices[0].currency) : '0 €'
+          }
           valueClassName="font-semibold text-green-600"
         />
         {members.length > 0 && (

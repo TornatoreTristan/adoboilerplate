@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useMemo } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useFormatCurrency } from '@/hooks/use-format-currency'
 
 interface AdminIndexProps {
   user: {
@@ -31,6 +32,7 @@ interface AdminIndexProps {
 
 const Index = ({ user, stats }: AdminIndexProps) => {
   const { t } = useI18n()
+  const formatPrice = useFormatCurrency()
 
   const usersChartConfig = {
     count: {
@@ -66,13 +68,6 @@ const Index = ({ user, stats }: AdminIndexProps) => {
     () => Math.round((stats.activeUsers / stats.totalUsers) * 100),
     [stats.activeUsers, stats.totalUsers]
   )
-
-  const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: currency,
-    }).format(amount)
-  }
 
   return (
     <>
