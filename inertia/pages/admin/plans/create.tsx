@@ -1,5 +1,6 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
+import { useI18n } from '@/hooks/use-i18n'
 import { Head, router, useForm } from '@inertiajs/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,6 +28,7 @@ interface PricingTier {
 }
 
 const CreatePlanPage = () => {
+  const { t } = useI18n()
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     slug: '',
@@ -93,12 +95,17 @@ const CreatePlanPage = () => {
 
   return (
     <>
-      <Head title="Créer un plan" />
-      <AdminLayout breadcrumbs={[{ label: 'Plans', href: '/admin/plans' }, { label: 'Créer' }]}>
+      <Head title={t('admin.plans_create.head_title')} />
+      <AdminLayout
+        breadcrumbs={[
+          { label: t('admin.plans_form.breadcrumb_plans'), href: '/admin/plans' },
+          { label: t('admin.plans_create.breadcrumb_create') },
+        ]}
+      >
         <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
           <PageHeader
-            title="Créer un plan d'abonnement"
-            description="Définissez un nouveau plan pour votre SaaS avec tarification et fonctionnalités"
+            title={t('admin.plans_create.title')}
+            description={t('admin.plans_create.description')}
             icon={CreditCard}
           />
 
@@ -108,14 +115,16 @@ const CreatePlanPage = () => {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  <CardTitle>Informations générales</CardTitle>
+                  <CardTitle>{t('admin.plans_form.section_general_title')}</CardTitle>
                 </div>
-                <CardDescription>Nom et description du plan d'abonnement</CardDescription>
+                <CardDescription>
+                  {t('admin.plans_form.section_general_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nom du plan *</Label>
+                    <Label htmlFor="name">{t('admin.plans_form.field_name')}</Label>
                     <Input
                       id="name"
                       value={data.name}
@@ -131,35 +140,35 @@ const CreatePlanPage = () => {
                           setData('slug', slug)
                         }
                       }}
-                      placeholder="Pro"
+                      placeholder={t('admin.plans_form.field_name_placeholder')}
                     />
                     {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="slug">Slug *</Label>
+                    <Label htmlFor="slug">{t('admin.plans_form.field_slug')}</Label>
                     <Input
                       id="slug"
                       value={data.slug}
                       onChange={(e) =>
                         setData('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))
                       }
-                      placeholder="pro"
+                      placeholder={t('admin.plans_form.field_slug_placeholder')}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Uniquement lettres minuscules, chiffres et tirets
+                      {t('admin.plans_form.field_slug_help')}
                     </p>
                     {errors.slug && <p className="text-sm text-destructive">{errors.slug}</p>}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t('admin.plans_form.field_description')}</Label>
                   <Textarea
                     id="description"
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
-                    placeholder="Décrivez les avantages de ce plan..."
+                    placeholder={t('admin.plans_form.field_description_placeholder')}
                     rows={3}
                   />
                 </div>
@@ -171,14 +180,16 @@ const CreatePlanPage = () => {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-primary" />
-                  <CardTitle>Tarification</CardTitle>
+                  <CardTitle>{t('admin.plans_form.section_pricing_title')}</CardTitle>
                 </div>
-                <CardDescription>Configuration du modèle de pricing et tarifs</CardDescription>
+                <CardDescription>
+                  {t('admin.plans_form.section_pricing_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Modèle de pricing */}
                 <div className="space-y-2">
-                  <Label htmlFor="pricingModel">Modèle de tarification *</Label>
+                  <Label htmlFor="pricingModel">{t('admin.plans_form.field_pricing_model')}</Label>
                   <Select
                     value={data.pricingModel}
                     onValueChange={(value) => setData('pricingModel', value as PricingModel)}
@@ -187,20 +198,19 @@ const CreatePlanPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="flat">Prix fixe</SelectItem>
-                      <SelectItem value="per_seat">Par utilisateur (per-seat)</SelectItem>
-                      <SelectItem value="tiered">Par tranches (tiered)</SelectItem>
-                      <SelectItem value="volume">Volume dégressif</SelectItem>
+                      <SelectItem value="flat">{t('admin.plans_form.model_flat')}</SelectItem>
+                      <SelectItem value="per_seat">
+                        {t('admin.plans_form.model_per_seat')}
+                      </SelectItem>
+                      <SelectItem value="tiered">{t('admin.plans_form.model_tiered')}</SelectItem>
+                      <SelectItem value="volume">{t('admin.plans_form.model_volume')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {data.pricingModel === 'flat' && 'Prix fixe mensuel ou annuel'}
-                    {data.pricingModel === 'per_seat' &&
-                      'Prix de base + prix par utilisateur supplémentaire'}
-                    {data.pricingModel === 'tiered' &&
-                      "Prix fixe selon la tranche de nombre d'utilisateurs"}
-                    {data.pricingModel === 'volume' &&
-                      'Prix par utilisateur dégressif selon le volume'}
+                    {data.pricingModel === 'flat' && t('admin.plans_form.model_flat_help')}
+                    {data.pricingModel === 'per_seat' && t('admin.plans_form.model_per_seat_help')}
+                    {data.pricingModel === 'tiered' && t('admin.plans_form.model_tiered_help')}
+                    {data.pricingModel === 'volume' && t('admin.plans_form.model_volume_help')}
                   </p>
                 </div>
 
@@ -208,7 +218,7 @@ const CreatePlanPage = () => {
 
                 {/* Devise */}
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Devise *</Label>
+                  <Label htmlFor="currency">{t('admin.plans_form.field_currency')}</Label>
                   <Select
                     value={data.currency}
                     onValueChange={(value) => setData('currency', value)}
@@ -223,7 +233,7 @@ const CreatePlanPage = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Les prix mensuels et annuels seront dans cette devise
+                    {t('admin.plans_form.field_currency_help')}
                   </p>
                 </div>
 
@@ -233,7 +243,9 @@ const CreatePlanPage = () => {
                 {data.pricingModel === 'flat' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="priceMonthly">Prix mensuel *</Label>
+                      <Label htmlFor="priceMonthly">
+                        {t('admin.plans_form.field_price_monthly')}
+                      </Label>
                       <Input
                         id="priceMonthly"
                         type="number"
@@ -246,7 +258,9 @@ const CreatePlanPage = () => {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="priceYearly">Prix annuel *</Label>
+                      <Label htmlFor="priceYearly">
+                        {t('admin.plans_form.field_price_yearly')}
+                      </Label>
                       <Input
                         id="priceYearly"
                         type="number"
@@ -265,7 +279,9 @@ const CreatePlanPage = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="priceMonthly">Prix par siège (mensuel) *</Label>
+                        <Label htmlFor="priceMonthly">
+                          {t('admin.plans_form.field_price_monthly_per_seat')}
+                        </Label>
                         <Input
                           id="priceMonthly"
                           type="number"
@@ -276,10 +292,14 @@ const CreatePlanPage = () => {
                         {errors.priceMonthly && (
                           <p className="text-sm text-destructive">{errors.priceMonthly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">Prix par utilisateur/mois</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t('admin.plans_form.field_price_per_user_monthly_help')}
+                        </p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="priceYearly">Prix par siège (annuel) *</Label>
+                        <Label htmlFor="priceYearly">
+                          {t('admin.plans_form.field_price_yearly_per_seat')}
+                        </Label>
                         <Input
                           id="priceYearly"
                           type="number"
@@ -290,16 +310,18 @@ const CreatePlanPage = () => {
                         {errors.priceYearly && (
                           <p className="text-sm text-destructive">{errors.priceYearly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">Prix par utilisateur/an</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t('admin.plans_form.field_price_per_user_yearly_help')}
+                        </p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg bg-muted/50">
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Modèle par siège :</strong> Le prix est multiplié par le nombre
-                        d'utilisateurs.
-                        <br />
-                        Exemple : 5 utilisateurs × 29€ = 145€/mois
-                      </p>
+                      <p
+                        className="text-sm text-muted-foreground"
+                        dangerouslySetInnerHTML={{
+                          __html: t('admin.plans_form.per_seat_example'),
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -307,16 +329,16 @@ const CreatePlanPage = () => {
                 {(data.pricingModel === 'tiered' || data.pricingModel === 'volume') && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label>Paliers de tarification *</Label>
+                      <Label>{t('admin.plans_form.field_pricing_tiers')}</Label>
                       <Button type="button" variant="outline" size="sm" onClick={addTier}>
                         <Plus className="mr-2 h-4 w-4" />
-                        Ajouter un palier
+                        {t('admin.plans_form.add_tier')}
                       </Button>
                     </div>
                     {data.pricingTiers.map((tier, index) => (
                       <div key={index} className="flex gap-2 items-end p-4 border rounded-lg">
                         <div className="flex-1 space-y-2">
-                          <Label>Utilisateurs min</Label>
+                          <Label>{t('admin.plans_form.tier_min_users')}</Label>
                           <Input
                             type="number"
                             min="1"
@@ -327,7 +349,7 @@ const CreatePlanPage = () => {
                           />
                         </div>
                         <div className="flex-1 space-y-2">
-                          <Label>Utilisateurs max</Label>
+                          <Label>{t('admin.plans_form.tier_max_users')}</Label>
                           <Input
                             type="number"
                             min="1"
@@ -339,12 +361,12 @@ const CreatePlanPage = () => {
                                 e.target.value ? parseInt(e.target.value) : null
                               )
                             }
-                            placeholder="Illimité"
+                            placeholder={t('admin.plans_form.tier_max_users_placeholder')}
                           />
                         </div>
                         {data.pricingModel === 'tiered' && (
                           <div className="flex-1 space-y-2">
-                            <Label>Prix fixe</Label>
+                            <Label>{t('admin.plans_form.tier_fixed_price')}</Label>
                             <Input
                               type="number"
                               step="0.01"
@@ -357,7 +379,7 @@ const CreatePlanPage = () => {
                         )}
                         {data.pricingModel === 'volume' && (
                           <div className="flex-1 space-y-2">
-                            <Label>Prix par utilisateur</Label>
+                            <Label>{t('admin.plans_form.tier_price_per_user')}</Label>
                             <Input
                               type="number"
                               step="0.01"
@@ -389,13 +411,13 @@ const CreatePlanPage = () => {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-primary" />
-                  <CardTitle>Période d'essai</CardTitle>
+                  <CardTitle>{t('admin.plans_form.section_trial_title')}</CardTitle>
                 </div>
-                <CardDescription>Offrez une période d'essai gratuite (optionnel)</CardDescription>
+                <CardDescription>{t('admin.plans_form.section_trial_description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Label htmlFor="trialDays">Nombre de jours d'essai gratuit</Label>
+                  <Label htmlFor="trialDays">{t('admin.plans_form.field_trial_days')}</Label>
                   <Input
                     id="trialDays"
                     type="number"
@@ -405,7 +427,7 @@ const CreatePlanPage = () => {
                     placeholder="0"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Laissez à 0 pour aucune période d'essai
+                    {t('admin.plans_form.field_trial_days_help')}
                   </p>
                 </div>
               </CardContent>
@@ -416,9 +438,11 @@ const CreatePlanPage = () => {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-primary" />
-                  <CardTitle>Fonctionnalités</CardTitle>
+                  <CardTitle>{t('admin.plans_form.section_features_title')}</CardTitle>
                 </div>
-                <CardDescription>Liste des fonctionnalités incluses dans ce plan</CardDescription>
+                <CardDescription>
+                  {t('admin.plans_form.section_features_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {data.features.map((feature, index) => (
@@ -426,7 +450,7 @@ const CreatePlanPage = () => {
                     <Input
                       value={feature}
                       onChange={(e) => updateFeature(index, e.target.value)}
-                      placeholder="Ex: 10 utilisateurs maximum"
+                      placeholder={t('admin.plans_form.field_feature_placeholder')}
                       className="flex-1"
                     />
                     <Button
@@ -442,7 +466,7 @@ const CreatePlanPage = () => {
                 ))}
                 <Button type="button" variant="outline" onClick={addFeature} className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
-                  Ajouter une fonctionnalité
+                  {t('admin.plans_form.add_feature')}
                 </Button>
               </CardContent>
             </Card>
@@ -452,18 +476,20 @@ const CreatePlanPage = () => {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Eye className="h-5 w-5 text-primary" />
-                  <CardTitle>Options</CardTitle>
+                  <CardTitle>{t('admin.plans_form.section_options_title')}</CardTitle>
                 </div>
-                <CardDescription>Configurez la visibilité et l'intégration Stripe</CardDescription>
+                <CardDescription>
+                  {t('admin.plans_form.section_options_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <Label htmlFor="isActive" className="text-base cursor-pointer">
-                      Plan actif
+                      {t('admin.plans_form.field_is_active')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Les utilisateurs peuvent souscrire à ce plan
+                      {t('admin.plans_form.field_is_active_help')}
                     </p>
                   </div>
                   <Switch
@@ -476,10 +502,10 @@ const CreatePlanPage = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <Label htmlFor="isVisible" className="text-base cursor-pointer">
-                      Plan visible
+                      {t('admin.plans_form.field_is_visible')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Afficher ce plan sur la page de tarification publique
+                      {t('admin.plans_form.field_is_visible_help')}
                     </p>
                   </div>
                   <Switch
@@ -494,10 +520,10 @@ const CreatePlanPage = () => {
                 <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
                   <div className="space-y-0.5">
                     <Label htmlFor="syncWithStripe" className="text-base cursor-pointer">
-                      Synchroniser avec Stripe
+                      {t('admin.plans_form.field_sync_with_stripe')}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Créer automatiquement le produit et le prix dans Stripe
+                      {t('admin.plans_form.field_sync_with_stripe_help')}
                     </p>
                   </div>
                   <Switch
@@ -517,10 +543,10 @@ const CreatePlanPage = () => {
                 onClick={() => router.visit('/admin/plans')}
                 disabled={processing}
               >
-                Annuler
+                {t('admin.plans_form.cancel')}
               </Button>
               <Button type="submit" disabled={processing}>
-                {processing ? 'Création en cours...' : 'Créer le plan'}
+                {processing ? t('admin.plans_create.submitting') : t('admin.plans_create.submit')}
               </Button>
             </div>
           </form>
