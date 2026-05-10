@@ -6,9 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { CheckCircle2, XCircle, MoreHorizontal, Pencil, Trash } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter'
-import { useState, useMemo } from 'react'
-import { isWithinInterval } from 'date-fns'
+import { DateRangeFilter } from '@/components/ui/date-range-filter'
+import { useMemo, useState } from 'react'
+import type { DateRange } from 'react-day-picker'
 import { useRelativeDate } from '@/hooks/use-relative-date'
 import { useFormatDate } from '@/hooks/use-format-date'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useI18n } from '@/hooks/use-i18n'
+import { useInertiaTableQuery } from '@/hooks/use-inertia-table-query'
 
 interface User {
   id: string
@@ -32,35 +33,44 @@ interface User {
   lastActivity: string | null
 }
 
-interface UsersPageProps {
-  users: User[]
+interface UsersFilters {
+  search: string
+  dateFrom: string
+  dateTo: string
 }
 
-const UsersPage = ({ users }: UsersPageProps) => {
+interface UsersPageProps {
+  users: User[]
+  meta: { total: number; perPage: number; currentPage: number; lastPage: number }
+  filters: UsersFilters
+}
+
+const UsersPage = ({ users, meta, filters: initialFilters }: UsersPageProps) => {
   const { t } = useI18n()
   const formatRelative = useRelativeDate()
   const formatDate = useFormatDate()
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
-  const filteredUsers = useMemo(() => {
-    if (!dateRange?.from) {
-      return users
-    }
+  const { filters, page, setSearch, setFilter, setPage } = useInertiaTableQuery<UsersFilters>({
+    url: '/admin/users',
+    initial: initialFilters,
+    initialPage: meta.currentPage,
+    only: ['users', 'meta', 'filters'],
+  })
 
-    return users.filter((user) => {
-      const userDate = new Date(user.createdAt)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() =>
+    initialFilters.dateFrom || initialFilters.dateTo
+      ? {
+          from: initialFilters.dateFrom ? new Date(initialFilters.dateFrom) : undefined,
+          to: initialFilters.dateTo ? new Date(initialFilters.dateTo) : undefined,
+        }
+      : undefined
+  )
 
-      if (dateRange.from && dateRange.to) {
-        return isWithinInterval(userDate, { start: dateRange.from, end: dateRange.to })
-      }
-
-      if (dateRange.from) {
-        return userDate >= dateRange.from
-      }
-
-      return true
-    })
-  }, [users, dateRange])
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    setFilter('dateFrom', range?.from ? range.from.toISOString() : '')
+    setFilter('dateTo', range?.to ? range.to.toISOString() : '')
+  }
 
   const columns: ColumnDef<User>[] = useMemo(
     () => [
@@ -212,13 +222,13 @@ const UsersPage = ({ users }: UsersPageProps) => {
         enableHiding: false,
       },
     ],
-    [t]
+    [t, formatDate, formatRelative]
   )
 
   const countLabel =
-    filteredUsers.length > 1
-      ? t('admin.users.count_plural', { count: filteredUsers.length })
-      : t('admin.users.count_singular', { count: filteredUsers.length })
+    meta.total > 1
+      ? t('admin.users.count_plural', { count: meta.total })
+      : t('admin.users.count_singular', { count: meta.total })
 
   return (
     <>
@@ -229,12 +239,24 @@ const UsersPage = ({ users }: UsersPageProps) => {
 
           <DataTable
             columns={columns}
-            data={filteredUsers}
-            searchKey="email"
-            searchPlaceholder={t('admin.users.search_placeholder')}
-            customFilters={<DateRangeFilter value={dateRange} onChange={setDateRange} />}
+            data={users}
             getRowId={(row) => row.id}
             onRowClick={(user) => router.visit(`/admin/users/${user.id}`)}
+            serverSearch={{
+              value: filters.search,
+              onChange: (value) => setSearch('search', value),
+              placeholder: t('admin.users.search_placeholder'),
+            }}
+            serverPagination={{
+              page,
+              perPage: meta.perPage,
+              total: meta.total,
+              lastPage: meta.lastPage,
+              onPageChange: setPage,
+            }}
+            customFilters={
+              <DateRangeFilter value={dateRange} onChange={handleDateRangeChange} />
+            }
           />
         </div>
       </AdminLayout>

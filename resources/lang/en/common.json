@@ -53,5 +53,12 @@
   "not_found_title": "Page not found",
   "not_found_message": "This page does not exist.",
   "server_error_title": "Server error",
-  "test_notification": "Send a test notification"
+  "test_notification": "Send a test notification",
+  "table": {
+    "no_results": "No results",
+    "previous": "Previous",
+    "next": "Next",
+    "showing_range": "Showing {from} to {to} of {total}",
+    "selected_count": "{count} row(s) selected"
+  }
 }

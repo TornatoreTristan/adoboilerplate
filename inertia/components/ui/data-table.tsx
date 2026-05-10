@@ -22,6 +22,21 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
+
+interface ServerPagination {
+  page: number
+  perPage: number
+  total: number
+  lastPage: number
+  onPageChange: (page: number) => void
+}
+
+interface ServerSearch {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -31,26 +46,35 @@ interface DataTableProps<TData, TValue> {
   customFilters?: React.ReactNode
   getRowId?: (row: TData) => string
   onRowClick?: (row: TData) => void
+  serverPagination?: ServerPagination
+  serverSearch?: ServerSearch
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  searchPlaceholder = 'Rechercher...',
+  searchPlaceholder,
   customFilters,
   getRowId,
   onRowClick,
+  serverPagination,
+  serverSearch,
 }: DataTableProps<TData, TValue>) {
+  const { t } = useI18n()
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+  const isServerDriven = !!serverPagination
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(isServerDriven
+      ? { manualPagination: true, pageCount: serverPagination!.lastPage }
+      : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -64,24 +88,37 @@ export function DataTable<TData, TValue>({
     },
   })
 
+  const showSearch = !!serverSearch || !!searchKey
+  const placeholder =
+    serverSearch?.placeholder ?? searchPlaceholder ?? `${t('common.search')}...`
+
   return (
     <div className="space-y-4">
-      {(searchKey || customFilters) && (
+      {(showSearch || customFilters) && (
         <div className="flex items-center gap-4">
-          {searchKey && (
+          {serverSearch ? (
             <Input
-              placeholder={searchPlaceholder}
+              placeholder={placeholder}
+              value={serverSearch.value}
+              onChange={(event) => serverSearch.onChange(event.target.value)}
+              className="max-w-sm"
+            />
+          ) : searchKey ? (
+            <Input
+              placeholder={placeholder}
               value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
               onChange={(event) => table.getColumn(searchKey)?.setFilterValue(event.target.value)}
               className="max-w-sm"
             />
-          )}
+          ) : null}
           {customFilters}
         </div>
       )}
       {table.getFilteredSelectedRowModel().rows.length > 0 && (
         <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} ligne(s) sélectionnée(s)
+          {t('common.table.selected_count', {
+            count: table.getFilteredSelectedRowModel().rows.length,
+          })}
         </div>
       )}
       <div className="rounded-md border border-border/80">
@@ -120,29 +157,66 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Aucun résultat
+                  {t('common.table.no_results')}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2">
+      {serverPagination ? (
+        <ServerPaginationFooter pagination={serverPagination} />
+      ) : (
+        <div className="flex items-center justify-end space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {t('common.table.previous')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {t('common.table.next')}
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ServerPaginationFooter({ pagination }: { pagination: ServerPagination }) {
+  const { t } = useI18n()
+  const { page, perPage, total, lastPage, onPageChange } = pagination
+  const from = total === 0 ? 0 : Math.min((page - 1) * perPage + 1, total)
+  const to = Math.min(page * perPage, total)
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="text-sm text-muted-foreground">
+        {t('common.table.showing_range', { from, to, total })}
+      </div>
+      <div className="flex gap-2">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+          disabled={page <= 1}
         >
-          Précédent
+          {t('common.table.previous')}
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= lastPage}
         >
-          Suivant
+          {t('common.table.next')}
         </Button>
       </div>
     </div>

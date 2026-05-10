@@ -34,10 +34,19 @@ export default class AdminController {
   async users({ request, inertia }: HttpContext) {
     const adminService = getService<AdminService>(TYPES.AdminService)
 
-    const page = Number(request.input('page', 1))
-    const perPage = Number(request.input('perPage', 20))
+    const page = Number(request.input('page', 1)) || 1
+    const perPage = Number(request.input('perPage', 20)) || 20
+    const search = (request.input('search', '') as string).trim() || undefined
+    const dateFrom = (request.input('dateFrom', '') as string) || undefined
+    const dateTo = (request.input('dateTo', '') as string) || undefined
 
-    const { data, meta } = await adminService.getUsersWithLastActivity(page, perPage)
+    const { data, meta } = await adminService.getUsersWithLastActivity({
+      page,
+      perPage,
+      search,
+      dateFrom,
+      dateTo,
+    })
 
     const formattedUsers = data.map((user) => ({
       id: user.id,
@@ -53,6 +62,7 @@ export default class AdminController {
     return inertia.render('admin/users', {
       users: formattedUsers,
       meta,
+      filters: { search: search ?? '', dateFrom: dateFrom ?? '', dateTo: dateTo ?? '' },
     })
   }
 

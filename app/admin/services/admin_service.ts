@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type UserRepository from '#users/repositories/user_repository'
+import type { UserListFilters } from '#users/repositories/user_repository'
 import type SessionRepository from '#sessions/repositories/session_repository'
 import type EmailLogRepository from '#mailing/repositories/email_log_repository'
 import type { EmailLogFilters } from '#mailing/repositories/email_log_repository'
@@ -273,15 +274,12 @@ export default class AdminService {
     return this.sessionRepository.getAverageSessionsPerUser()
   }
 
-  async getUsersWithLastActivity(
-    page: number = 1,
-    perPage: number = 20
-  ): Promise<{
+  async getUsersWithLastActivity(filters: UserListFilters = {}): Promise<{
     data: UserWithActivity[]
-    meta: { total: number; perPage: number; currentPage: number }
+    meta: { total: number; perPage: number; currentPage: number; lastPage: number }
   }> {
     const [paginated, lastActivityMap] = await Promise.all([
-      this.userRepository.paginate(page, perPage),
+      this.userRepository.findPaginatedWithFilters(filters),
       this.sessionRepository.getLastActivityByUser(),
     ])
 
@@ -296,11 +294,7 @@ export default class AdminService {
         createdAt: user.createdAt.toISO()!,
         lastActivity: lastActivityMap.get(String(user.id)) ?? null,
       })),
-      meta: {
-        total: paginated.meta.total,
-        perPage,
-        currentPage: page,
-      },
+      meta: paginated.meta,
     }
   }
 

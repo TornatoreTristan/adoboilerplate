@@ -8,6 +8,24 @@ export interface DayCount {
   count: number
 }
 
+export interface UserListFilters {
+  page?: number
+  perPage?: number
+  search?: string
+  dateFrom?: string
+  dateTo?: string
+}
+
+export interface PaginatedUsers {
+  data: UserModel[]
+  meta: {
+    total: number
+    perPage: number
+    currentPage: number
+    lastPage: number
+  }
+}
+
 @injectable()
 export default class UserRepository extends BaseRepository<typeof UserModel> {
   protected model = UserModel
@@ -103,6 +121,46 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    */
   async restoreDeletedUser(id: string): Promise<UserModel> {
     return this.restore(id)
+  }
+
+  async findPaginatedWithFilters(filters: UserListFilters = {}): Promise<PaginatedUsers> {
+    const page = filters.page ?? 1
+    const perPage = filters.perPage ?? 20
+
+    const query = this.buildBaseQuery()
+
+    if (filters.search) {
+      const term = filters.search.trim()
+      if (term.length > 0) {
+        query.whereRaw(`search_vector @@ plainto_tsquery('french', ?)`, [term])
+      }
+    }
+
+    if (filters.dateFrom) {
+      query.where('created_at', '>=', filters.dateFrom)
+    }
+    if (filters.dateTo) {
+      query.where('created_at', '<=', filters.dateTo)
+    }
+
+    const countQuery = query.clone().clearOrder().clearSelect()
+    const totalResult = await countQuery.count('* as total')
+    const total = Number((totalResult[0] as any).$extras.total)
+
+    const data = await query
+      .orderBy('created_at', 'desc')
+      .offset((page - 1) * perPage)
+      .limit(perPage)
+
+    return {
+      data,
+      meta: {
+        total,
+        perPage,
+        currentPage: page,
+        lastPage: Math.max(1, Math.ceil(total / perPage)),
+      },
+    }
   }
 
   async countByDay(sinceDate: string): Promise<DayCount[]> {
