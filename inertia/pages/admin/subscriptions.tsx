@@ -91,16 +91,16 @@ interface Props {
 }
 
 const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
-  const { locale } = useI18n()
+  const { t, locale } = useI18n()
   const [searchInput, setSearchInput] = useState(filters.search || '')
 
   const formatDate = (date: string | null) => {
-    if (!date) return 'N/A'
-    return new Date(date).toLocaleDateString('fr-FR')
+    if (!date) return t('admin.subscriptions.date_na')
+    return new Date(date).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
   }
 
   const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('fr-FR', {
+    return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
       style: 'currency',
       currency: currency,
     }).format(price)
@@ -112,9 +112,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
     const diffMs = now.getTime() - created.getTime()
     const diffMonths = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44))
 
-    if (diffMonths === 0) return 'Moins d\'1 mois'
-    if (diffMonths === 1) return '1 mois'
-    return `${diffMonths} mois`
+    if (diffMonths === 0) return t('admin.subscriptions.duration_less_than_month')
+    if (diffMonths === 1) return t('admin.subscriptions.duration_one_month')
+    return t('admin.subscriptions.duration_months', { count: diffMonths })
   }
 
   const calculateTotalRevenue = (subscription: Subscription) => {
@@ -141,15 +141,16 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
   }
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline', label: string }> = {
-      active: { variant: 'default', label: 'Actif' },
-      trialing: { variant: 'secondary', label: 'Essai' },
-      paused: { variant: 'outline', label: 'En pause' },
-      canceled: { variant: 'destructive', label: 'Annulé' },
-      past_due: { variant: 'destructive', label: 'Impayé' },
+    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+      active: 'default',
+      trialing: 'secondary',
+      paused: 'outline',
+      canceled: 'destructive',
+      past_due: 'destructive',
     }
-    const config = variants[status] || { variant: 'outline' as const, label: status }
-    return <Badge variant={config.variant}>{config.label}</Badge>
+    const variant = variants[status] ?? 'outline'
+    const label = variants[status] ? t(`admin.subscriptions.status.${status}`) : status
+    return <Badge variant={variant}>{label}</Badge>
   }
 
   const handleFilterStatus = (value: string) => {
@@ -187,55 +188,43 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
   }
 
   const handleMigrateSubscription = (subscriptionId: string, planId: string) => {
-    if (
-      confirm(
-        'Voulez-vous migrer cet abonnement vers le nouveau prix ?\n\nLe nouveau prix s\'appliquera à la prochaine période de facturation.'
-      )
-    ) {
+    if (confirm(t('admin.subscriptions.confirm_migrate'))) {
       router.post(`/admin/plans/${planId}/subscriptions/${subscriptionId}/migrate`)
     }
   }
 
   const handlePauseSubscription = (subscriptionId: string) => {
-    if (
-      confirm(
-        'Voulez-vous vraiment mettre en pause cet abonnement ?\n\nL\'organisation n\'aura plus accès aux fonctionnalités.'
-      )
-    ) {
+    if (confirm(t('admin.subscriptions.confirm_pause'))) {
       router.post(`/admin/subscriptions/${subscriptionId}/pause`)
     }
   }
 
   const handleResumeSubscription = (subscriptionId: string) => {
-    if (confirm('Voulez-vous reprendre cet abonnement ?')) {
+    if (confirm(t('admin.subscriptions.confirm_resume'))) {
       router.post(`/admin/subscriptions/${subscriptionId}/resume`)
     }
   }
 
   const handleCancelSubscription = (subscriptionId: string) => {
-    if (
-      confirm(
-        'Voulez-vous annuler cet abonnement ?\n\nL\'abonnement restera actif jusqu\'à la fin de la période en cours.'
-      )
-    ) {
+    if (confirm(t('admin.subscriptions.confirm_cancel'))) {
       router.post(`/admin/subscriptions/${subscriptionId}/cancel`)
     }
   }
 
   const handleReactivateSubscription = (subscriptionId: string) => {
-    if (confirm('Voulez-vous réactiver cet abonnement annulé ?')) {
+    if (confirm(t('admin.subscriptions.confirm_reactivate'))) {
       router.post(`/admin/subscriptions/${subscriptionId}/reactivate`)
     }
   }
 
   return (
     <>
-      <Head title="Abonnements" />
-      <AdminLayout breadcrumbs={[{ label: 'Abonnements' }]}>
+      <Head title={t('admin.subscriptions.head_title')} />
+      <AdminLayout breadcrumbs={[{ label: t('admin.subscriptions.title') }]}>
         <div className="flex flex-col gap-6 p-6">
           <PageHeader
-            title="Abonnements"
-            description={`Gérez tous les abonnements • ${stats.total} total`}
+            title={t('admin.subscriptions.title')}
+            description={t('admin.subscriptions.description', { total: stats.total })}
             icon={Receipt}
           />
 
@@ -243,7 +232,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Total</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.total')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.total}</div>
@@ -251,7 +240,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Actifs</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.active')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.active}</div>
@@ -259,7 +248,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Essai</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.trialing')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.trialing}</div>
@@ -267,7 +256,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>En pause</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.paused')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.paused}</div>
@@ -275,7 +264,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Annulés</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.canceled')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.canceled}</div>
@@ -283,7 +272,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardDescription>Impayés</CardDescription>
+                <CardDescription>{t('admin.subscriptions.stats.past_due')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-white">{stats.pastDue}</div>
@@ -296,7 +285,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Filter className="h-5 w-5 text-primary" />
-                <CardTitle>Filtres</CardTitle>
+                <CardTitle>{t('admin.subscriptions.filters_title')}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -304,7 +293,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                 {/* Recherche */}
                 <div className="flex-1 flex gap-2">
                   <Input
-                    placeholder="Rechercher une organisation..."
+                    placeholder={t('admin.subscriptions.search_placeholder')}
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -317,25 +306,25 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                 {/* Filtre Statut */}
                 <Select value={filters.status || 'all'} onValueChange={handleFilterStatus}>
                   <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="Tous les statuts" />
+                    <SelectValue placeholder={t('admin.subscriptions.filter_status_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="active">Actif</SelectItem>
-                    <SelectItem value="trialing">Essai</SelectItem>
-                    <SelectItem value="paused">En pause</SelectItem>
-                    <SelectItem value="canceled">Annulé</SelectItem>
-                    <SelectItem value="past_due">Impayé</SelectItem>
+                    <SelectItem value="all">{t('admin.subscriptions.filter_status_all')}</SelectItem>
+                    <SelectItem value="active">{t('admin.subscriptions.status.active')}</SelectItem>
+                    <SelectItem value="trialing">{t('admin.subscriptions.status.trialing')}</SelectItem>
+                    <SelectItem value="paused">{t('admin.subscriptions.status.paused')}</SelectItem>
+                    <SelectItem value="canceled">{t('admin.subscriptions.status.canceled')}</SelectItem>
+                    <SelectItem value="past_due">{t('admin.subscriptions.status.past_due')}</SelectItem>
                   </SelectContent>
                 </Select>
 
                 {/* Filtre Plan */}
                 <Select value={filters.planId || 'all'} onValueChange={handleFilterPlan}>
                   <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="Tous les plans" />
+                    <SelectValue placeholder={t('admin.subscriptions.filter_plan_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tous les plans</SelectItem>
+                    <SelectItem value="all">{t('admin.subscriptions.filter_plan_all')}</SelectItem>
                     {plans.map((plan) => (
                       <SelectItem key={plan.id} value={plan.id}>
                         {getTranslation(plan.nameI18n, locale as 'fr' | 'en')}
@@ -350,29 +339,29 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
           {/* Table des abonnements */}
           <Card>
             <CardHeader>
-              <CardTitle>Tous les abonnements ({subscriptions.length})</CardTitle>
-              <CardDescription>Liste complète des abonnements avec filtres</CardDescription>
+              <CardTitle>{t('admin.subscriptions.list_title', { count: subscriptions.length })}</CardTitle>
+              <CardDescription>{t('admin.subscriptions.list_description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {subscriptions.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Aucun abonnement trouvé</p>
-                  <p className="text-sm mt-2">Essayez de modifier les filtres</p>
+                  <p className="text-lg font-medium">{t('admin.subscriptions.empty_title')}</p>
+                  <p className="text-sm mt-2">{t('admin.subscriptions.empty_subtitle')}</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Organisation</TableHead>
-                      <TableHead>Plan</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Prix</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>CA Total</TableHead>
-                      <TableHead>Période</TableHead>
-                      <TableHead>Depuis</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.organization')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.plan')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.type')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.price')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.status')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.total_revenue')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.period')}</TableHead>
+                      <TableHead>{t('admin.subscriptions.col.since')}</TableHead>
+                      <TableHead className="text-right">{t('admin.subscriptions.col.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -397,7 +386,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="w-fit">
-                              {subscription.billingInterval === 'month' ? 'Mensuel' : 'Annuel'}
+                              {subscription.billingInterval === 'month'
+                                ? t('admin.subscriptions.type_monthly')
+                                : t('admin.subscriptions.type_yearly')}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -408,7 +399,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                               {isOutdated && (
                                 <div className="flex items-center gap-1">
                                   <Badge variant="outline" className="w-fit text-orange-600 text-xs">
-                                    Nouveau prix: {formatPrice(planPrice, subscription.planCurrency)}
+                                    {t('admin.subscriptions.new_price_label', { price: formatPrice(planPrice, subscription.planCurrency) })}
                                   </Badge>
                                 </div>
                               )}
@@ -433,14 +424,14 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>{t('common.actions')}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
                                   onClick={() => handleViewOrganization(subscription.organizationId)}
                                 >
                                   <Eye className="mr-2 h-4 w-4" />
-                                  Voir l'organisation
+                                  {t('admin.subscriptions.actions.view_organization')}
                                 </DropdownMenuItem>
 
                                 {isOutdated &&
@@ -452,7 +443,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                       }
                                     >
                                       <ArrowRight className="mr-2 h-4 w-4" />
-                                      Migrer vers nouveau prix
+                                      {t('admin.subscriptions.actions.migrate_to_new_price')}
                                     </DropdownMenuItem>
                                   )}
 
@@ -464,7 +455,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                       onClick={() => handlePauseSubscription(subscription.id)}
                                     >
                                       <Pause className="mr-2 h-4 w-4" />
-                                      Mettre en pause
+                                      {t('admin.subscriptions.actions.pause')}
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
@@ -472,7 +463,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                       className="text-destructive focus:text-destructive"
                                     >
                                       <XCircle className="mr-2 h-4 w-4" />
-                                      Annuler l'abonnement
+                                      {t('admin.subscriptions.actions.cancel')}
                                     </DropdownMenuItem>
                                   </>
                                 )}
@@ -484,7 +475,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                       onClick={() => handleResumeSubscription(subscription.id)}
                                     >
                                       <ArrowRight className="mr-2 h-4 w-4" />
-                                      Reprendre l'abonnement
+                                      {t('admin.subscriptions.actions.resume')}
                                     </DropdownMenuItem>
                                   </>
                                 )}
@@ -497,7 +488,7 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                         onClick={() => handleReactivateSubscription(subscription.id)}
                                       >
                                         <Check className="mr-2 h-4 w-4" />
-                                        Réactiver l'abonnement
+                                        {t('admin.subscriptions.actions.reactivate')}
                                       </DropdownMenuItem>
                                     </>
                                   )}

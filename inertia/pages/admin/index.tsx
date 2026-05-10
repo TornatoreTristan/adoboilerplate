@@ -8,6 +8,7 @@ import { Users, Activity, TrendingUp, DollarSign, Repeat } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useMemo } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface AdminIndexProps {
   user: {
@@ -29,26 +30,28 @@ interface AdminIndexProps {
 }
 
 const Index = ({ user, stats }: AdminIndexProps) => {
+  const { t } = useI18n()
+
   const usersChartConfig = {
     count: {
-      label: 'Utilisateurs',
+      label: t('admin.index.charts.users_growth_label'),
       color: 'hsl(var(--chart-1))',
     },
   }
 
   const sessionsChartConfig = {
     count: {
-      label: 'Sessions',
+      label: t('admin.index.charts.sessions_growth_label'),
       color: 'hsl(var(--chart-2))',
     },
   }
 
   const activeUsersData = useMemo(
     () => [
-      { name: 'Actifs', value: stats.activeUsers, fill: 'hsl(var(--chart-1))' },
-      { name: 'Inactifs', value: stats.inactiveUsers, fill: 'hsl(var(--chart-3))' },
+      { name: t('admin.index.charts.active'), value: stats.activeUsers, fill: 'hsl(var(--chart-1))' },
+      { name: t('admin.index.charts.inactive'), value: stats.inactiveUsers, fill: 'hsl(var(--chart-3))' },
     ],
-    [stats.activeUsers, stats.inactiveUsers]
+    [stats.activeUsers, stats.inactiveUsers, t]
   )
 
   const totalActivePercentage = useMemo(
@@ -65,12 +68,12 @@ const Index = ({ user, stats }: AdminIndexProps) => {
 
   return (
     <>
-      <Head title="Administration" />
+      <Head title={t('admin.index.head_title')} />
       <AdminLayout>
         <div className="flex flex-col gap-6 p-6">
           <PageHeader
-            title="Administration"
-            description={`Bienvenue ${user.fullName || user.email}`}
+            title={t('admin.index.title')}
+            description={t('admin.index.welcome', { name: user.fullName || user.email })}
             separator={true}
           />
 
@@ -78,62 +81,62 @@ const Index = ({ user, stats }: AdminIndexProps) => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">CA Total HT</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.index.stats.total_revenue_title')}</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
                   {formatPrice(stats.totalRevenue, stats.currency)}
                 </div>
-                <p className="text-xs text-muted-foreground">Chiffre d'affaires total</p>
+                <p className="text-xs text-muted-foreground">{t('admin.index.stats.total_revenue_subtitle')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">MRR</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.index.stats.mrr_title')}</CardTitle>
                 <Repeat className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
                   {formatPrice(stats.mrr, stats.currency)}
                 </div>
-                <p className="text-xs text-muted-foreground">Revenu récurrent mensuel</p>
+                <p className="text-xs text-muted-foreground">{t('admin.index.stats.mrr_subtitle')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.index.stats.users_title')}</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalUsers}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.activeUsers} actifs · {stats.inactiveUsers} inactifs
+                  {t('admin.index.stats.users_breakdown', { active: stats.activeUsers, inactive: stats.inactiveUsers })}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Sessions moy.</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.index.stats.avg_sessions_title')}</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.avgSessionsPerUser}</div>
-                <p className="text-xs text-muted-foreground">Par utilisateur</p>
+                <p className="text-xs text-muted-foreground">{t('admin.index.stats.avg_sessions_subtitle')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Activité</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.index.stats.activity_title')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalActivePercentage}%</div>
-                <p className="text-xs text-muted-foreground">Actifs (30j)</p>
+                <p className="text-xs text-muted-foreground">{t('admin.index.stats.activity_subtitle')}</p>
               </CardContent>
             </Card>
           </div>
@@ -143,8 +146,8 @@ const Index = ({ user, stats }: AdminIndexProps) => {
             {/* Évolution des utilisateurs */}
             <Card>
               <CardHeader>
-                <CardTitle>Évolution des utilisateurs</CardTitle>
-                <CardDescription>Nouveaux utilisateurs sur les 30 derniers jours</CardDescription>
+                <CardTitle>{t('admin.index.charts.users_growth_title')}</CardTitle>
+                <CardDescription>{t('admin.index.charts.users_growth_description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={usersChartConfig}>
@@ -182,8 +185,8 @@ const Index = ({ user, stats }: AdminIndexProps) => {
             {/* Évolution des sessions */}
             <Card>
               <CardHeader>
-                <CardTitle>Évolution des sessions</CardTitle>
-                <CardDescription>Nouvelles sessions sur les 30 derniers jours</CardDescription>
+                <CardTitle>{t('admin.index.charts.sessions_growth_title')}</CardTitle>
+                <CardDescription>{t('admin.index.charts.sessions_growth_description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={sessionsChartConfig}>
@@ -221,9 +224,9 @@ const Index = ({ user, stats }: AdminIndexProps) => {
             {/* Utilisateurs actifs vs inactifs */}
             <Card className="md:col-span-2">
               <CardHeader>
-                <CardTitle>Répartition des utilisateurs</CardTitle>
+                <CardTitle>{t('admin.index.charts.user_distribution_title')}</CardTitle>
                 <CardDescription>
-                  Utilisateurs actifs vs inactifs (inactif = aucune activité depuis 30 jours)
+                  {t('admin.index.charts.user_distribution_description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex items-center justify-center">
@@ -253,7 +256,7 @@ const Index = ({ user, stats }: AdminIndexProps) => {
                                   y={(viewBox.cy || 0) + 24}
                                   className="fill-muted-foreground"
                                 >
-                                  Actifs
+                                  {t('admin.index.charts.active')}
                                 </tspan>
                               </text>
                             )

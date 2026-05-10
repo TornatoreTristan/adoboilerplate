@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface User {
   id: string
@@ -34,157 +35,8 @@ interface UsersPageProps {
   users: User[]
 }
 
-const columns: ColumnDef<User>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Sélectionner tout"
-      />
-    ),
-    cell: ({ row }) => (
-      <div onClick={(e) => e.stopPropagation()}>
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Sélectionner la ligne"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'fullName',
-    header: 'Utilisateur',
-    cell: ({ row }) => {
-      const user = row.original
-      return (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user.avatarUrl || ''} alt={user.fullName || ''} />
-            <AvatarFallback>
-              {user.fullName
-                ? user.fullName
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                : user.email[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium">{user.fullName || 'Sans nom'}</p>
-            <p className="text-xs text-muted-foreground">ID: {user.id}</p>
-          </div>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <span className="text-sm">{row.getValue('email')}</span>,
-  },
-  {
-    accessorKey: 'isEmailVerified',
-    header: 'Statut',
-    cell: ({ row }) => {
-      const isVerified = row.getValue('isEmailVerified')
-      return isVerified ? (
-        <div className="flex items-center gap-2 text-green-600">
-          <CheckCircle2 className="h-4 w-4" />
-          <span className="text-sm">Vérifié</span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 text-orange-600">
-          <XCircle className="h-4 w-4" />
-          <span className="text-sm">Non vérifié</span>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'googleId',
-    header: 'Type',
-    cell: ({ row }) => {
-      const googleId = row.getValue('googleId')
-      return googleId ? (
-        <Badge variant="secondary">Google</Badge>
-      ) : (
-        <Badge variant="outline">Email</Badge>
-      )
-    },
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Inscription',
-    cell: ({ row }) => {
-      const dateString = row.getValue('createdAt') as string
-      const date = new Date(dateString)
-      return (
-        <span className="text-sm text-muted-foreground">
-          {new Intl.DateTimeFormat('fr-FR', {
-            dateStyle: 'medium',
-          }).format(date)}
-        </span>
-      )
-    },
-  },
-  {
-    accessorKey: 'lastActivity',
-    header: 'Dernière connexion',
-    cell: ({ row }) => {
-      const dateString = row.getValue('lastActivity') as string | null
-      if (!dateString) {
-        return <span className="text-sm text-muted-foreground">Jamais</span>
-      }
-      const date = new Date(dateString)
-      return (
-        <span className="text-sm text-muted-foreground">
-          Il y a {formatDistanceToNow(date, { locale: fr })}
-        </span>
-      )
-    },
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => {
-      const user = row.original
-      return (
-        <div onClick={(e) => e.stopPropagation()}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Ouvrir le menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.visit(`/admin/users/${user.id}`)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Modifier
-              </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive">
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false,
-  },
-]
-
 const UsersPage = ({ users }: UsersPageProps) => {
+  const { t } = useI18n()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const filteredUsers = useMemo(() => {
@@ -207,21 +59,176 @@ const UsersPage = ({ users }: UsersPageProps) => {
     })
   }, [users, dateRange])
 
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label={t('admin.users.select_all')}
+          />
+        ),
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label={t('admin.users.select_row')}
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: 'fullName',
+        header: t('admin.users.column_user'),
+        cell: ({ row }) => {
+          const user = row.original
+          return (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.avatarUrl || ''} alt={user.fullName || ''} />
+                <AvatarFallback>
+                  {user.fullName
+                    ? user.fullName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .toUpperCase()
+                    : user.email[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{user.fullName || t('admin.users.no_name')}</p>
+                <p className="text-xs text-muted-foreground">ID: {user.id}</p>
+              </div>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'email',
+        header: t('admin.users.column_email'),
+        cell: ({ row }) => <span className="text-sm">{row.getValue('email')}</span>,
+      },
+      {
+        accessorKey: 'isEmailVerified',
+        header: t('admin.users.column_status'),
+        cell: ({ row }) => {
+          const isVerified = row.getValue('isEmailVerified')
+          return isVerified ? (
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="text-sm">{t('admin.users.verified')}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-orange-600">
+              <XCircle className="h-4 w-4" />
+              <span className="text-sm">{t('admin.users.not_verified')}</span>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'googleId',
+        header: t('admin.users.column_type'),
+        cell: ({ row }) => {
+          const googleId = row.getValue('googleId')
+          return googleId ? (
+            <Badge variant="secondary">Google</Badge>
+          ) : (
+            <Badge variant="outline">Email</Badge>
+          )
+        },
+      },
+      {
+        accessorKey: 'createdAt',
+        header: t('admin.users.column_signup'),
+        cell: ({ row }) => {
+          const dateString = row.getValue('createdAt') as string
+          const date = new Date(dateString)
+          return (
+            <span className="text-sm text-muted-foreground">
+              {new Intl.DateTimeFormat('fr-FR', {
+                dateStyle: 'medium',
+              }).format(date)}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: 'lastActivity',
+        header: t('admin.users.column_last_login'),
+        cell: ({ row }) => {
+          const dateString = row.getValue('lastActivity') as string | null
+          if (!dateString) {
+            return <span className="text-sm text-muted-foreground">{t('admin.users.never_logged_in')}</span>
+          }
+          const date = new Date(dateString)
+          return (
+            <span className="text-sm text-muted-foreground">
+              {t('admin.users.time_ago', { time: formatDistanceToNow(date, { locale: fr }) })}
+            </span>
+          )
+        },
+      },
+      {
+        id: 'actions',
+        header: t('common.actions'),
+        cell: ({ row }) => {
+          const user = row.original
+          return (
+            <div onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">{t('admin.users.open_menu')}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.visit(`/admin/users/${user.id}`)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    {t('common.edit')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem variant="destructive">
+                    <Trash className="mr-2 h-4 w-4" />
+                    {t('common.delete')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )
+        },
+        enableSorting: false,
+        enableHiding: false,
+      },
+    ],
+    [t]
+  )
+
+  const countLabel = filteredUsers.length > 1
+    ? t('admin.users.count_plural', { count: filteredUsers.length })
+    : t('admin.users.count_singular', { count: filteredUsers.length })
+
   return (
     <>
-      <Head title="Utilisateurs" />
-      <AdminLayout breadcrumbs={[{ label: 'Utilisateurs' }]}>
+      <Head title={t('admin.users.head_title')} />
+      <AdminLayout breadcrumbs={[{ label: t('admin.users.title') }]}>
         <div className="flex flex-col gap-6 p-6">
-          <PageHeader
-            title="Utilisateurs"
-            description={`${filteredUsers.length} utilisateur${filteredUsers.length > 1 ? 's' : ''} inscrit${filteredUsers.length > 1 ? 's' : ''}`}
-          />
+          <PageHeader title={t('admin.users.title')} description={countLabel} />
 
           <DataTable
             columns={columns}
             data={filteredUsers}
             searchKey="email"
-            searchPlaceholder="Rechercher par email..."
+            searchPlaceholder={t('admin.users.search_placeholder')}
             customFilters={<DateRangeFilter value={dateRange} onChange={setDateRange} />}
             getRowId={(row) => row.id}
             onRowClick={(user) => router.visit(`/admin/users/${user.id}`)}

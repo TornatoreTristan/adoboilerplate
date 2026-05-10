@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Organization {
   id: string
@@ -91,26 +92,8 @@ const getRoleIcon = (role: string) => {
   return <Users className="h-4 w-4" />
 }
 
-const getRoleBadge = (role: string) => {
-  const variants: Record<string, { variant: 'default' | 'secondary' | 'outline'; label: string }> =
-    {
-      owner: { variant: 'default', label: 'Propriétaire' },
-      admin: { variant: 'default', label: 'Admin' },
-      moderator: { variant: 'secondary', label: 'Modérateur' },
-      member: { variant: 'outline', label: 'Membre' },
-    }
-
-  const config = variants[role] || { variant: 'outline' as const, label: role }
-
-  return (
-    <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
-      {getRoleIcon(role)}
-      {config.label}
-    </Badge>
-  )
-}
-
 const OrganizationDetailPage = ({ organization, members, invoices }: OrganizationDetailPageProps) => {
+  const { t, locale } = useI18n()
   const adminCount = members.filter((m) => m.role === 'admin' || m.role === 'owner').length
   const [open, setOpen] = useState(false)
   const { flash } = usePage<any>().props
@@ -119,38 +102,74 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
     role: 'member',
   })
 
+  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+
   const formatPrice = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('fr-FR', {
+    return new Intl.NumberFormat(dateLocale, {
       style: 'currency',
       currency: currency,
     }).format(amount)
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleDateString('fr-FR', {
+    return new Date(timestamp * 1000).toLocaleDateString(dateLocale, {
       dateStyle: 'medium',
     })
   }
 
-  const getStatusBadge = (status: string | null, paid: boolean) => {
+  const formatDateTime = (iso: string) => {
+    return new Intl.DateTimeFormat(dateLocale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso))
+  }
+
+  const formatDateOnly = (iso: string) => {
+    return new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium' }).format(new Date(iso))
+  }
+
+  const renderRoleBadge = (role: string) => {
+    const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
+      owner: 'default',
+      admin: 'default',
+      moderator: 'secondary',
+      member: 'outline',
+    }
+    const variant = variants[role] ?? 'outline'
+    const label = variants[role] ? t(`admin.organization_detail.role.${role}`) : role
+    return (
+      <Badge variant={variant} className="flex items-center gap-1 w-fit">
+        {getRoleIcon(role)}
+        {label}
+      </Badge>
+    )
+  }
+
+  const renderInvoiceStatusBadge = (status: string | null, paid: boolean) => {
     if (paid) {
-      return <Badge variant="default" className="bg-green-600">Payée</Badge>
+      return (
+        <Badge variant="default" className="bg-green-600">
+          {t('admin.organization_detail.invoice_status.paid')}
+        </Badge>
+      )
     }
     if (status === 'open') {
-      return <Badge variant="secondary">En attente</Badge>
+      return <Badge variant="secondary">{t('admin.organization_detail.invoice_status.open')}</Badge>
     }
     if (status === 'void') {
-      return <Badge variant="outline">Annulée</Badge>
+      return <Badge variant="outline">{t('admin.organization_detail.invoice_status.void')}</Badge>
     }
     if (status === 'uncollectible') {
-      return <Badge variant="destructive">Irrécouvrable</Badge>
+      return (
+        <Badge variant="destructive">
+          {t('admin.organization_detail.invoice_status.uncollectible')}
+        </Badge>
+      )
     }
     return <Badge variant="outline">{status}</Badge>
   }
 
-  const totalRevenue = invoices
-    .filter(inv => inv.paid)
-    .reduce((sum, inv) => sum + inv.amountPaid, 0)
+  const totalRevenue = invoices.filter((inv) => inv.paid).reduce((sum, inv) => sum + inv.amountPaid, 0)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -172,10 +191,10 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
 
   return (
     <>
-      <Head title={`Organisation - ${organization.name}`} />
+      <Head title={t('admin.organization_detail.head_title', { name: organization.name })} />
       <AdminLayout
         breadcrumbs={[
-          { label: 'Organisations', href: '/admin/organizations' },
+          { label: t('admin.organization_detail.breadcrumb_organizations'), href: '/admin/organizations' },
           { label: organization.name },
         ]}
       >
@@ -203,30 +222,30 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
             {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Informations générales</CardTitle>
+                <CardTitle>{t('admin.organization_detail.general_info_title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">ID</span>
+                    <span className="text-muted-foreground">{t('admin.organization_detail.field_id')}</span>
                     <span className="font-mono text-xs">{organization.id}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Slug</span>
+                    <span className="text-muted-foreground">{t('admin.organization_detail.field_slug')}</span>
                     <span className="font-mono">/{organization.slug}</span>
                   </div>
 
                   {organization.description && (
                     <div className="flex flex-col gap-2 text-sm">
-                      <span className="text-muted-foreground">Description</span>
+                      <span className="text-muted-foreground">{t('admin.organization_detail.field_description')}</span>
                       <p className="text-sm">{organization.description}</p>
                     </div>
                   )}
 
                   {organization.website && (
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-muted-foreground">Site web</span>
+                      <span className="text-muted-foreground">{t('admin.organization_detail.field_website')}</span>
                       <a
                         href={organization.website}
                         target="_blank"
@@ -240,38 +259,28 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                   )}
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Statut</span>
+                    <span className="text-muted-foreground">{t('admin.organization_detail.field_status')}</span>
                     {organization.isActive ? (
                       <div className="flex items-center gap-1 text-green-600">
                         <CheckCircle2 className="h-4 w-4" />
-                        <span>Active</span>
+                        <span>{t('admin.organization_detail.status_active')}</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 text-orange-600">
                         <XCircle className="h-4 w-4" />
-                        <span>Inactive</span>
+                        <span>{t('admin.organization_detail.status_inactive')}</span>
                       </div>
                     )}
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Créée le</span>
-                    <span>
-                      {new Intl.DateTimeFormat('fr-FR', {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(organization.createdAt))}
-                    </span>
+                    <span className="text-muted-foreground">{t('admin.organization_detail.field_created_at')}</span>
+                    <span>{formatDateTime(organization.createdAt)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dernière mise à jour</span>
-                    <span>
-                      {new Intl.DateTimeFormat('fr-FR', {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(organization.updatedAt))}
-                    </span>
+                    <span className="text-muted-foreground">{t('admin.organization_detail.field_updated_at')}</span>
+                    <span>{formatDateTime(organization.updatedAt)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -280,36 +289,44 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
             {/* Statistiques */}
             <Card>
               <CardHeader>
-                <CardTitle>Statistiques</CardTitle>
+                <CardTitle>{t('admin.organization_detail.statistics_title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Membres totaux</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.organization_detail.stats_total_members')}
+                  </span>
                   <span className="font-semibold">{members.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Administrateurs</span>
+                  <span className="text-sm text-muted-foreground">{t('admin.organization_detail.stats_admins')}</span>
                   <span className="font-semibold">{adminCount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Factures totales</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.organization_detail.stats_total_invoices')}
+                  </span>
                   <span className="font-semibold">{invoices.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">CA total</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.organization_detail.stats_total_revenue')}
+                  </span>
                   <span className="font-semibold text-green-600">
                     {invoices.length > 0 ? formatPrice(totalRevenue, invoices[0].currency) : '0 €'}
                   </span>
                 </div>
                 {members.length > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Dernier membre ajouté</span>
+                    <span className="text-sm text-muted-foreground">
+                      {t('admin.organization_detail.stats_last_member_added')}
+                    </span>
                     <span className="text-sm">
-                      Il y a{' '}
-                      {formatDistanceToNow(
-                        new Date(members[members.length - 1].joinedAt),
-                        { locale: fr }
-                      )}
+                      {t('admin.organization_detail.stats_time_ago', {
+                        time: formatDistanceToNow(new Date(members[members.length - 1].joinedAt), {
+                          locale: fr,
+                        }),
+                      })}
                     </span>
                   </div>
                 )}
@@ -320,30 +337,31 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
           {/* Membres */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Membres ({members.length})</CardTitle>
+              <CardTitle>
+                {t('admin.organization_detail.members_title', { count: members.length })}
+              </CardTitle>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
-                    Ajouter un membre
+                    {t('admin.organization_detail.add_member_button')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                      <DialogTitle>Ajouter un membre</DialogTitle>
+                      <DialogTitle>{t('admin.organization_detail.add_member_dialog_title')}</DialogTitle>
                       <DialogDescription>
-                        Ajoutez un utilisateur existant à cette organisation en saisissant son
-                        email.
+                        {t('admin.organization_detail.add_member_dialog_description')}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="email">Email de l'utilisateur</Label>
+                        <Label htmlFor="email">{t('admin.organization_detail.email_label')}</Label>
                         <Input
                           id="email"
                           type="email"
-                          placeholder="utilisateur@example.com"
+                          placeholder={t('admin.organization_detail.email_placeholder')}
                           value={data.email}
                           onChange={(e) => setData('email', e.target.value)}
                           required
@@ -351,26 +369,26 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                         {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="role">Rôle</Label>
+                        <Label htmlFor="role">{t('admin.organization_detail.role_label')}</Label>
                         <Select value={data.role} onValueChange={(value) => setData('role', value)}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez un rôle" />
+                            <SelectValue placeholder={t('admin.organization_detail.role_placeholder')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="owner">Propriétaire</SelectItem>
-                            <SelectItem value="admin">Administrateur</SelectItem>
-                            <SelectItem value="moderator">Modérateur</SelectItem>
-                            <SelectItem value="member">Membre</SelectItem>
+                            <SelectItem value="owner">{t('admin.organization_detail.role.owner')}</SelectItem>
+                            <SelectItem value="admin">{t('admin.organization_detail.role.admin')}</SelectItem>
+                            <SelectItem value="moderator">{t('admin.organization_detail.role.moderator')}</SelectItem>
+                            <SelectItem value="member">{t('admin.organization_detail.role.member')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <DialogFooter>
                       <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                        Annuler
+                        {t('common.cancel')}
                       </Button>
                       <Button type="submit" disabled={processing}>
-                        Ajouter
+                        {t('admin.organization_detail.submit_add_member')}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -380,7 +398,7 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
             <CardContent>
               {members.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Aucun membre dans cette organisation
+                  {t('admin.organization_detail.empty_members')}
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -406,16 +424,13 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">
-                              {member.fullName || 'Sans nom'}
+                              {member.fullName || t('admin.organization_detail.member_no_name')}
                             </span>
-                            {getRoleBadge(member.role)}
+                            {renderRoleBadge(member.role)}
                           </div>
                           <p className="text-xs text-muted-foreground">{member.email}</p>
                           <p className="text-xs text-muted-foreground">
-                            Membre depuis{' '}
-                            {new Intl.DateTimeFormat('fr-FR', {
-                              dateStyle: 'medium',
-                            }).format(new Date(member.joinedAt))}
+                            {t('admin.organization_detail.member_since', { date: formatDateOnly(member.joinedAt) })}
                           </p>
                         </div>
                       </div>
@@ -431,15 +446,17 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Receipt className="h-5 w-5 text-primary" />
-                <CardTitle>Factures et paiements ({invoices.length})</CardTitle>
+                <CardTitle>
+                  {t('admin.organization_detail.invoices_title', { count: invoices.length })}
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               {invoices.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Aucune facture</p>
-                  <p className="text-sm mt-2">Cette organisation n'a pas encore de factures</p>
+                  <p className="text-lg font-medium">{t('admin.organization_detail.empty_invoices_title')}</p>
+                  <p className="text-sm mt-2">{t('admin.organization_detail.empty_invoices_subtitle')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -451,15 +468,21 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">
-                            {invoice.number || `Facture ${invoice.id.substring(0, 8)}`}
+                            {invoice.number ||
+                              t('admin.organization_detail.invoice_default_number', { id: invoice.id.substring(0, 8) })}
                           </span>
-                          {getStatusBadge(invoice.status, invoice.paid)}
+                          {renderInvoiceStatusBadge(invoice.status, invoice.paid)}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>Créée le {formatDate(invoice.created)}</span>
+                          <span>
+                            {t('admin.organization_detail.invoice_created_label', { date: formatDate(invoice.created) })}
+                          </span>
                           {invoice.periodStart && invoice.periodEnd && (
                             <span>
-                              Période: {formatDate(invoice.periodStart)} → {formatDate(invoice.periodEnd)}
+                              {t('admin.organization_detail.invoice_period_label', {
+                                start: formatDate(invoice.periodStart),
+                                end: formatDate(invoice.periodEnd),
+                              })}
                             </span>
                           )}
                         </div>
@@ -471,28 +494,20 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                           </div>
                           {!invoice.paid && invoice.dueDate && (
                             <div className="text-xs text-muted-foreground">
-                              Échéance: {formatDate(invoice.dueDate)}
+                              {t('admin.organization_detail.invoice_due_label', { date: formatDate(invoice.dueDate) })}
                             </div>
                           )}
                         </div>
                         <div className="flex gap-2">
                           {invoice.hostedInvoiceUrl && (
-                            <a
-                              href={invoice.hostedInvoiceUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
+                            <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
                                 <ExternalLink className="h-4 w-4" />
                               </Button>
                             </a>
                           )}
                           {invoice.invoicePdf && (
-                            <a
-                              href={invoice.invoicePdf}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
+                            <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer">
                               <Button variant="outline" size="sm">
                                 <Download className="h-4 w-4" />
                               </Button>
