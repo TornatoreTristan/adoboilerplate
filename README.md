@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
 
-**Project start:** 27 sept 2025 | **Last update:** 22 oct 2025 | **Version:** 0.1.5
+**Project start:** 27 sept 2025 | **Last update:** 10 mai 2026 | **Version:** 0.1.5
 
 ## ✨ Fonctionnalités
 
@@ -41,7 +41,7 @@
 
 - **Système de notifications** - Types personnalisables avec préférences utilisateur
 - **Real-time Notifications** - Server-Sent Events avec Transmit (SSE)
-- **Email System** - Templates + Queue avec Bull + Logs
+- **Email System** - SMTP provider-agnostic + templates React + queue Bull + logs
 
 ### 📊 Monitoring & Observability
 
@@ -72,6 +72,7 @@
 - **Cache:** Redis avec stratégie de tags
 - **Queue:** Bull pour jobs asynchrones (emails, etc.)
 - **Storage:** Local filesystem + AWS S3
+- **Email:** SMTP provider-agnostic (Scaleway TEM, Mailgun, SendGrid, etc.) + Bull queue
 - **Real-time:** Transmit (Server-Sent Events) pour notifications en temps réel
 - **Error Monitoring:** Sentry (backend + frontend)
 - **Payments:** Stripe (subscriptions + one-time)
@@ -181,20 +182,28 @@ const upload = await uploadService.uploadFile({
 
 ```
 app/
-├── auth/                 # Authentification
-├── organizations/        # Multi-tenant
+├── admin/               # Dashboard super-admin (stats, logs, monitoring)
+├── auth/                # Authentification (login, OAuth, password reset)
 ├── users/               # Gestion utilisateurs
 ├── sessions/            # Tracking sessions
+├── organizations/       # Multi-tenant + invitations
+├── roles/               # RBAC (rôles & permissions)
+├── billing/             # Plans, subscriptions, Stripe
+├── integrations/        # Intégrations externes (Stripe Connect, etc.)
 ├── uploads/             # File upload system
-├── notifications/       # Système de notifications
+├── notifications/       # Notifications + préférences + SSE
+├── mailing/             # SMTP, templates, queue, logs
 ├── audit/               # Audit logs & compliance
+├── gdpr/                # Export & suppression de compte (RGPD)
+├── monitoring/          # Health checks & métriques système
+├── app_settings/        # Branding, CGV/CGU, mentions légales
 ├── shared/              # Code partagé
-│   ├── container/       # IoC Container
-│   ├── repositories/    # BaseRepository
-│   ├── services/        # Services métier
-│   └── exceptions/      # Gestion erreurs
+│   ├── container/       # IoC Container (Inversify)
+│   ├── repositories/    # BaseRepository<T>
+│   ├── services/        # Services transverses (cache, eventbus, locale)
+│   └── exceptions/      # Hiérarchie d'exceptions + helpers
 docs/                    # Documentation
-tests/                   # Tests complets
+tests/                   # Tests Japa (unit + functional)
 ```
 
 ## 🎯 Prochaines Étapes
@@ -207,9 +216,9 @@ tests/                   # Tests complets
 - [x] Full-Text Search (PostgreSQL)
 - [x] Internationalization (FR/EN)
 - [x] Audit Logs (41+ tracked events)
+- [x] Super-admin Dashboard (users, organizations, roles, plans, monitoring, logs)
+- [x] Email Templates & Mailing (provider-agnostic SMTP + React templates + queue)
 - [ ] Multi-provider OAuth (GitHub, Facebook)
-- [ ] Super-admin Dashboard
-- [ ] Email Templates & Mailing
 
 ## 🤝 Contribution
 
