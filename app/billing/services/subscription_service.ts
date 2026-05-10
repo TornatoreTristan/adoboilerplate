@@ -137,30 +137,38 @@ export default class SubscriptionService {
     }
 
     // Créer la session Checkout
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: stripeCustomerId,
-      line_items: [
-        {
-          price: stripePriceId,
-          quantity: 1,
-        },
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        organizationId,
-        planId,
-        billingInterval,
-      },
-      subscription_data: {
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: 'subscription',
+        customer: stripeCustomerId,
+        line_items: [
+          {
+            price: stripePriceId,
+            quantity: 1,
+          },
+        ],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
         metadata: {
           organizationId,
           planId,
+          billingInterval,
         },
-        trial_period_days: plan.trialDays || undefined,
+        subscription_data: {
+          metadata: {
+            organizationId,
+            planId,
+          },
+          trial_period_days: plan.trialDays || undefined,
+        },
       },
-    })
+      {
+        idempotencyKey: this.buildIdempotencyKey(
+          `checkout:${planId}:${billingInterval}`,
+          organizationId
+        ),
+      }
+    )
 
     if (!session.url) {
       throw new Error('Impossible de créer la session Stripe Checkout')
@@ -180,6 +188,20 @@ export default class SubscriptionService {
     if (organizationId && subscription.organizationId !== organizationId) {
       E.forbidden('agir sur cet abonnement')
     }
+  }
+
+  /**
+   * Build an idempotency key for a Stripe write so a retried request is
+   * deduplicated server-side instead of issuing the operation twice.
+   *
+   * We bucket the timestamp at the minute level — that's tight enough to
+   * keep accidental refresh-button retries from fanning out into multiple
+   * Stripe writes, while still allowing legitimate later operations against
+   * the same subscription to use a different key.
+   */
+  private buildIdempotencyKey(action: string, subscriptionId: string): string {
+    const minuteBucket = Math.floor(Date.now() / 60_000)
+    return `${action}:${subscriptionId}:${minuteBucket}`
   }
 
   /**
@@ -218,11 +240,15 @@ export default class SubscriptionService {
 
     const stripe = await this.getStripeClient()
 
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      pause_collection: {
-        behavior: 'mark_uncollectible',
+    await stripe.subscriptions.update(
+      subscription.stripeSubscriptionId,
+      {
+        pause_collection: {
+          behavior: 'mark_uncollectible',
+        },
       },
-    })
+      { idempotencyKey: this.buildIdempotencyKey('pause', subscriptionId) }
+    )
 
     return this.subscriptionRepository.update(subscriptionId, {
       status: 'paused',
@@ -249,9 +275,13 @@ export default class SubscriptionService {
 
     const stripe = await this.getStripeClient()
 
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      pause_collection: null,
-    })
+    await stripe.subscriptions.update(
+      subscription.stripeSubscriptionId,
+      {
+        pause_collection: null,
+      },
+      { idempotencyKey: this.buildIdempotencyKey('resume', subscriptionId) }
+    )
 
     return this.subscriptionRepository.update(subscriptionId, {
       status: 'active',
@@ -279,9 +309,13 @@ export default class SubscriptionService {
 
     const stripe = await this.getStripeClient()
 
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      cancel_at_period_end: true,
-    })
+    await stripe.subscriptions.update(
+      subscription.stripeSubscriptionId,
+      {
+        cancel_at_period_end: true,
+      },
+      { idempotencyKey: this.buildIdempotencyKey('cancel', subscriptionId) }
+    )
 
     return this.subscriptionRepository.update(subscriptionId, {
       canceledAt: DateTime.now(),
@@ -312,9 +346,13 @@ export default class SubscriptionService {
 
     const stripe = await this.getStripeClient()
 
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      cancel_at_period_end: false,
-    })
+    await stripe.subscriptions.update(
+      subscription.stripeSubscriptionId,
+      {
+        cancel_at_period_end: false,
+      },
+      { idempotencyKey: this.buildIdempotencyKey('reactivate', subscriptionId) }
+    )
 
     return this.subscriptionRepository.update(subscriptionId, {
       canceledAt: null,
