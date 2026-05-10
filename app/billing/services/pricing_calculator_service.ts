@@ -1,42 +1,73 @@
 import { injectable } from 'inversify'
-import Plan, { type PricingTier } from '#billing/models/plan'
+import Plan, { type PricingModel, type PricingTier, type PlanInterval } from '#billing/models/plan'
 import { E } from '#shared/exceptions/exception_helpers'
+
+/**
+ * Shape consumed by the pricing calculator. A real Plan model exposes
+ * `priceMonthly` / `priceYearly` instead of a single `price` and does not carry
+ * `baseUsers` / `pricePerUser` (those live in `pricingTiers`). The calculator
+ * works against this normalised view so callers can either pass a Plan via
+ * {@link fromPlan} or build the shape directly in tests.
+ */
+export interface PricingInput {
+  pricingModel: PricingModel
+  price?: number
+  baseUsers?: number
+  pricePerUser?: number
+  pricingTiers?: PricingTier[] | null
+}
 
 @injectable()
 export default class PricingCalculatorService {
-  calculatePrice(plan: Plan, userCount: number): number {
+  /**
+   * Build a PricingInput from a Plan + billing interval. Per-seat plans without
+   * an explicit `baseUsers`/`pricePerUser` surface fall back to the first tier.
+   */
+  fromPlan(plan: Plan, interval: PlanInterval): PricingInput {
+    const basePrice = interval === 'year' ? plan.priceYearly : plan.priceMonthly
+    const firstTier = plan.pricingTiers?.[0]
+    return {
+      pricingModel: plan.pricingModel,
+      price: basePrice,
+      baseUsers: firstTier?.minUsers,
+      pricePerUser: firstTier?.pricePerUser,
+      pricingTiers: plan.pricingTiers ?? null,
+    }
+  }
+
+  calculatePrice(input: PricingInput, userCount: number): number {
     if (userCount < 1) {
       E.fieldInvalid('userCount', userCount, { message: 'User count must be at least 1' })
     }
 
-    switch (plan.pricingModel) {
+    switch (input.pricingModel) {
       case 'flat':
-        return this.calculateFlatPrice(plan)
+        return this.calculateFlatPrice(input)
 
       case 'per_seat':
-        return this.calculatePerSeatPrice(plan, userCount)
+        return this.calculatePerSeatPrice(input, userCount)
 
       case 'tiered':
-        return this.calculateTieredPrice(plan, userCount)
+        return this.calculateTieredPrice(input, userCount)
 
       case 'volume':
-        return this.calculateVolumePrice(plan, userCount)
+        return this.calculateVolumePrice(input, userCount)
 
       default:
-        E.fieldInvalid('pricingModel', plan.pricingModel)
+        E.fieldInvalid('pricingModel', input.pricingModel)
     }
   }
 
-  calculateQuantity(plan: Plan, userCount: number): number {
-    switch (plan.pricingModel) {
+  calculateQuantity(input: PricingInput, userCount: number): number {
+    switch (input.pricingModel) {
       case 'flat':
         return 1
 
       case 'per_seat':
-        if (!plan.baseUsers) {
+        if (!input.baseUsers) {
           return userCount
         }
-        return Math.max(userCount - plan.baseUsers, 0) + 1
+        return Math.max(userCount - input.baseUsers, 0) + 1
 
       case 'tiered':
       case 'volume':
@@ -47,32 +78,38 @@ export default class PricingCalculatorService {
     }
   }
 
-  private calculateFlatPrice(plan: Plan): number {
-    return plan.price
+  private calculateFlatPrice(input: PricingInput): number {
+    if (input.price === undefined) {
+      E.validationError('Flat pricing requires price to be set', 'price')
+    }
+    return input.price
   }
 
-  private calculatePerSeatPrice(plan: Plan, userCount: number): number {
-    if (!plan.pricePerUser) {
+  private calculatePerSeatPrice(input: PricingInput, userCount: number): number {
+    if (input.pricePerUser === undefined) {
       E.validationError('Per-seat pricing requires pricePerUser to be set', 'pricePerUser')
     }
+    if (input.price === undefined) {
+      E.validationError('Per-seat pricing requires price to be set', 'price')
+    }
 
-    const baseUsers = plan.baseUsers || 0
-    const basePrice = plan.price
+    const baseUsers = input.baseUsers || 0
+    const basePrice = input.price
 
     if (userCount <= baseUsers) {
       return basePrice
     }
 
     const additionalUsers = userCount - baseUsers
-    return basePrice + additionalUsers * plan.pricePerUser
+    return basePrice + additionalUsers * input.pricePerUser
   }
 
-  private calculateTieredPrice(plan: Plan, userCount: number): number {
-    if (!plan.pricingTiers || plan.pricingTiers.length === 0) {
+  private calculateTieredPrice(input: PricingInput, userCount: number): number {
+    if (!input.pricingTiers || input.pricingTiers.length === 0) {
       E.validationError('Tiered pricing requires pricingTiers to be set', 'pricingTiers')
     }
 
-    const tier = this.findTierForUserCount(plan.pricingTiers, userCount)
+    const tier = this.findTierForUserCount(input.pricingTiers, userCount)
 
     if (!tier) {
       E.validationError(`No pricing tier found for ${userCount} users`, 'pricingTiers')
@@ -85,15 +122,15 @@ export default class PricingCalculatorService {
     return tier.price
   }
 
-  private calculateVolumePrice(plan: Plan, userCount: number): number {
-    if (!plan.pricingTiers || plan.pricingTiers.length === 0) {
+  private calculateVolumePrice(input: PricingInput, userCount: number): number {
+    if (!input.pricingTiers || input.pricingTiers.length === 0) {
       E.validationError('Volume pricing requires pricingTiers to be set', 'pricingTiers')
     }
 
     let totalPrice = 0
     let remainingUsers = userCount
 
-    const sortedTiers = this.sortTiers(plan.pricingTiers)
+    const sortedTiers = this.sortTiers(input.pricingTiers)
 
     for (const tier of sortedTiers) {
       if (remainingUsers <= 0) break
