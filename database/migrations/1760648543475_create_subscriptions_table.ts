@@ -33,6 +33,7 @@ export default class extends BaseSchema {
           'incomplete',
           'incomplete_expired',
           'paused',
+          'unpaid',
         ])
         .notNullable()
         .defaultTo('active')

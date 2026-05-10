@@ -8,6 +8,32 @@ import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 
+/**
+ * In Stripe SDK v19 the per-period timestamps moved from the Subscription
+ * object onto each SubscriptionItem, so reading them from a Subscription
+ * directly always returns undefined. We pull them from the first item.
+ */
+function getSubscriptionPeriod(
+  sub: Stripe.Subscription
+): { start: number | null; end: number | null } {
+  const item = sub.items?.data?.[0]
+  return {
+    start: item?.current_period_start ?? null,
+    end: item?.current_period_end ?? null,
+  }
+}
+
+/**
+ * In v19 Invoice.subscription is gone; the link lives on
+ * invoice.parent.subscription_details.subscription (string id or expanded
+ * Subscription).
+ */
+function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
+  const sub = invoice.parent?.subscription_details?.subscription
+  if (!sub) return null
+  return typeof sub === 'string' ? sub : sub.id
+}
+
 export default class StripeWebhookController {
   /**
    * Gérer les webhooks Stripe
@@ -34,7 +60,11 @@ export default class StripeWebhookController {
 
     try {
       // Vérifier la signature du webhook
-      event = stripe.webhooks.constructEvent(request.raw(), signature, webhookSecret)
+      const rawBody = request.raw()
+      if (!rawBody) {
+        return response.badRequest({ error: 'Empty request body' })
+      }
+      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)
     } catch (err) {
       logger.warn({ err }, 'Signature webhook Stripe invalide')
       return response.badRequest({ error: 'Invalid signature' })
@@ -123,13 +153,11 @@ export default class StripeWebhookController {
         { subscriptionId: existingSubscription.id },
         'Abonnement déjà existant, mise à jour'
       )
-      // TODO Stripe SDK v19 type drift — current_period_start/end were
-      // moved/renamed; cast pending audit of the new shape.
-      const sub = stripeSubscription as any
+      const period = getSubscriptionPeriod(stripeSubscription)
       await subscriptionRepo.update(existingSubscription.id, {
-        status: stripeSubscription.status as any,
-        currentPeriodStart: DateTime.fromSeconds(sub.current_period_start),
-        currentPeriodEnd: DateTime.fromSeconds(sub.current_period_end),
+        status: stripeSubscription.status,
+        currentPeriodStart: period.start ? DateTime.fromSeconds(period.start) : null,
+        currentPeriodEnd: period.end ? DateTime.fromSeconds(period.end) : null,
         trialEndsAt: stripeSubscription.trial_end
           ? DateTime.fromSeconds(stripeSubscription.trial_end)
           : null,
@@ -142,6 +170,7 @@ export default class StripeWebhookController {
       const price = billingInterval === 'month' ? plan.priceMonthly : plan.priceYearly
 
       try {
+        const period = getSubscriptionPeriod(stripeSubscription)
         const newSubscription = await subscriptionRepo.create({
           organizationId,
           planId,
@@ -154,10 +183,9 @@ export default class StripeWebhookController {
           billingInterval,
           price,
           currency: plan.currency,
-          status: stripeSubscription.status as any,
-          // TODO Stripe SDK v19 type drift — see above
-          currentPeriodStart: DateTime.fromSeconds((stripeSubscription as any).current_period_start),
-          currentPeriodEnd: DateTime.fromSeconds((stripeSubscription as any).current_period_end),
+          status: stripeSubscription.status,
+          currentPeriodStart: period.start ? DateTime.fromSeconds(period.start) : null,
+          currentPeriodEnd: period.end ? DateTime.fromSeconds(period.end) : null,
           trialEndsAt: stripeSubscription.trial_end
             ? DateTime.fromSeconds(stripeSubscription.trial_end)
             : null,
@@ -188,12 +216,11 @@ export default class StripeWebhookController {
       return
     }
 
-    // TODO Stripe SDK v19 type drift — see above
-    const sub = stripeSubscription as any
+    const period = getSubscriptionPeriod(stripeSubscription)
     await subscriptionRepo.update(subscription.id, {
-      status: stripeSubscription.status as any,
-      currentPeriodStart: DateTime.fromSeconds(sub.current_period_start),
-      currentPeriodEnd: DateTime.fromSeconds(sub.current_period_end),
+      status: stripeSubscription.status,
+      currentPeriodStart: period.start ? DateTime.fromSeconds(period.start) : null,
+      currentPeriodEnd: period.end ? DateTime.fromSeconds(period.end) : null,
       trialEndsAt: stripeSubscription.trial_end
         ? DateTime.fromSeconds(stripeSubscription.trial_end)
         : null,
@@ -242,13 +269,10 @@ export default class StripeWebhookController {
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 
-    // TODO Stripe SDK v19 type drift — Invoice.subscription was relocated
-    const inv = invoice as any
-    if (!inv.subscription) return
+    const stripeSubscriptionId = getInvoiceSubscriptionId(invoice)
+    if (!stripeSubscriptionId) return
 
-    const subscription = await subscriptionRepo.findByStripeSubscriptionId(
-      inv.subscription as string
-    )
+    const subscription = await subscriptionRepo.findByStripeSubscriptionId(stripeSubscriptionId)
 
     if (!subscription) {
       logger.warn({ invoiceId: invoice.id }, 'Abonnement non trouvé pour échec de paiement')
