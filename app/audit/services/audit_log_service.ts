@@ -1,4 +1,6 @@
 import { inject, injectable } from 'inversify'
+import logger from '@adonisjs/core/services/logger'
+import env from '#start/env'
 import { TYPES } from '#shared/container/types'
 import type AuditLogRepository from '#audit/repositories/audit_log_repository'
 import type {
@@ -9,6 +11,8 @@ import type {
 } from '#audit/types/audit'
 import type AuditLog from '#audit/models/audit_log'
 import type { HttpContext } from '@adonisjs/core/http'
+
+const DEFAULT_RETENTION_DAYS = 90
 
 @injectable()
 export default class AuditLogService {
@@ -130,5 +134,38 @@ export default class AuditLogService {
    */
   async getById(id: string): Promise<AuditLog | null> {
     return this.auditLogRepository.findById(id)
+  }
+
+  /**
+   * Resolves the retention cut-off in days from an explicit override or the
+   * validated AUDIT_LOG_RETENTION_DAYS env var, falling back to 90.
+   */
+  private resolveCutoffDays(daysOverride?: number): number {
+    return daysOverride ?? env.get('AUDIT_LOG_RETENTION_DAYS') ?? DEFAULT_RETENTION_DAYS
+  }
+
+  /**
+   * Count how many audit logs would be purged for the configured retention
+   * period — used by the `audit:purge --dry-run` command.
+   */
+  async countOldLogs(daysOverride?: number): Promise<{ count: number; cutoffDays: number }> {
+    const cutoffDays = this.resolveCutoffDays(daysOverride)
+    const count = await this.auditLogRepository.countOlderThan(cutoffDays)
+    return { count, cutoffDays }
+  }
+
+  /**
+   * Purge audit logs older than the configured retention period.
+   * Reads AUDIT_LOG_RETENTION_DAYS from env (defaults to 90).
+   * daysOverride takes precedence when provided.
+   */
+  async purgeOldLogs(daysOverride?: number): Promise<{ purged: number; cutoffDays: number }> {
+    const cutoffDays = this.resolveCutoffDays(daysOverride)
+
+    const purged = await this.auditLogRepository.purgeOlderThan(cutoffDays)
+
+    logger.info({ purged, cutoffDays }, 'Audit logs purged')
+
+    return { purged, cutoffDays }
   }
 }

@@ -175,4 +175,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   | If not set, /health/ready returns a minimal response.
   */
   HEALTH_CHECK_TOKEN: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Audit log retention
+  |----------------------------------------------------------
+  | Number of days to retain audit logs before purging.
+  | Defaults to 90 when not set.
+  */
+  AUDIT_LOG_RETENTION_DAYS: Env.schema.number.optional(),
 })

@@ -1,8 +1,10 @@
 import { injectable } from 'inversify'
+import { DateTime } from 'luxon'
 import { BaseRepository } from '#shared/repositories/base_repository'
 import AuditLog from '#audit/models/audit_log'
 import type { AuditLogFilters, AuditLogWithRelations } from '#audit/types/audit'
 import db from '@adonisjs/lucid/services/db'
+import { E } from '#shared/exceptions/index'
 
 @injectable()
 export default class AuditLogRepository extends BaseRepository<typeof AuditLog> {
@@ -233,6 +235,43 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
       .limit(limit)
 
     return logs
+  }
+
+  /**
+   * Hard-delete all audit logs older than the given number of days.
+   * Bypasses BaseRepository.delete intentionally: this is a bulk maintenance
+   * operation that must never be a soft delete.
+   * Returns the number of rows deleted.
+   */
+  async purgeOlderThan(days: number): Promise<number> {
+    if (days <= 0) {
+      E.validationError('days must be a positive integer to prevent accidental full purge', 'days')
+    }
+
+    const cutoff = DateTime.now().minus({ days }).toJSDate()
+
+    const raw = (await db
+      .from('audit_logs')
+      .where('created_at', '<', cutoff)
+      .delete()) as unknown as number | [number]
+
+    return Array.isArray(raw) ? raw[0] : raw
+  }
+
+  /**
+   * Count audit logs older than the given number of days without deleting them.
+   * Used for dry-run mode in the audit:purge Ace command.
+   */
+  async countOlderThan(days: number): Promise<number> {
+    if (days <= 0) {
+      E.validationError('days must be a positive integer', 'days')
+    }
+
+    const cutoff = DateTime.now().minus({ days }).toJSDate()
+
+    const [row] = await db.from('audit_logs').where('created_at', '<', cutoff).count('* as total')
+
+    return Number(row.total)
   }
 
   /**
