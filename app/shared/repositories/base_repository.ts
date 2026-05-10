@@ -21,34 +21,45 @@ export interface PaginationResult<T> {
   }
 }
 
+/**
+ * Multi-tenant scoping prefix added to the cache key so two tenants never
+ * share a cached entry. Pass the tenant id (e.g. organization.id, user.id)
+ * any time the cached data depends on the caller's tenant context.
+ *
+ * Always pass the same scope on read AND mutation paths — otherwise the
+ * write will land on an unscoped key and the scoped read will keep returning
+ * the stale entry (or vice versa).
+ */
+export interface CacheReadOptions {
+  ttl?: number
+  tags?: string[]
+  scope?: string
+}
+
+export interface CacheMutationOptions {
+  tags?: string[]
+  scope?: string
+}
+
 export interface FindOptions {
   includeDeleted?: boolean
-  cache?: {
-    ttl?: number
-    tags?: string[]
-  }
+  cache?: CacheReadOptions
 }
 
 export interface CreateOptions {
   skipHooks?: boolean
-  cache?: {
-    tags?: string[]
-  }
+  cache?: CacheMutationOptions
 }
 
 export interface UpdateOptions {
   skipHooks?: boolean
-  cache?: {
-    tags?: string[]
-  }
+  cache?: CacheMutationOptions
 }
 
 export interface DeleteOptions {
   soft?: boolean // true = soft delete, false = hard delete
   skipHooks?: boolean
-  cache?: {
-    tags?: string[]
-  }
+  cache?: CacheMutationOptions
 }
 
 @injectable()
@@ -84,7 +95,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     id: string | number,
     options: FindOptions = {}
   ): Promise<InstanceType<TModel> | null> {
-    const cacheKey = this.buildCacheKey('id', id)
+    const cacheKey = this.buildCacheKey(options.cache?.scope, 'id', id)
 
     if (options.cache) {
       const cached = await this.cache!.get<InstanceType<TModel>>(cacheKey)
@@ -121,7 +132,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * Trouver tous les enregistrements
    */
   async findAll(options: FindOptions = {}): Promise<InstanceType<TModel>[]> {
-    const cacheKey = this.buildCacheKey('all')
+    const cacheKey = this.buildCacheKey(options.cache?.scope, 'all')
 
     if (options.cache) {
       const cached = await this.cache!.get<InstanceType<TModel>[]>(cacheKey)
@@ -223,11 +234,11 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     // Invalidation du cache
-    await this.cache!.del(this.buildCacheKey('id', id))
+    await this.cache!.del(this.buildCacheKey(options.cache?.scope, 'id', id))
     if (options.cache?.tags) {
       await this.cache!.invalidateTags(options.cache.tags)
     }
-    await this.invalidateListCaches()
+    await this.invalidateListCaches(options.cache?.scope)
 
     return record
   }
@@ -259,19 +270,19 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     // Invalidation du cache
-    await this.cache!.del(this.buildCacheKey('id', id))
+    await this.cache!.del(this.buildCacheKey(options.cache?.scope, 'id', id))
     if (options.cache?.tags) {
       await this.cache!.invalidateTags(options.cache.tags)
     }
-    await this.invalidateListCaches()
+    await this.invalidateListCaches(options.cache?.scope)
   }
 
   /**
    * Restaurer un enregistrement supprimé (soft delete)
    */
-  async restore(id: string | number): Promise<InstanceType<TModel>> {
+  async restore(id: string | number, scope?: string): Promise<InstanceType<TModel>> {
     if (!this.supportsSoftDelete()) {
-      throw new Error(`${this.getModelName()} does not support soft deletes`)
+      E.validationError(`${this.getModelName()} does not support soft deletes`)
     }
 
     const record = await this.findById(id, { includeDeleted: true })
@@ -284,8 +295,8 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     await record.save()
 
     // Invalidation du cache
-    await this.cache!.del(this.buildCacheKey('id', id))
-    await this.invalidateListCaches()
+    await this.cache!.del(this.buildCacheKey(scope, 'id', id))
+    await this.invalidateListCaches(scope)
 
     return record
   }
@@ -432,20 +443,34 @@ export abstract class BaseRepository<TModel extends LucidModel> {
   }
 
   /**
-   * Construire une clé de cache
+   * Construire une clé de cache. Le `scope` (organizationId, userId, ...)
+   * est inséré comme préfixe pour isoler les caches multi-tenant. Sans scope,
+   * la clé est globale — n'utiliser que pour des données réellement partagées
+   * entre tenants (plans publics, settings globaux, etc.).
    */
-  protected buildCacheKey(...parts: (string | number)[]): string {
-    return [this.getModelName().toLowerCase(), ...parts].join(':')
+  protected buildCacheKey(
+    scope: string | undefined,
+    ...parts: (string | number)[]
+  ): string {
+    const base = this.getModelName().toLowerCase()
+    if (scope) {
+      return [base, `scope:${scope}`, ...parts].join(':')
+    }
+    return [base, ...parts].join(':')
   }
 
   /**
-   * Invalider les caches de listes
+   * Invalider les caches de listes. Si `scope` est fourni, invalide aussi
+   * le tag scopé (ex: `users_list@org_<id>`) pour éviter de balayer le cache
+   * de toutes les organisations à chaque écriture locale.
    */
-  protected async invalidateListCaches(): Promise<void> {
-    await this.cache!.invalidateTags([
-      this.getModelName().toLowerCase(),
-      `${this.getModelName().toLowerCase()}_list`,
-    ])
+  protected async invalidateListCaches(scope?: string): Promise<void> {
+    const base = this.getModelName().toLowerCase()
+    const tags = [base, `${base}_list`]
+    if (scope) {
+      tags.push(`${base}_list@${scope}`, `${base}@${scope}`)
+    }
+    await this.cache!.invalidateTags(tags)
   }
 
   /**
