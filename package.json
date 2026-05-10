@@ -16,6 +16,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run test",
+    "worker": "node ace queue:listen",
     "email:dev": "email dev --dir inertia/emails"
   },
   "imports": {
