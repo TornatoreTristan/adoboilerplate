@@ -1,9 +1,9 @@
 import { useI18n } from '@/hooks/use-i18n'
+import { useDateFnsLocale } from '@/hooks/use-date-fns-locale'
 import { Inbox } from 'lucide-react'
 import { NotificationItem } from './notification-item'
 import type { TranslatableField } from '@/lib/translatable'
 import { format, isToday, isYesterday, startOfDay } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
 
 interface Notification {
   id: string
@@ -26,9 +26,8 @@ export function NotificationsList({
   onMarkAsRead,
   onDelete,
 }: NotificationsListProps) {
-  const { t, locale } = useI18n()
-  const typedLocale = (locale || 'fr') as 'fr' | 'en'
-  const dateLocale = typedLocale === 'fr' ? fr : enUS
+  const { t } = useI18n()
+  const dateLocale = useDateFnsLocale()
 
   if (notifications.length === 0) {
     return (

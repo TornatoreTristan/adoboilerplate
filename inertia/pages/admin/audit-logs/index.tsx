@@ -4,9 +4,8 @@ import { PageHeader } from '@/components/core/page-header'
 import { Head } from '@inertiajs/react'
 import { Badge } from '@/components/ui/badge'
 import { Shield } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { DataTable } from '@/components/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter'
@@ -71,9 +70,9 @@ const formatAction = (action: string): string => {
 }
 
 export default function AuditLogs({ logs, total, hasMore, filters, stats }: Props) {
-  const { t, locale: currentLocale } = useI18n()
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const locale = currentLocale === 'fr' ? fr : enUS
 
   const filteredLogs = useMemo(() => {
     if (!dateRange?.from) {
@@ -159,15 +158,11 @@ export default function AuditLogs({ logs, total, hasMore, filters, stats }: Prop
     {
       accessorKey: 'createdAt',
       header: t('admin.audit_logs.table.date'),
-      cell: ({ row }) => {
-        const dateString = row.getValue('createdAt') as string
-        const date = new Date(dateString)
-        return (
-          <span className="text-sm text-muted-foreground">
-            {formatDistanceToNow(date, { locale, addSuffix: true })}
-          </span>
-        )
-      },
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {formatRelative(row.getValue('createdAt') as string)}
+        </span>
+      ),
     },
   ]
 

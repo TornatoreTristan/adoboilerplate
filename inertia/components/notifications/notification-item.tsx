@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { getTranslation } from '@/lib/translatable'
 import type { TranslatableField } from '@/lib/translatable'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
 import { Bell, Trash2, AlertCircle, AlertTriangle, Info } from 'lucide-react'
 import { router } from '@inertiajs/react'
 import { useState } from 'react'
@@ -39,7 +38,7 @@ interface NotificationItemProps {
 export function NotificationItem({ notification, onMarkAsRead, onDelete }: NotificationItemProps) {
   const { t, locale } = useI18n()
   const typedLocale = (locale || 'fr') as 'fr' | 'en'
-  const dateLocale = typedLocale === 'fr' ? fr : enUS
+  const formatRelative = useRelativeDate()
   const [executingAction, setExecutingAction] = useState<number | null>(null)
 
   const getPriorityConfig = (priority: NotificationPriority) => {
@@ -147,10 +146,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
           </div>
           <div className="flex items-center gap-2">
             <time className="text-xs text-muted-foreground/70 whitespace-nowrap">
-              {formatDistanceToNow(new Date(notification.createdAt), {
-                addSuffix: true,
-                locale: dateLocale,
-              })}
+              {formatRelative(notification.createdAt)}
             </time>
             <Button
               size="sm"

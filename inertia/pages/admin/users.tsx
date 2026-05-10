@@ -8,8 +8,8 @@ import { DataTable } from '@/components/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { DateRangeFilter, type DateRange } from '@/components/ui/date-range-filter'
 import { useState, useMemo } from 'react'
-import { isWithinInterval, formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { isWithinInterval } from 'date-fns'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,6 +37,7 @@ interface UsersPageProps {
 
 const UsersPage = ({ users }: UsersPageProps) => {
   const { t } = useI18n()
+  const formatRelative = useRelativeDate()
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
   const filteredUsers = useMemo(() => {
@@ -174,10 +175,11 @@ const UsersPage = ({ users }: UsersPageProps) => {
               </span>
             )
           }
-          const date = new Date(dateString)
           return (
             <span className="text-sm text-muted-foreground">
-              {t('admin.users.time_ago', { time: formatDistanceToNow(date, { locale: fr }) })}
+              {t('admin.users.time_ago', {
+                time: formatRelative(dateString, { addSuffix: false }),
+              })}
             </span>
           )
         },
