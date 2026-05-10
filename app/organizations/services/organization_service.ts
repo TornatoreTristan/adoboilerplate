@@ -1,6 +1,9 @@
 import { injectable, inject } from 'inversify'
+import db from '@adonisjs/lucid/services/db'
 import { TYPES } from '#shared/container/types'
 import OrganizationRepository from '#organizations/repositories/organization_repository'
+import Organization from '#organizations/models/organization'
+import type CacheService from '#shared/services/cache_service'
 import type {
   CreateOrganizationData,
   OrganizationData,
@@ -10,46 +13,63 @@ import type {
 @injectable()
 export default class OrganizationService {
   constructor(
-    @inject(TYPES.OrganizationRepository) private organizationRepo: OrganizationRepository
+    @inject(TYPES.OrganizationRepository) private organizationRepo: OrganizationRepository,
+    @inject(TYPES.CacheService) private cache: CacheService
   ) {}
 
+  /**
+   * Create the organization, default the slug to the row id when none is
+   * provided, and attach the calling user as owner — all inside a single DB
+   * transaction so a partial failure (e.g. owner attach blowing up after the
+   * org row is committed) doesn't leave a half-created tenant behind.
+   */
   async create(
     organizationData: CreateOrganizationData,
     ownerUserId: string
   ): Promise<OrganizationData> {
-    // Créer l'organisation via repository
-    const organization = await this.organizationRepo.create(
-      {
-        name: organizationData.name,
-        slug: organizationData.slug || '', // Temporary, will be updated below
-        descriptionI18n: organizationData.description
-          ? {
-              fr: organizationData.description,
-              en: (organizationData as any).descriptionEn || organizationData.description,
-            }
-          : null,
-        website: organizationData.website || null,
-        isActive: true,
-      },
-      {
-        cache: { tags: ['organizations', 'user_organizations'] },
-      }
-    )
-
-    // Si pas de slug fourni, utiliser l'ID (UUID)
-    if (!organizationData.slug) {
-      await this.organizationRepo.update(
-        organization.id,
-        { slug: organization.id },
+    const organization = await db.transaction(async (trx) => {
+      const org = await Organization.create(
         {
-          cache: { tags: ['organizations', 'org_slug'] },
-        }
+          name: organizationData.name,
+          slug: organizationData.slug || '',
+          descriptionI18n: organizationData.description
+            ? {
+                fr: organizationData.description,
+                en: (organizationData as any).descriptionEn || organizationData.description,
+              }
+            : null,
+          website: organizationData.website || null,
+          isActive: true,
+        },
+        { client: trx }
       )
-      organization.slug = organization.id
-    }
 
-    // Attacher l'utilisateur comme owner via repository
-    await this.organizationRepo.addUser(organization.id, ownerUserId, 'owner')
+      if (!organizationData.slug) {
+        org.slug = org.id
+        await org.save()
+      }
+
+      await org.related('users').attach(
+        {
+          [ownerUserId]: {
+            role: 'owner',
+            joined_at: new Date(),
+          },
+        },
+        trx
+      )
+
+      return org
+    })
+
+    // Cache invalidation runs after commit so we don't poison the cache with a
+    // tenant that ended up rolling back.
+    await this.cache.invalidateTags([
+      'organizations',
+      'user_organizations',
+      'org_slug',
+      'org_members',
+    ])
 
     return {
       id: organization.id,
