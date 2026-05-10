@@ -2,11 +2,13 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import PasswordResetService from '#auth/services/password_reset_service'
+import type EmailService from '#mailing/services/email_service'
 import {
   forgotPasswordValidator,
-  resetPasswordValidator
+  resetPasswordValidator,
 } from '#auth/validators/password_reset_validator'
 import { errors } from '@vinejs/vine'
+import env from '#start/env'
 
 export default class PasswordResetController {
 
@@ -21,28 +23,25 @@ export default class PasswordResetController {
       // Valider les données
       const { email } = await request.validateUsing(forgotPasswordValidator)
 
-      try {
-        // Créer un token de réinitialisation
-        const tokenData = await passwordResetService.createPasswordResetToken(email)
+      // Créer un token de réinitialisation (retourne null si email inconnu)
+      const tokenData = await passwordResetService.createPasswordResetToken(email)
 
-        // TODO: Envoyer l'email avec le lien de réinitialisation
-        // Pour l'instant, on log le token en développement
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Password reset link:', `/password/reset/${tokenData.token}`)
-        }
+      if (tokenData) {
+        const emailService = getService<EmailService>(TYPES.EmailService)
+        const appUrl = env.get('APP_URL')
 
-        // Retourner toujours le même message pour des raisons de sécurité
-        return response.ok({
-          success: true,
-          message: 'Si cette adresse email existe, vous recevrez un lien de réinitialisation'
-        })
-      } catch (error) {
-        // Ne pas révéler si l'email existe ou non
-        return response.ok({
-          success: true,
-          message: 'Si cette adresse email existe, vous recevrez un lien de réinitialisation'
+        await emailService.sendPasswordResetEmail(email, {
+          userName: email,
+          resetUrl: `${appUrl}/password/reset/${tokenData.token}`,
+          expiresIn: '1 heure',
         })
       }
+
+      // Retourner toujours le même message pour des raisons de sécurité
+      return response.ok({
+        success: true,
+        message: 'Si cette adresse email existe, vous recevrez un lien de réinitialisation',
+      })
     } catch (error) {
       // Erreur de validation
       if (error instanceof errors.E_VALIDATION_ERROR) {

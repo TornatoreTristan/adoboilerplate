@@ -1,6 +1,7 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
+import env from '#start/env'
 import type SentryService from '#monitoring/services/sentry_service'
 
 export default class SentryProvider {
@@ -24,12 +25,12 @@ export default class SentryProvider {
 
     // Initialize Sentry with env config
     sentryService.init({
-      dsn: process.env.SENTRY_DSN || '',
-      environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'development',
+      dsn: env.get('SENTRY_DSN') || '',
+      environment: env.get('SENTRY_ENVIRONMENT') || env.get('NODE_ENV') || 'development',
       release: process.env.npm_package_version || 'unknown',
-      enabled: process.env.SENTRY_ENABLED === 'true',
-      tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
-      profilesSampleRate: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || '0.1'),
+      enabled: env.get('SENTRY_ENABLED') === 'true',
+      tracesSampleRate: parseFloat(env.get('SENTRY_TRACES_SAMPLE_RATE') || '0.1'),
+      profilesSampleRate: parseFloat(env.get('SENTRY_PROFILES_SAMPLE_RATE') || '0.1'),
     })
   }
 

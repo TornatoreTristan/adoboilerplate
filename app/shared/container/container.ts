@@ -3,6 +3,7 @@ import { Container } from 'inversify'
 import { Redis as IoRedis } from 'ioredis'
 import logger from '@adonisjs/core/services/logger'
 import app from '@adonisjs/core/services/app'
+import env from '#start/env'
 import { TYPES } from './types.js'
 
 // Services
@@ -105,10 +106,10 @@ export function configureContainer(): Container {
   // Redis client
   container.bind<IoRedis>(TYPES.RedisClient).toDynamicValue(() => {
     const redisConfig = {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
-      db: parseInt(process.env.REDIS_DB || '0'),
+      host: env.get('REDIS_HOST'),
+      port: env.get('REDIS_PORT'),
+      password: env.get('REDIS_PASSWORD') || undefined,
+      db: 0,
       retryDelayOnFailover: 100,
       enableReadyCheck: false,
       maxRetriesPerRequest: null,
@@ -133,7 +134,7 @@ export function configureContainer(): Container {
   container.bind<RateLimitService>(TYPES.RateLimitService).to(RateLimitService).inSingletonScope()
 
   // Mail Provider (driver-based, swappable via MAIL_DRIVER env)
-  const mailDriver = process.env.MAIL_DRIVER || 'smtp'
+  const mailDriver = env.get('MAIL_DRIVER')
   if (mailDriver === 'log') {
     container.bind<MailProvider>(TYPES.MailProvider).to(LogMailProvider).inSingletonScope()
   } else {

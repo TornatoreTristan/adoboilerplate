@@ -31,12 +31,15 @@ export default class AdminController {
     } as any)
   }
 
-  async users({ inertia }: HttpContext) {
+  async users({ request, inertia }: HttpContext) {
     const adminService = getService<AdminService>(TYPES.AdminService)
 
-    const usersWithActivity = await adminService.getUsersWithLastActivity()
+    const page = Number(request.input('page', 1))
+    const perPage = Number(request.input('perPage', 20))
 
-    const formattedUsers = usersWithActivity.map((user) => ({
+    const { data, meta } = await adminService.getUsersWithLastActivity(page, perPage)
+
+    const formattedUsers = data.map((user) => ({
       id: user.id,
       fullName: user.fullName,
       email: user.email,
@@ -49,6 +52,7 @@ export default class AdminController {
 
     return inertia.render('admin/users', {
       users: formattedUsers,
+      meta,
     })
   }
 
@@ -139,13 +143,17 @@ export default class AdminController {
     } as any)
   }
 
-  async organizations({ inertia }: HttpContext) {
+  async organizations({ request, inertia }: HttpContext) {
     const adminService = getService<AdminService>(TYPES.AdminService)
 
-    const organizations = await adminService.getOrganizations()
+    const page = Number(request.input('page', 1))
+    const perPage = Number(request.input('perPage', 20))
+
+    const { data, meta } = await adminService.getOrganizations(page, perPage)
 
     return inertia.render('admin/organizations', {
-      organizations,
+      organizations: data,
+      meta,
     } as any)
   }
 

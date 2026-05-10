@@ -6,8 +6,19 @@ const shieldConfig = defineConfig({
    * to learn more
    */
   csp: {
-    enabled: false,
-    directives: {},
+    enabled: true,
+    directives: {
+      defaultSrc: [`'self'`],
+      scriptSrc: [`'self'`, `'@nonce'`],
+      styleSrc: [`'self'`, `'unsafe-inline'`, 'https://fonts.bunny.net'],
+      imgSrc: [`'self'`, 'data:', 'https:'],
+      fontSrc: [`'self'`, 'data:', 'https://fonts.bunny.net'],
+      connectSrc: [
+        `'self'`,
+        ...(process.env.NODE_ENV === 'development' ? ['ws://localhost:*', 'ws://127.0.0.1:*'] : []),
+      ],
+      frameAncestors: [`'none'`],
+    },
     reportOnly: false,
   },
 
@@ -21,8 +32,6 @@ const shieldConfig = defineConfig({
       const url = ctx.request.url()
       return (
         url.startsWith('/api/') ||
-        url === '/auth/login' ||
-        url === '/auth/logout' ||
         url === '/password/forgot' ||
         url === '/password/reset' ||
         url.startsWith('/password/reset/') ||
@@ -49,7 +58,8 @@ const shieldConfig = defineConfig({
    */
   hsts: {
     enabled: true,
-    maxAge: '180 days',
+    maxAge: '365 days',
+    includeSubDomains: true,
   },
 
   /**

@@ -41,12 +41,3 @@ router
     middleware.updateSessionActivity(),
   ])
 
-// Route temporaire pour tester le middleware
-router
-  .get('/debug/current-organization', async ({ organization, response }) => {
-    return response.json({
-      id: organization.id,
-      name: organization.name,
-    })
-  })
-  .use([middleware.auth(), middleware.organizationContext()])

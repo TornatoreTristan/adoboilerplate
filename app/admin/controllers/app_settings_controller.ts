@@ -104,15 +104,16 @@ export default class AppSettingsController {
       // Read file buffer from temporary path
       const fileBuffer = await readFile(file.tmpPath!)
 
+      const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
       const upload = await uploadService.uploadFile({
         userId: user.id,
         file: fileBuffer,
-        filename: file.clientName,
+        filename: safeName,
         mimeType: file.type || 'application/octet-stream',
         size: file.size,
         disk: 'local',
         visibility: 'public',
-        storagePath: `logos/${file.clientName}`,
+        storagePath: `logos/${safeName}`,
       })
 
       await appSettingsService.updateBranding(undefined, upload.id, undefined)
@@ -151,15 +152,16 @@ export default class AppSettingsController {
       // Read file buffer from temporary path
       const fileBuffer = await readFile(file.tmpPath!)
 
+      const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
       const upload = await uploadService.uploadFile({
         userId: user.id,
         file: fileBuffer,
-        filename: file.clientName,
+        filename: safeName,
         mimeType: file.type || 'application/octet-stream',
         size: file.size,
         disk: 'local',
         visibility: 'public',
-        storagePath: `favicons/${file.clientName}`,
+        storagePath: `favicons/${safeName}`,
       })
 
       logger.info('✅ Favicon uploaded', {

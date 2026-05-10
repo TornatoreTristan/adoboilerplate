@@ -22,7 +22,6 @@ export default class UploadsController {
       size: request.input('size'),
       disk: data.disk || 'local',
       visibility: data.visibility || 'private',
-      storagePath: request.input('storagePath'),
       uploadableType: data.uploadableType,
       uploadableId: data.uploadableId,
       metadata: request.input('metadata'),

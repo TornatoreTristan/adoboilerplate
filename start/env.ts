@@ -131,4 +131,44 @@ export default await Env.create(new URL('../', import.meta.url), {
   STRIPE_SECRET_KEY: Env.schema.string(),
   STRIPE_PUBLIC_KEY: Env.schema.string(),
   STRIPE_WEBHOOK_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring Inngest
+  |----------------------------------------------------------
+  */
+  INNGEST_EVENT_KEY: Env.schema.string.optional(),
+  INNGEST_SIGNING_KEY: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring Sentry error monitoring
+  |----------------------------------------------------------
+  | All optional: Sentry is disabled when SENTRY_ENABLED is absent/false.
+  */
+  SENTRY_DSN: Env.schema.string.optional(),
+  SENTRY_ENABLED: Env.schema.string.optional(),
+  SENTRY_ENVIRONMENT: Env.schema.string.optional(),
+  SENTRY_TRACES_SAMPLE_RATE: Env.schema.string.optional(),
+  SENTRY_PROFILES_SAMPLE_RATE: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring CORS
+  |----------------------------------------------------------
+  | Comma-separated list of allowed origins.
+  | Example: https://app.example.com,https://admin.example.com
+  | If not set: permissive in development, restrictive in production.
+  */
+  CORS_ALLOWED_ORIGINS: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for protecting /health/ready endpoint
+  |----------------------------------------------------------
+  | If set, the /health/ready endpoint requires:
+  |   Authorization: Bearer <HEALTH_CHECK_TOKEN>
+  | If not set, /health/ready returns a minimal response.
+  */
+  HEALTH_CHECK_TOKEN: Env.schema.string.optional(),
 })

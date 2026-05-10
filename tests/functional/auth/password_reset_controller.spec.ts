@@ -6,6 +6,10 @@ import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
 import crypto from 'node:crypto'
 
+function hashToken(rawToken: string): string {
+  return crypto.createHash('sha256').update(rawToken).digest('hex')
+}
+
 test.group('PasswordResetController', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
@@ -76,7 +80,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -96,7 +100,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().minus({ hours: 1 })
     })
 
@@ -116,7 +120,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: 1 }),
       usedAt: DateTime.now().minus({ minutes: 30 })
     })
@@ -157,7 +161,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     const resetToken = await PasswordResetToken.create({
       email: user.email,
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -195,7 +199,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -224,7 +228,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -253,7 +257,7 @@ test.group('PasswordResetController', (group) => {
     const token = crypto.randomBytes(32).toString('hex')
     await PasswordResetToken.create({
       email: 'user@example.com',
-      token,
+      token: hashToken(token),
       expiresAt: DateTime.now().minus({ hours: 1 })
     })
 

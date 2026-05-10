@@ -3,6 +3,11 @@ import PasswordResetRepository from '#auth/repositories/password_reset_repositor
 import PasswordResetToken from '#auth/models/password_reset_token'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
+import crypto from 'node:crypto'
+
+function hashToken(rawToken: string): string {
+  return crypto.createHash('sha256').update(rawToken).digest('hex')
+}
 
 test.group('PasswordResetRepository', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -10,9 +15,11 @@ test.group('PasswordResetRepository', (group) => {
   test('devrait créer un nouveau token de réinitialisation', async ({ assert }) => {
     // Arrange
     const repository = new PasswordResetRepository()
+    const rawToken = 'test-token-123'
+    const tokenHash = hashToken(rawToken)
     const tokenData = {
       email: 'test@example.com',
-      token: 'test-token-123',
+      token: tokenHash,
       expiresAt: DateTime.now().plus({ hours: 1 })
     }
 
@@ -22,28 +29,30 @@ test.group('PasswordResetRepository', (group) => {
     // Assert
     assert.isObject(result)
     assert.equal(result.email, tokenData.email)
-    assert.equal(result.token, tokenData.token)
+    assert.equal(result.token, tokenHash)
     assert.isString(result.id)
     assert.instanceOf(result.expiresAt, DateTime as any)
   })
 
-  test('devrait trouver un token par sa valeur', async ({ assert }) => {
+  test('devrait trouver un token par sa valeur (hash SHA-256)', async ({ assert }) => {
     // Arrange
     const repository = new PasswordResetRepository()
+    const rawToken = 'unique-token-456'
+    const tokenHash = hashToken(rawToken)
     const token = await PasswordResetToken.create({
       email: 'test@example.com',
-      token: 'unique-token-456',
+      token: tokenHash,
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
-    // Act
-    const result = await repository.findByToken('unique-token-456')
+    // Act — le repository reçoit le hash, pas le token brut
+    const result = await repository.findByToken(tokenHash)
 
     // Assert
     assert.isObject(result)
     assert.equal(result?.id, token.id)
     assert.equal(result?.email, token.email)
-    assert.equal(result?.token, token.token)
+    assert.equal(result?.token, tokenHash)
   })
 
   test('devrait retourner null pour un token inexistant', async ({ assert }) => {
@@ -62,7 +71,7 @@ test.group('PasswordResetRepository', (group) => {
     const repository = new PasswordResetRepository()
     const token = await PasswordResetToken.create({
       email: 'test@example.com',
-      token: 'token-to-use',
+      token: hashToken('token-to-use'),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -84,20 +93,20 @@ test.group('PasswordResetRepository', (group) => {
     // Créer des tokens expirés
     await PasswordResetToken.create({
       email: 'expired1@example.com',
-      token: 'expired-1',
+      token: hashToken('expired-1'),
       expiresAt: DateTime.now().minus({ hours: 2 })
     })
 
     await PasswordResetToken.create({
       email: 'expired2@example.com',
-      token: 'expired-2',
+      token: hashToken('expired-2'),
       expiresAt: DateTime.now().minus({ days: 1 })
     })
 
     // Créer un token valide
     await PasswordResetToken.create({
       email: 'valid@example.com',
-      token: 'valid-token',
+      token: hashToken('valid-token'),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -109,7 +118,7 @@ test.group('PasswordResetRepository', (group) => {
 
     const remainingTokens = await PasswordResetToken.all()
     assert.lengthOf(remainingTokens, 1)
-    assert.equal(remainingTokens[0].token, 'valid-token')
+    assert.equal(remainingTokens[0].token, hashToken('valid-token'))
   })
 
   test('devrait supprimer tous les tokens pour un email donné', async ({ assert }) => {
@@ -120,20 +129,20 @@ test.group('PasswordResetRepository', (group) => {
     // Créer plusieurs tokens pour le même email
     await PasswordResetToken.create({
       email,
-      token: 'token-1',
+      token: hashToken('token-1'),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
     await PasswordResetToken.create({
       email,
-      token: 'token-2',
+      token: hashToken('token-2'),
       expiresAt: DateTime.now().plus({ hours: 2 })
     })
 
     // Créer un token pour un autre email
     await PasswordResetToken.create({
       email: 'other@example.com',
-      token: 'token-3',
+      token: hashToken('token-3'),
       expiresAt: DateTime.now().plus({ hours: 1 })
     })
 
@@ -156,7 +165,7 @@ test.group('PasswordResetRepository', (group) => {
     // Créer un token valide
     const validToken = await PasswordResetToken.create({
       email,
-      token: 'valid-token',
+      token: hashToken('valid-token'),
       expiresAt: DateTime.now().plus({ hours: 1 }),
       usedAt: null
     })
@@ -164,7 +173,7 @@ test.group('PasswordResetRepository', (group) => {
     // Créer un token expiré
     await PasswordResetToken.create({
       email,
-      token: 'expired-token',
+      token: hashToken('expired-token'),
       expiresAt: DateTime.now().minus({ hours: 1 }),
       usedAt: null
     })
@@ -172,7 +181,7 @@ test.group('PasswordResetRepository', (group) => {
     // Créer un token utilisé
     await PasswordResetToken.create({
       email,
-      token: 'used-token',
+      token: hashToken('used-token'),
       expiresAt: DateTime.now().plus({ hours: 1 }),
       usedAt: DateTime.now().minus({ minutes: 30 })
     })
@@ -183,6 +192,6 @@ test.group('PasswordResetRepository', (group) => {
     // Assert
     assert.lengthOf(tokens, 1)
     assert.equal(tokens[0].id, validToken.id)
-    assert.equal(tokens[0].token, 'valid-token')
+    assert.equal(tokens[0].token, hashToken('valid-token'))
   })
 })

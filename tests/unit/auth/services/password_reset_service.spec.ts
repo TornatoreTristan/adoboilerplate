@@ -5,6 +5,10 @@ import UserRepository from '#users/repositories/user_repository'
 import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
 
+function hashToken(rawToken: string): string {
+  return crypto.createHash('sha256').update(rawToken).digest('hex')
+}
+
 test.group('PasswordResetService', () => {
   let service: PasswordResetService
   let passwordResetRepository: PasswordResetRepository
@@ -35,16 +39,20 @@ test.group('PasswordResetService', () => {
     // Act
     const result = await service.createPasswordResetToken(email)
 
-    // Assert
+    // Assert - service retourne null si utilisateur inexistant, objet sinon
+    assert.isNotNull(result)
     assert.isObject(result)
-    assert.equal(result.email, email)
-    assert.isString(result.token)
-    assert.lengthOf(result.token, 64)
-    assert.isTrue(result.expiresAt instanceof DateTime)
-    assert.isTrue(result.expiresAt > DateTime.now())
+    assert.equal(result!.email, email)
+    assert.isString(result!.token)
+    assert.lengthOf(result!.token, 64)
+    assert.notEqual(result!.token, hashToken(result!.token), 'le token retourné doit être brut, pas un hash')
+    assert.isTrue(result!.expiresAt instanceof DateTime)
+    assert.isTrue(result!.expiresAt > DateTime.now())
   })
 
-  test("devrait lever une exception si l'utilisateur n'existe pas", async ({ assert }) => {
+  test("devrait retourner null si l'utilisateur n'existe pas (sans révéler l'email)", async ({
+    assert,
+  }) => {
     // Arrange
     const email = 'nonexistent@example.com'
 
@@ -56,11 +64,11 @@ test.group('PasswordResetService', () => {
 
     service = new PasswordResetService(passwordResetRepository, userRepository)
 
-    // Act & Assert
-    await assert.rejects(
-      async () => await service.createPasswordResetToken(email),
-      "Aucun compte n'est associé à cette adresse email"
-    )
+    // Act — ne doit PAS throw, retourne null silencieusement
+    const result = await service.createPasswordResetToken(email)
+
+    // Assert
+    assert.isNull(result)
   })
 
   test('devrait valider un token valide', async ({ assert }) => {

@@ -8,11 +8,34 @@ import { TYPES } from '#shared/container/types'
 import type AuthService from '#auth/services/auth_service'
 import type SessionService from '#sessions/services/session_service'
 import type EmailVerificationService from '#auth/services/email_verification_service'
+import RateLimitService from '#shared/services/rate_limit_service'
+
+const EMAIL_RATE_LIMIT_MAX_REQUESTS = 5
+const EMAIL_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000
 
 export default class AuthController {
+  private rateLimitService = new RateLimitService()
+
   async login({ request, response, session }: HttpContext) {
     // Valider les données avec Vine
     const loginData = await request.validateUsing(loginValidator)
+
+    // Rate limit par email — ne peut pas être bypassé en changeant d'IP
+    const normalizedEmail = loginData.email.toLowerCase().trim()
+    const emailRateLimit = await this.rateLimitService.checkLimit(
+      `login:email:${normalizedEmail}`,
+      {
+        maxRequests: EMAIL_RATE_LIMIT_MAX_REQUESTS,
+        windowMs: EMAIL_RATE_LIMIT_WINDOW_MS,
+        keyPrefix: 'login-email',
+      }
+    )
+
+    if (!emailRateLimit.allowed) {
+      const retryAfter = Math.ceil((emailRateLimit.resetAt.getTime() - Date.now()) / 1000)
+      response.header('Retry-After', retryAfter.toString())
+      E.tooManyRequests(`Too many login attempts. Please try again in ${retryAfter} seconds.`, retryAfter)
+    }
 
     // Récupérer les services
     const authService = getService<AuthService>(TYPES.AuthService)
@@ -32,6 +55,9 @@ export default class AuthController {
       session.flashErrors({ email: result.error || '' })
       return response.redirect().back()
     }
+
+    // Régénérer l'ID de session pour prévenir la session fixation
+    session.regenerate()
 
     // Créer la session utilisateur
     session.put('user_id', result.user!.id)
@@ -132,6 +158,9 @@ export default class AuthController {
       session.flashErrors({ email: result.error || '' })
       return response.redirect().back()
     }
+
+    // Régénérer l'ID de session pour prévenir la session fixation
+    session.regenerate()
 
     // Créer la session utilisateur automatiquement après inscription
     session.put('user_id', result.user!.id)
