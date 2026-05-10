@@ -50,9 +50,12 @@ export default class NotificationListeners {
   /**
    * Helper pour enregistrer un handler et le tracker
    */
-  private registerHandler(eventName: string, handler: EventHandler): void {
-    this.handlers.set(eventName, handler)
-    this.eventBus.on(eventName, handler)
+  private registerHandler<T>(eventName: string, handler: EventHandler<T>): void {
+    // EventEmitter only knows about the unparameterised EventHandler signature;
+    // the generic version above is just for editor ergonomics.
+    const erased = handler as EventHandler
+    this.handlers.set(eventName, erased)
+    this.eventBus.on(eventName, erased)
   }
 
   /**
@@ -71,14 +74,8 @@ export default class NotificationListeners {
         await this.notificationService.createNotification({
           userId: user.id,
           type: 'system.announcement',
-          titleI18n: {
-            fr: '👋 Bienvenue !',
-            en: '👋 Welcome!',
-          },
-          messageI18n: {
-            fr: `Bienvenue ${user.fullName || user.email} ! Votre compte a été créé avec succès.`,
-            en: `Welcome ${user.fullName || user.email}! Your account has been successfully created.`,
-          },
+          title: '👋 Bienvenue !',
+          message: `Bienvenue ${user.fullName || user.email} ! Votre compte a été créé avec succès.`,
           data: {
             userId: user.id,
             createdAt: user.createdAt?.toISO() || new Date().toISOString(),
@@ -107,43 +104,36 @@ export default class NotificationListeners {
           return
         }
 
-        // Charger les relations si nécessaire
         if (!invitation.organization) {
           await invitation.load('organization')
         }
-        if (!invitation.inviter) {
-          await invitation.load('inviter')
+        if (!invitation.invitedBy) {
+          await invitation.load('invitedBy')
         }
 
-        // Trouver l'utilisateur invité par email
         const userRepository = getService<UserRepository>(TYPES.UserRepository)
-        const inviteeUser = await userRepository.findByEmail(invitation.inviteeEmail)
+        const inviteeUser = await userRepository.findByEmail(invitation.email)
 
         if (!inviteeUser) {
           logger.info(
-            `No user found with email ${invitation.inviteeEmail} - notification will be sent via email only`
+            `No user found with email ${invitation.email} - notification will be sent via email only`
           )
           return
         }
 
         const organizationName = invitation.organization?.name || 'une organisation'
-        const inviterName = invitation.inviter?.fullName || invitation.inviter?.email || 'Un membre'
+        const inviterName =
+          invitation.invitedBy?.fullName || invitation.invitedBy?.email || 'Un membre'
 
         await this.notificationService.createNotification({
           userId: inviteeUser.id,
           organizationId: invitation.organizationId,
           type: 'org.invitation',
-          titleI18n: {
-            fr: '📨 Nouvelle invitation',
-            en: '📨 New invitation',
-          },
-          messageI18n: {
-            fr: `${inviterName} vous invite à rejoindre ${organizationName}`,
-            en: `${inviterName} invited you to join ${organizationName}`,
-          },
+          title: '📨 Nouvelle invitation',
+          message: `${inviterName} vous invite à rejoindre ${organizationName}`,
           data: {
             invitationId: invitation.id,
-            inviterId: invitation.inviterId,
+            invitedById: invitation.invitedById,
             organizationId: invitation.organizationId,
             organizationName,
           },
@@ -159,7 +149,8 @@ export default class NotificationListeners {
   }
 
   /**
-   * Listener: subscription.created → Notification d'abonnement
+   * Listener: subscription.created → Notification d'abonnement (envoyée à
+   * tous les membres de l'organisation puisque l'abonnement est org-scoped).
    */
   private registerSubscriptionCreatedListener(): void {
     const handler: EventHandler<SubscriptionCreatedEvent> = async (data) => {
@@ -171,34 +162,36 @@ export default class NotificationListeners {
           return
         }
 
-        // Charger le plan si nécessaire
         if (!subscription.plan) {
           await subscription.load('plan')
         }
+        if (!subscription.organization) {
+          await subscription.load('organization')
+        }
+        await subscription.organization?.load('users')
 
         const planName =
           subscription.plan?.nameI18n?.fr || subscription.plan?.nameI18n?.en || 'un plan'
+        const members = subscription.organization?.users ?? []
 
-        await this.notificationService.createNotification({
-          userId: subscription.userId,
-          organizationId: subscription.organizationId,
-          type: 'system.announcement',
-          titleI18n: {
-            fr: '🎉 Abonnement activé',
-            en: '🎉 Subscription activated',
-          },
-          messageI18n: {
-            fr: `Votre abonnement ${planName} est maintenant actif !`,
-            en: `Your ${planName} subscription is now active!`,
-          },
-          data: {
-            subscriptionId: subscription.id,
-            planId: subscription.planId,
-            status: subscription.status,
-          },
-        })
+        for (const member of members) {
+          await this.notificationService.createNotification({
+            userId: member.id,
+            organizationId: subscription.organizationId,
+            type: 'system.announcement',
+            title: '🎉 Abonnement activé',
+            message: `Votre abonnement ${planName} est maintenant actif !`,
+            data: {
+              subscriptionId: subscription.id,
+              planId: subscription.planId,
+              status: subscription.status,
+            },
+          })
+        }
 
-        logger.info(`📬 Subscription notification created for user ${subscription.userId}`)
+        logger.info(
+          `📬 Subscription notification created for ${members.length} members of org ${subscription.organizationId}`
+        )
       } catch (error) {
         logger.error('Failed to create subscription notification', { error })
       }
