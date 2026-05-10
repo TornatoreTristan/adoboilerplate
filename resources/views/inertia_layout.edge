@@ -32,9 +32,9 @@
   </style>
 
   @stack('dumper')
-  @viteReactRefresh(cspNonce)
+  @viteReactRefresh({ nonce: cspNonce })
   @inertiaHead()
-  @vite(['inertia/app/app.tsx', `inertia/pages/${page.component}.tsx`], cspNonce)
+  @vite(['inertia/app/app.tsx', `inertia/pages/${page.component}.tsx`], { nonce: cspNonce })
 </head>
 
 <body class="min-h-screen font-sans overflow-x-hidden">

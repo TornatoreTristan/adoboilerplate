@@ -9,7 +9,7 @@ const shieldConfig = defineConfig({
     enabled: true,
     directives: {
       defaultSrc: [`'self'`],
-      scriptSrc: [`'self'`, `'@nonce'`],
+      scriptSrc: [`'self'`, `@nonce`],
       styleSrc: [`'self'`, `'unsafe-inline'`, 'https://fonts.bunny.net'],
       imgSrc: [`'self'`, 'data:', 'https:'],
       fontSrc: [`'self'`, 'data:', 'https://fonts.bunny.net'],
