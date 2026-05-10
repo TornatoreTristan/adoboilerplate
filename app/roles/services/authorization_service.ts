@@ -1,17 +1,14 @@
 import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
-import type RoleRepository from '#roles/repositories/role_repository'
-import type PermissionRepository from '#roles/repositories/permission_repository'
 import type CacheService from '#shared/services/cache_service'
 import db from '@adonisjs/lucid/services/db'
 
 @injectable()
 export default class AuthorizationService {
-  constructor(
-    @inject(TYPES.RoleRepository) private roleRepo: RoleRepository,
-    @inject(TYPES.PermissionRepository) private permissionRepo: PermissionRepository,
-    @inject(TYPES.CacheService) private cache: CacheService
-  ) {}
+  // RoleRepository / PermissionRepository are intentionally not injected here:
+  // this service issues raw SQL against the user_roles / role_permissions
+  // tables for performance and would just thread through the repos otherwise.
+  constructor(@inject(TYPES.CacheService) private cache: CacheService) {}
 
   /**
    * Check if user has a specific role in an organization

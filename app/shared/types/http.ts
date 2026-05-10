@@ -3,7 +3,7 @@ import User from '#users/models/user'
 
 declare module '@adonisjs/core/http' {
   export interface HttpContext {
-    organization: Organization
-    user: User
+    organization?: Organization
+    user?: User
   }
 }

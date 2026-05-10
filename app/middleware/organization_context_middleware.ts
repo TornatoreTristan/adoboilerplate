@@ -9,6 +9,7 @@ export default class OrganizationContextMiddleware {
 
     // Récupérer l'user depuis le contexte (mis par auth middleware)
     const user = ctx.user
+    E.assertUserExists(user)
 
     // Charger les organisations de l'user
     await user.load('organizations')

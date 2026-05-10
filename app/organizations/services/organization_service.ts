@@ -51,7 +51,17 @@ export default class OrganizationService {
     // Attacher l'utilisateur comme owner via repository
     await this.organizationRepo.addUser(organization.id, ownerUserId, 'owner')
 
-    return organization
+    return {
+      id: organization.id,
+      name: organization.name,
+      slug: organization.slug,
+      description:
+        organization.descriptionI18n?.fr || organization.descriptionI18n?.en || null,
+      website: organization.website,
+      isActive: organization.isActive,
+      createdAt: organization.createdAt,
+      updatedAt: organization.updatedAt,
+    }
   }
 
   async addUser(

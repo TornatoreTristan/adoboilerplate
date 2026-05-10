@@ -24,7 +24,11 @@ export default class AuthService {
         return this.createFailureResult(AUTH_MESSAGES.INVALID_CREDENTIALS)
       }
 
-      // Vérification du mot de passe
+      // Vérification du mot de passe (les utilisateurs OAuth-only n'ont pas de
+      // hash stocké, donc le login local doit échouer dans ce cas).
+      if (!user.password) {
+        return this.createFailureResult(AUTH_MESSAGES.INVALID_CREDENTIALS)
+      }
       const isValidPassword = await this.verifyPassword(user.password, loginData.password)
       if (!isValidPassword) {
         return this.createFailureResult(AUTH_MESSAGES.INVALID_CREDENTIALS)

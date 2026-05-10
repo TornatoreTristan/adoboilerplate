@@ -4,6 +4,10 @@ import Log from '#logs/models/log'
 import type { LogFilters } from '#logs/types/log'
 import { DateTime } from 'luxon'
 
+function toSqlOrNow(dt: DateTime): string {
+  return dt.toSQL() ?? dt.toISO() ?? new Date().toISOString()
+}
+
 @injectable()
 export default class LogRepository extends BaseRepository<typeof Log> {
   protected model = Log
@@ -34,11 +38,11 @@ export default class LogRepository extends BaseRepository<typeof Log> {
     }
 
     if (filters.startDate) {
-      query.where('created_at', '>=', DateTime.fromISO(filters.startDate).toSQL())
+      query.where('created_at', '>=', toSqlOrNow(DateTime.fromISO(filters.startDate)))
     }
 
     if (filters.endDate) {
-      query.where('created_at', '<=', DateTime.fromISO(filters.endDate).toSQL())
+      query.where('created_at', '<=', toSqlOrNow(DateTime.fromISO(filters.endDate)))
     }
 
     if (filters.search) {
@@ -58,19 +62,21 @@ export default class LogRepository extends BaseRepository<typeof Log> {
   }
 
   async search(query: string, limit: number = 50): Promise<Log[]> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
     return Log.query()
       .select('*')
-      .select(
-        this.db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query])
-      )
+      .select(db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query]))
       .whereRaw(`search_vector @@ plainto_tsquery('french', ?)`, [query])
       .orderBy('rank', 'desc')
       .limit(limit)
   }
 
   async deleteOlderThan(date: DateTime): Promise<number> {
-    const result = await Log.query().where('created_at', '<', date.toSQL()).delete()
-    return result[0]
+    const result = (await Log.query().where('created_at', '<', toSqlOrNow(date)).delete()) as
+      | unknown
+      | number
+      | [number]
+    return Array.isArray(result) ? (result[0] as number) : (result as number)
   }
 
   async getStats(): Promise<{
@@ -82,7 +88,7 @@ export default class LogRepository extends BaseRepository<typeof Log> {
       Log.query().count('* as total').first(),
       Log.query().select('level').count('* as count').groupBy('level'),
       Log.query()
-        .where('created_at', '>=', DateTime.now().minus({ hours: 24 }).toSQL())
+        .where('created_at', '>=', toSqlOrNow(DateTime.now().minus({ hours: 24 })))
         .count('* as total')
         .first(),
     ])

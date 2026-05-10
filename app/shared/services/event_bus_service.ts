@@ -41,7 +41,12 @@ export default class EventBusService extends EventEmitter {
    * Émettre un événement
    * - Sync (default) : EventEmitter natif (immediate, in-process)
    * - Async : Bull Queue (reliable, retryable)
+   *
+   * Intentionally widens EventEmitter.emit to async — callers that don't
+   * await won't break (the queue branch fires-and-forgets), and the sync
+   * branch still returns a boolean wrapped in a Promise.
    */
+  // @ts-expect-error — deliberate async override of the base sync signature
   async emit(eventName: string, data: EventData = {}, options: EventOptions = {}): Promise<boolean> {
     const { async = false, priority, delay } = options
 

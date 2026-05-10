@@ -49,7 +49,9 @@ export default class GoogleAuthController {
     session.regenerate()
 
     session.put('user_id', result.user.id)
-    session.put('session_id', result.sessionId)
+    if (result.sessionId) {
+      session.put('session_id', result.sessionId)
+    }
 
     return response.redirect('/')
   }

@@ -3,7 +3,6 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
-import type UserRepository from '#users/repositories/user_repository'
 
 export default class OrganizationInvitationsController {
   async accept({ params, response, session, auth }: HttpContext) {

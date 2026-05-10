@@ -1,4 +1,4 @@
-import type { User } from './user.ts'
+import type User from '#users/models/user'
 
 export interface LoginData {
   email: string

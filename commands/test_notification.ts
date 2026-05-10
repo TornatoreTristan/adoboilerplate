@@ -44,6 +44,10 @@ export default class TestNotification extends BaseCommand {
         },
       })
 
+      if (!notification) {
+        this.logger.error('❌ NotificationService.createNotification returned null')
+        return
+      }
       this.logger.success('✅ Test notification created!')
       this.logger.info(`📬 Notification ID: ${notification.id}`)
       this.logger.info(`📡 Broadcasted to channel: user/${testUser.id}/notifications`)

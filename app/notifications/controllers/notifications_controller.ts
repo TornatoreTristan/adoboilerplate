@@ -45,7 +45,7 @@ export default class NotificationsController {
     }))
 
     return inertia.render('notifications', {
-      notifications: serializedNotifications,
+      notifications: serializedNotifications as any,
       unreadCount,
     })
   }

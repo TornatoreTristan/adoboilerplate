@@ -57,6 +57,8 @@ export default class NotificationService {
 
     // 3. Broadcast en temps réel via Transmit (SSE)
     try {
+      // Transmit's Broadcastable type only allows JSON-friendly leaves;
+      // DateTime values from Lucid don't satisfy it directly.
       transmit.broadcast(`user/${data.userId}/notifications`, {
         type: 'notification:new',
         notification: {
@@ -65,10 +67,10 @@ export default class NotificationService {
           titleI18n: notification.titleI18n,
           messageI18n: notification.messageI18n,
           data: notification.data,
-          readAt: notification.readAt,
+          readAt: notification.readAt?.toISO() ?? null,
           createdAt: notification.createdAt.toISO(),
         },
-      })
+      } as any)
     } catch (error) {
       // Ne pas fail si le broadcast échoue (notification en base reste créée)
       logger.error({ err: error }, 'Failed to broadcast notification via Transmit')

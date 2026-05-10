@@ -46,7 +46,7 @@ export default class PasswordResetController {
       // Erreur de validation
       if (error instanceof errors.E_VALIDATION_ERROR) {
         return response.unprocessableEntity({
-          errors: error.messages.map((msg) => ({
+          errors: error.messages.map((msg: { field: string; message: string }) => ({
             field: msg.field,
             message: msg.message
           }))
@@ -108,7 +108,7 @@ export default class PasswordResetController {
       // Erreur de validation
       if (error instanceof errors.E_VALIDATION_ERROR) {
         return response.unprocessableEntity({
-          errors: error.messages.map((msg) => ({
+          errors: error.messages.map((msg: { field: string; message: string }) => ({
             field: msg.field,
             message: msg.message
           }))

@@ -22,6 +22,9 @@ export default class RateLimitService {
     multi.pexpire(key, windowMs)
 
     const results = await multi.exec()
+    if (!results) {
+      throw new Error('Redis MULTI/EXEC pipeline returned null — the transaction was aborted')
+    }
     const currentCount = results[2][1] as number
 
     const allowed = currentCount <= maxRequests

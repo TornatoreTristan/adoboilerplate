@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react'
+
 export interface EmailAddress {
   email: string
   name?: string
@@ -14,7 +16,7 @@ export interface SendEmailData {
   subject: string
   html?: string
   text?: string
-  react?: React.ReactElement
+  react?: ReactElement
   replyTo?: EmailAddress | string
   cc?: EmailAddress | EmailAddress[] | string | string[]
   bcc?: EmailAddress | EmailAddress[] | string | string[]

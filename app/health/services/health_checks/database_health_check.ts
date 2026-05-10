@@ -32,7 +32,8 @@ export default class DatabaseHealthCheck extends BaseHealthCheck {
 
   private async getConnectionInfo(): Promise<Record<string, any>> {
     try {
-      const pool = db.connection().pool
+      // The Knex pool is exposed at runtime but not in Lucid's typings.
+      const pool = (db.connection() as unknown as { pool: any }).pool
       return {
         used: pool.numUsed(),
         free: pool.numFree(),

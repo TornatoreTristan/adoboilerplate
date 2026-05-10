@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type LogRepository from '#logs/repositories/log_repository'
-import type { CreateLogData, LogFilters, LogLevel, LogContext } from '#logs/types/log'
+import type { CreateLogData, LogFilters, LogContext } from '#logs/types/log'
 import type Log from '#logs/models/log'
 import { DateTime } from 'luxon'
 

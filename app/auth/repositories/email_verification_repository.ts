@@ -45,12 +45,14 @@ export default class EmailVerificationRepository extends BaseRepository<
   }
 
   async deleteByUserAndType(userId: string, type: VerificationType): Promise<number> {
-    const count = await this.model
+    // Lucid's delete() returns the underlying knex result (number on Postgres,
+    // [number] on some adapters). Normalise to a plain number.
+    const result = (await this.model
       .query()
       .where('user_id', userId)
       .where('type', type)
-      .delete()
+      .delete()) as unknown as number | [number]
 
-    return count
+    return Array.isArray(result) ? result[0] : result
   }
 }

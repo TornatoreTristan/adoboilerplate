@@ -17,7 +17,7 @@ export default class StorageService {
     @inject(TYPES.LocalStorageDriver) localDriver: LocalStorageDriver,
     @inject(TYPES.S3StorageDriver) s3Driver: S3StorageDriver
   ) {
-    this.drivers = new Map([
+    this.drivers = new Map<DiskType, StorageDriver>([
       ['local', localDriver],
       ['s3', s3Driver],
     ])

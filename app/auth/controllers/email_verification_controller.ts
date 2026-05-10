@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import EmailVerificationService from '#auth/services/email_verification_service'
+import type UserRepository from '#users/repositories/user_repository'
 import { requestEmailChangeValidator } from '#auth/validators/email_verification_validator'
 import { errors } from '@vinejs/vine'
 import { AppException } from '#shared/exceptions/index'
@@ -23,7 +24,7 @@ export default class EmailVerificationController {
       const emailVerificationService = getService<EmailVerificationService>(
         TYPES.EmailVerificationService
       )
-      const userRepo = getService(TYPES.UserRepository)
+      const userRepo = getService<UserRepository>(TYPES.UserRepository)
       const user = await userRepo.findById(userId)
 
       if (!user) {
@@ -92,6 +93,9 @@ export default class EmailVerificationController {
     session.regenerate()
 
     // Connecter automatiquement l'utilisateur après vérification
+    if (!result.userId) {
+      return response.badRequest({ error: 'Verification result missing user id' })
+    }
     session.put('user_id', result.userId)
 
     // Si l'utilisateur n'a pas de session active, en créer une nouvelle
@@ -143,7 +147,7 @@ export default class EmailVerificationController {
       const emailVerificationService = getService<EmailVerificationService>(
         TYPES.EmailVerificationService
       )
-      const userRepo = getService(TYPES.UserRepository)
+      const userRepo = getService<UserRepository>(TYPES.UserRepository)
       const user = await userRepo.findById(userId)
 
       if (!user) {
@@ -159,7 +163,7 @@ export default class EmailVerificationController {
     } catch (error) {
       if (error instanceof errors.E_VALIDATION_ERROR) {
         return response.unprocessableEntity({
-          errors: error.messages.map((msg) => ({
+          errors: error.messages.map((msg: { field: string; message: string }) => ({
             field: msg.field,
             message: msg.message,
           })),

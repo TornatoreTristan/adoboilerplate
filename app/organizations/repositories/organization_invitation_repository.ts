@@ -50,16 +50,17 @@ export default class OrganizationInvitationRepository extends BaseRepository<
 
   async deleteExpired(): Promise<number> {
     const { default: db } = await import('@adonisjs/lucid/services/db')
+    const nowSql = DateTime.now().toSQL() ?? DateTime.now().toISO()!
 
-    const result = await db
+    const result = (await db
       .from('organization_invitations')
-      .where('expires_at', '<', DateTime.now().toSQL())
+      .where('expires_at', '<', nowSql)
       .whereNull('accepted_at')
-      .delete()
+      .delete()) as unknown as number | [number]
 
     await this.cache?.invalidateTags(['invitations'])
 
-    return result
+    return Array.isArray(result) ? result[0] : result
   }
 
   async invitationExists(email: string, organizationId: string): Promise<boolean> {

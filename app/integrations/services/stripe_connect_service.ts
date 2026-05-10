@@ -40,11 +40,11 @@ export default class StripeConnectService {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = (await response.json()) as { error_description?: string; error?: string }
       throw new Error(`Stripe OAuth error: ${error.error_description || error.error}`)
     }
 
-    return response.json()
+    return (await response.json()) as StripeOAuthResponse
   }
 
   async disconnectAccount(stripeUserId: string): Promise<void> {
@@ -62,7 +62,7 @@ export default class StripeConnectService {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = (await response.json()) as { error_description?: string; error?: string }
       throw new Error(`Stripe deauthorize error: ${error.error_description || error.error}`)
     }
   }

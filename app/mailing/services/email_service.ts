@@ -22,11 +22,8 @@ export default class EmailService {
   ) {}
 
   async send(emailData: SendEmailData, userId?: string): Promise<EmailResult> {
-    const recipient = Array.isArray(emailData.to)
-      ? emailData.to[0]
-      : typeof emailData.to === 'string'
-        ? emailData.to
-        : emailData.to.email
+    const firstTo = Array.isArray(emailData.to) ? emailData.to[0] : emailData.to
+    const recipient = typeof firstTo === 'string' ? firstTo : firstTo.email
 
     const category = emailData.tags?.category || 'general'
 

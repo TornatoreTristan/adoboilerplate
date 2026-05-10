@@ -4,7 +4,7 @@ import { BaseRepository } from '#shared/repositories/base_repository'
 import Upload from '#uploads/models/upload'
 import CacheService from '#shared/services/cache_service'
 import EventBusService from '#shared/services/event_bus_service'
-import type { CreateUploadData, UpdateUploadData, UploadFilters } from '#uploads/types/upload'
+import type { UploadFilters } from '#uploads/types/upload'
 
 @injectable()
 export default class UploadRepository extends BaseRepository<typeof Upload> {

@@ -35,8 +35,8 @@ export default class SessionController {
 
     // Importer le repository pour accéder aux sessions inactives
     const sessionService = getService<SessionService>(TYPES.SessionService)
-    const SessionRepository = (await import('#sessions/repositories/session_repository')).default
-    const sessionRepo = getService<typeof SessionRepository>(TYPES.SessionRepository)
+    const { default: SessionRepository } = await import('#sessions/repositories/session_repository')
+    const sessionRepo = getService<InstanceType<typeof SessionRepository>>(TYPES.SessionRepository)
 
     // Récupérer les sessions actives et inactives
     const [activeSessions, inactiveSessions] = await Promise.all([

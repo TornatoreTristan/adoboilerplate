@@ -348,7 +348,7 @@ export default class PlanService {
     price: number,
     currency: string,
     pricingModel: PricingModel,
-    pricingTiers?: PricingTier[]
+    pricingTiers?: PricingTier[] | null
   ): Promise<Stripe.Price> {
     switch (pricingModel) {
       case 'flat':

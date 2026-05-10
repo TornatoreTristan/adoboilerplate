@@ -35,7 +35,8 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
       .whereNull('read_at')
 
     const result = await query.count('* as total')
-    return Number(result[0]?.$extras?.total || result[0]?.total || 0)
+    const row = result[0] as { $extras?: { total?: string | number } } | undefined
+    return Number(row?.$extras?.total ?? 0)
   }
 
   async markAsRead(id: string): Promise<void> {
