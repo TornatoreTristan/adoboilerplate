@@ -11,6 +11,7 @@ export type SubscriptionStatus =
   | 'trialing'
   | 'incomplete'
   | 'incomplete_expired'
+  | 'paused'
 
 export default class Subscription extends BaseModel {
   @column({ isPrimary: true })

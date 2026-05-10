@@ -25,7 +25,15 @@ export default class extends BaseSchema {
       table.string('currency', 3).notNullable().defaultTo('EUR')
 
       table
-        .enum('status', ['active', 'canceled', 'past_due', 'trialing', 'incomplete', 'incomplete_expired'])
+        .enum('status', [
+          'active',
+          'canceled',
+          'past_due',
+          'trialing',
+          'incomplete',
+          'incomplete_expired',
+          'paused',
+        ])
         .notNullable()
         .defaultTo('active')
 

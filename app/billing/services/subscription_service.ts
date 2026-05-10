@@ -214,7 +214,7 @@ export default class SubscriptionService {
     this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced(subscriptionId)
+      E.subscriptionNotSynced({ subscriptionId })
     }
 
     if (subscription.status === 'canceled') {
@@ -248,7 +248,7 @@ export default class SubscriptionService {
     this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced(subscriptionId)
+      E.subscriptionNotSynced({ subscriptionId })
     }
 
     if (subscription.status !== 'paused') {
@@ -281,7 +281,7 @@ export default class SubscriptionService {
     this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced(subscriptionId)
+      E.subscriptionNotSynced({ subscriptionId })
     }
 
     if (subscription.status === 'canceled') {
@@ -314,7 +314,7 @@ export default class SubscriptionService {
     this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced(subscriptionId)
+      E.subscriptionNotSynced({ subscriptionId })
     }
 
     if (!subscription.canceledAt) {
