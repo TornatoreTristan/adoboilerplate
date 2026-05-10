@@ -1,9 +1,9 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, router } from '@inertiajs/react'
-import { useState } from 'react'
+import { Head } from '@inertiajs/react'
 import { Mail } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useInertiaTableQuery } from '@/hooks/use-inertia-table-query'
 import { MailsStatsRow } from '@/components/admin/mails/mails-stats-row'
 import { MailsFiltersBar } from '@/components/admin/mails/mails-filters-bar'
 import { MailsTable } from '@/components/admin/mails/mails-table'
@@ -19,41 +19,26 @@ interface Props {
   filters: MailsFilters
 }
 
-export default function MailsPage({ logs, stats, filters }: Props) {
+export default function MailsPage({ logs, stats, filters: initialFilters }: Props) {
   const { t } = useI18n()
-  const [statusFilter, setStatusFilter] = useState(filters.status || 'all')
-  const [categoryFilter, setCategoryFilter] = useState(filters.category || 'all')
-  const [searchQuery, setSearchQuery] = useState(filters.search || '')
+
+  const { filters, page, setFilter, setSearch, setPage } = useInertiaTableQuery<
+    Required<MailsFilters>
+  >({
+    url: '/admin/mails',
+    initial: {
+      status: initialFilters.status ?? '',
+      category: initialFilters.category ?? '',
+      search: initialFilters.search ?? '',
+    },
+    initialPage: logs.meta.currentPage,
+    only: ['logs', 'stats', 'filters'],
+  })
 
   const description =
     stats.total > 1
       ? t('admin.mails.count_plural', { count: stats.total })
       : t('admin.mails.count_singular', { count: stats.total })
-
-  const navigate = (params: URLSearchParams) => {
-    router.get(`/admin/mails?${params.toString()}`, {}, { preserveState: true })
-  }
-
-  const handleFilterChange = (next: { status: string; category: string; search: string }) => {
-    setStatusFilter(next.status)
-    setCategoryFilter(next.category)
-    setSearchQuery(next.search)
-
-    const params = new URLSearchParams()
-    if (next.status !== 'all') params.set('status', next.status)
-    if (next.category !== 'all') params.set('category', next.category)
-    if (next.search) params.set('search', next.search)
-    navigate(params)
-  }
-
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams()
-    params.set('page', page.toString())
-    if (statusFilter !== 'all') params.set('status', statusFilter)
-    if (categoryFilter !== 'all') params.set('category', categoryFilter)
-    if (searchQuery) params.set('search', searchQuery)
-    navigate(params)
-  }
 
   return (
     <>
@@ -65,14 +50,16 @@ export default function MailsPage({ logs, stats, filters }: Props) {
           <MailsStatsRow stats={stats} />
 
           <MailsFiltersBar
-            status={statusFilter}
-            category={categoryFilter}
-            search={searchQuery}
+            status={filters.status || 'all'}
+            category={filters.category || 'all'}
+            search={filters.search}
             categories={stats.byCategory}
-            onChange={handleFilterChange}
+            onStatusChange={(value) => setFilter('status', value === 'all' ? '' : value)}
+            onCategoryChange={(value) => setFilter('category', value === 'all' ? '' : value)}
+            onSearchChange={(value) => setSearch('search', value)}
           />
 
-          <MailsTable logs={logs} onPageChange={handlePageChange} />
+          <MailsTable logs={logs} onPageChange={setPage} />
         </div>
       </AdminLayout>
     </>

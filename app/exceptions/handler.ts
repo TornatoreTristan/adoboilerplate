@@ -3,7 +3,10 @@ import logger from '@adonisjs/core/services/logger'
 import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 import { AppException } from '#shared/exceptions/app_exception'
-import { InternalServerException } from '#shared/exceptions/domain_exceptions'
+import {
+  InternalServerException,
+  UserEmailAlreadyExistsException,
+} from '#shared/exceptions/domain_exceptions'
 import { ERROR_CODES } from '#shared/constants/error_codes'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
@@ -70,6 +73,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     // Logger l'erreur si nécessaire
     if (error.shouldLog()) {
       this.logError(error, ctx)
+    }
+
+    // Cas spécial : email déjà utilisé → format validation Inertia attendu côté frontend
+    if (error instanceof UserEmailAlreadyExistsException) {
+      return ctx.response.status(error.status).json({
+        errors: { email: error.message },
+      })
     }
 
     // Pour les requêtes API (JSON), retourner du JSON

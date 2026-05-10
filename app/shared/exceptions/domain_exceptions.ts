@@ -56,7 +56,8 @@ export class UserNotFoundException extends AppException {
 
 export class UserEmailAlreadyExistsException extends AppException {
   readonly code = ERROR_CODES.USER_EMAIL_ALREADY_EXISTS
-  readonly status = 409
+  readonly status = 422
+  readonly field = 'email'
 
   constructor(message = 'Cet email est déjà utilisé', details?: ErrorDetails) {
     super(message, details)

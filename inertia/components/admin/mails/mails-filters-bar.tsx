@@ -14,10 +14,20 @@ interface Props {
   category: string
   search: string
   categories: EmailLogsStats['byCategory']
-  onChange: (next: { status: string; category: string; search: string }) => void
+  onStatusChange: (value: string) => void
+  onCategoryChange: (value: string) => void
+  onSearchChange: (value: string) => void
 }
 
-export function MailsFiltersBar({ status, category, search, categories, onChange }: Props) {
+export function MailsFiltersBar({
+  status,
+  category,
+  search,
+  categories,
+  onStatusChange,
+  onCategoryChange,
+  onSearchChange,
+}: Props) {
   const { t } = useI18n()
 
   return (
@@ -26,15 +36,12 @@ export function MailsFiltersBar({ status, category, search, categories, onChange
         <Input
           placeholder={t('admin.mails.search_placeholder')}
           value={search}
-          onChange={(e) => onChange({ status, category, search: e.target.value })}
+          onChange={(e) => onSearchChange(e.target.value)}
           className="max-w-sm"
         />
       </div>
 
-      <Select
-        value={status}
-        onValueChange={(value) => onChange({ status: value, category, search })}
-      >
+      <Select value={status} onValueChange={onStatusChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder={t('admin.mails.filter_status_placeholder')} />
         </SelectTrigger>
@@ -49,10 +56,7 @@ export function MailsFiltersBar({ status, category, search, categories, onChange
         </SelectContent>
       </Select>
 
-      <Select
-        value={category}
-        onValueChange={(value) => onChange({ status, category: value, search })}
-      >
+      <Select value={category} onValueChange={onCategoryChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder={t('admin.mails.filter_category_placeholder')} />
         </SelectTrigger>

@@ -6,6 +6,7 @@ import type UploadService from '#uploads/services/upload_service'
 import vine from '@vinejs/vine'
 import { E } from '#shared/exceptions/index'
 import { readFile } from 'node:fs/promises'
+import { asInertiaProps } from '#shared/types/inertia_props'
 
 const updateBrandingValidator = vine.compile(
   vine.object({
@@ -35,31 +36,34 @@ export default class AppSettingsController {
       hasFavicon: !!settings.favicon,
     })
 
-    return inertia.render('admin/settings', {
-      settings: {
-        id: settings.id,
-        appName: settings.appName,
-        logoId: settings.logoId,
-        faviconId: settings.faviconId,
-        termsOfService: settings.termsOfService,
-        termsOfSale: settings.termsOfSale,
-        privacyPolicy: settings.privacyPolicy,
-        logo: settings.logo
-          ? {
-              id: settings.logo.id,
-              filename: settings.logo.filename,
-              url: settings.logo.url,
-            }
-          : null,
-        favicon: settings.favicon
-          ? {
-              id: settings.favicon.id,
-              filename: settings.favicon.filename,
-              url: settings.favicon.url,
-            }
-          : null,
-      },
-    })
+    return inertia.render(
+      'admin/settings',
+      asInertiaProps({
+        settings: {
+          id: settings.id,
+          appName: settings.appName,
+          logoId: settings.logoId,
+          faviconId: settings.faviconId,
+          termsOfService: settings.termsOfService,
+          termsOfSale: settings.termsOfSale,
+          privacyPolicy: settings.privacyPolicy,
+          logo: settings.logo
+            ? {
+                id: settings.logo.id,
+                filename: settings.logo.filename,
+                url: settings.logo.url,
+              }
+            : null,
+          favicon: settings.favicon
+            ? {
+                id: settings.favicon.id,
+                filename: settings.favicon.filename,
+                url: settings.favicon.url,
+              }
+            : null,
+        },
+      })
+    )
   }
 
   async updateBranding({ request, response }: HttpContext) {
@@ -84,7 +88,7 @@ export default class AppSettingsController {
     return response.redirect().back()
   }
 
-  async uploadLogo({ request, response, user, session }: HttpContext) {
+  async uploadLogo({ request, response, user, session, i18n }: HttpContext) {
     E.assertUserExists(user)
 
     const file = request.file('logo', {
@@ -93,7 +97,7 @@ export default class AppSettingsController {
     })
 
     if (!file) {
-      session.flash('error', 'Aucun fichier fourni')
+      session.flash('error', i18n.t('admin.flash.no_file_provided'))
       return response.redirect().back()
     }
 
@@ -101,7 +105,6 @@ export default class AppSettingsController {
     const appSettingsService = getService<AppSettingsService>(TYPES.AppSettingsService)
 
     try {
-      // Read file buffer from temporary path
       const fileBuffer = await readFile(file.tmpPath!)
 
       const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -118,15 +121,15 @@ export default class AppSettingsController {
 
       await appSettingsService.updateBranding(undefined, upload.id, undefined)
 
-      session.flash('success', 'Logo mis à jour avec succès')
+      session.flash('success', i18n.t('admin.flash.logo_updated'))
       return response.redirect().back()
     } catch (error) {
-      session.flash('error', error.message || "Erreur lors de l'upload du logo")
+      session.flash('error', error.message || i18n.t('admin.flash.logo_upload_failed'))
       return response.redirect().back()
     }
   }
 
-  async uploadFavicon({ request, response, user, session, logger }: HttpContext) {
+  async uploadFavicon({ request, response, user, session, logger, i18n }: HttpContext) {
     E.assertUserExists(user)
 
     const file = request.file('favicon', {
@@ -135,7 +138,7 @@ export default class AppSettingsController {
     })
 
     if (!file) {
-      session.flash('error', 'Aucun fichier fourni')
+      session.flash('error', i18n.t('admin.flash.no_file_provided'))
       return response.redirect().back()
     }
 
@@ -149,7 +152,6 @@ export default class AppSettingsController {
         type: file.type,
       })
 
-      // Read file buffer from temporary path
       const fileBuffer = await readFile(file.tmpPath!)
 
       const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -175,11 +177,11 @@ export default class AppSettingsController {
         faviconId: updated.faviconId,
       })
 
-      session.flash('success', 'Favicon mis à jour avec succès')
+      session.flash('success', i18n.t('admin.flash.favicon_updated'))
       return response.redirect().back()
     } catch (error) {
       logger.error('❌ Favicon upload error', error)
-      session.flash('error', error.message || "Erreur lors de l'upload du favicon")
+      session.flash('error', error.message || i18n.t('admin.flash.favicon_upload_failed'))
       return response.redirect().back()
     }
   }

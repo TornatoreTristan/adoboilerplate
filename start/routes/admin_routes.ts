@@ -1,10 +1,16 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
-const AdminController = () => import('#admin/controllers/admin_controller')
-const PlansController = () => import('#billing/controllers/plans_controller')
+const AdminDashboardController = () => import('#admin/controllers/admin_dashboard_controller')
+const AdminUsersController = () => import('#admin/controllers/admin_users_controller')
+const AdminMailsController = () => import('#admin/controllers/admin_mails_controller')
+const AdminOrganizationsController = () =>
+  import('#admin/controllers/admin_organizations_controller')
+const AdminRolesController = () => import('#admin/controllers/admin_roles_controller')
+const AdminIntegrationsController = () => import('#admin/controllers/admin_integrations_controller')
 const AdminSubscriptionsController = () =>
   import('#admin/controllers/admin_subscriptions_controller')
+const PlansController = () => import('#billing/controllers/plans_controller')
 const MonitoringController = () => import('#admin/controllers/monitoring_controller')
 const LogsController = () => import('#admin/controllers/logs_controller')
 const AuditLogsController = () => import('#audit/controllers/audit_logs_controller')
@@ -12,24 +18,55 @@ const AppSettingsController = () => import('#admin/controllers/app_settings_cont
 
 router
   .group(() => {
-    router.get('/admin', [AdminController, 'index'])
-    router.get('/admin/users', [AdminController, 'users'])
-    router.get('/admin/users/:id', [AdminController, 'userDetail'])
-    router.put('/admin/users/:id', [AdminController, 'updateUser'])
-    router.get('/admin/mails', [AdminController, 'mails'])
-    router.get('/admin/organizations', [AdminController, 'organizations'])
-    router.get('/admin/organizations/:id', [AdminController, 'organizationDetail'])
-    router.post('/admin/organizations/:id/members', [AdminController, 'addUserToOrganization'])
-    router.get('/admin/roles', [AdminController, 'roles'])
-    router.get('/admin/roles/:id', [AdminController, 'roleDetail'])
-    router.get('/admin/integrations', [AdminController, 'integrations'])
-    router.post('/admin/integrations/stripe', [AdminController, 'configureStripe'])
-    router.get('/admin/integrations/stripe/connect', [AdminController, 'stripeConnectAuthorize'])
-    router.get('/admin/integrations/stripe/callback', [AdminController, 'stripeConnectCallback'])
-    router.post('/admin/integrations/stripe/disconnect', [AdminController, 'stripeDisconnect'])
+    router.get('/admin', [AdminDashboardController, 'index'])
 
-    router.get('/admin/subscriptions', [AdminController, 'subscriptions'])
+    // Users
+    router.get('/admin/users', [AdminUsersController, 'users'])
+    router.get('/admin/users/:id', [AdminUsersController, 'userDetail'])
+    router.put('/admin/users/:id', [AdminUsersController, 'updateUser'])
 
+    // Mails
+    router.get('/admin/mails', [AdminMailsController, 'index'])
+
+    // Organizations
+    router.get('/admin/organizations', [AdminOrganizationsController, 'organizations'])
+    router.get('/admin/organizations/:id', [AdminOrganizationsController, 'organizationDetail'])
+    router.post('/admin/organizations/:id/members', [
+      AdminOrganizationsController,
+      'addUserToOrganization',
+    ])
+
+    // Roles
+    router.get('/admin/roles', [AdminRolesController, 'roles'])
+    router.get('/admin/roles/:id', [AdminRolesController, 'roleDetail'])
+
+    // Integrations (Stripe)
+    router.get('/admin/integrations', [AdminIntegrationsController, 'integrations'])
+    router.post('/admin/integrations/stripe', [AdminIntegrationsController, 'configureStripe'])
+    router.get('/admin/integrations/stripe/connect', [
+      AdminIntegrationsController,
+      'stripeConnectAuthorize',
+    ])
+    router.get('/admin/integrations/stripe/callback', [
+      AdminIntegrationsController,
+      'stripeConnectCallback',
+    ])
+    router.post('/admin/integrations/stripe/disconnect', [
+      AdminIntegrationsController,
+      'stripeDisconnect',
+    ])
+
+    // Subscriptions
+    router.get('/admin/subscriptions', [AdminSubscriptionsController, 'subscriptions'])
+    router.post('/admin/subscriptions/:id/pause', [AdminSubscriptionsController, 'pause'])
+    router.post('/admin/subscriptions/:id/resume', [AdminSubscriptionsController, 'resume'])
+    router.post('/admin/subscriptions/:id/cancel', [AdminSubscriptionsController, 'cancel'])
+    router.post('/admin/subscriptions/:id/reactivate', [
+      AdminSubscriptionsController,
+      'reactivate',
+    ])
+
+    // Plans
     router.get('/admin/plans', [PlansController, 'index'])
     router.get('/admin/plans/create', [PlansController, 'create'])
     router.post('/admin/plans', [PlansController, 'store'])
@@ -43,23 +80,17 @@ router
       'migrateSubscription',
     ])
 
-    // Routes pour gérer les abonnements (Admin)
-    router.post('/admin/subscriptions/:id/pause', [AdminSubscriptionsController, 'pause'])
-    router.post('/admin/subscriptions/:id/resume', [AdminSubscriptionsController, 'resume'])
-    router.post('/admin/subscriptions/:id/cancel', [AdminSubscriptionsController, 'cancel'])
-    router.post('/admin/subscriptions/:id/reactivate', [AdminSubscriptionsController, 'reactivate'])
-
-    // Routes pour le monitoring système
+    // Monitoring
     router.get('/admin/monitoring', [MonitoringController, 'index'])
     router.get('/api/admin/monitoring/data', [MonitoringController, 'data'])
     router.get('/api/admin/monitoring/history', [MonitoringController, 'history'])
 
-    // Routes pour les logs
+    // Logs
     router.get('/admin/logs', [LogsController, 'index'])
     router.get('/api/admin/logs/list', [LogsController, 'list'])
     router.get('/api/admin/logs/stats', [LogsController, 'stats'])
 
-    // Routes pour les audit logs
+    // Audit logs
     router.get('/admin/audit-logs', [AuditLogsController, 'index'])
     router.get('/admin/audit-logs/:id', [AuditLogsController, 'show'])
     router.get('/api/admin/audit-logs/stats', [AuditLogsController, 'stats'])
@@ -75,7 +106,7 @@ router
       'resourceLogs',
     ])
 
-    // Routes pour les paramètres de l'application
+    // App settings
     router.get('/admin/settings', [AppSettingsController, 'index'])
     router.post('/admin/settings/branding', [AppSettingsController, 'updateBranding'])
     router.post('/admin/settings/legal', [AppSettingsController, 'updateLegal'])

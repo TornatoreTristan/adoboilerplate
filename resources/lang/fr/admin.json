@@ -562,6 +562,27 @@
     "confirm_cancel": "Voulez-vous annuler cet abonnement ?\n\nL'abonnement restera actif jusqu'à la fin de la période en cours.",
     "confirm_reactivate": "Voulez-vous réactiver cet abonnement annulé ?"
   },
+  "flash": {
+    "user_updated": "Utilisateur mis à jour avec succès",
+    "user_added_to_organization": "Utilisateur ajouté à l'organisation avec succès",
+    "stripe_configured": "Configuration Stripe mise à jour avec succès",
+    "stripe_connected": "Compte Stripe connecté avec succès !",
+    "stripe_disconnected": "Compte Stripe déconnecté avec succès",
+    "stripe_connect_error": "Erreur Stripe : {error}",
+    "stripe_invalid_state": "État de sécurité invalide",
+    "stripe_connect_failed": "Erreur lors de la connexion : {error}",
+    "stripe_disconnect_failed": "Erreur lors de la déconnexion : {error}",
+    "subscription_paused": "L'abonnement a été mis en pause avec succès.",
+    "subscription_resumed": "L'abonnement a été repris avec succès.",
+    "subscription_canceled": "L'abonnement sera annulé à la fin de la période en cours.",
+    "subscription_reactivated": "L'abonnement a été réactivé avec succès.",
+    "subscription_action_failed": "Une erreur est survenue : {error}",
+    "no_file_provided": "Aucun fichier fourni",
+    "logo_updated": "Logo mis à jour avec succès",
+    "logo_upload_failed": "Erreur lors de l'upload du logo",
+    "favicon_updated": "Favicon mis à jour avec succès",
+    "favicon_upload_failed": "Erreur lors de l'upload du favicon"
+  },
   "mails": {
     "head_title": "Logs Emails",
     "title": "Logs Emails",

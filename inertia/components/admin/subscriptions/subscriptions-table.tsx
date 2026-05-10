@@ -47,7 +47,7 @@ const estimateTotalRevenue = (subscription: Subscription): number => {
 }
 
 export function SubscriptionsTable({ subscriptions }: Props) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const formatDateValue = useFormatDate()
   const formatCurrency = useFormatCurrency()
 

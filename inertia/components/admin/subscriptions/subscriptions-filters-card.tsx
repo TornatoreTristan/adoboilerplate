@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,32 +12,33 @@ import { Filter, Search } from 'lucide-react'
 import { useState } from 'react'
 import { getTranslation } from '@/lib/translatable'
 import { useI18n } from '@/hooks/use-i18n'
-import type { Filters, Plan } from './types'
+import type { Plan } from './types'
+
+interface Filters {
+  status: string
+  planId: string
+  search: string
+}
 
 interface Props {
   filters: Filters
   plans: Plan[]
+  onStatusChange: (value: string) => void
+  onPlanChange: (value: string) => void
+  onSearchChange: (value: string) => void
 }
 
-/**
- * Each filter mutates the URL search params and triggers an Inertia
- * navigation — the server re-renders the page with the new dataset.
- * Kept as a self-contained component so the search input's local state
- * doesn't bleed into the page-level component.
- */
-export function SubscriptionsFiltersCard({ filters, plans }: Props) {
+export function SubscriptionsFiltersCard({
+  filters,
+  plans,
+  onStatusChange,
+  onPlanChange,
+  onSearchChange,
+}: Props) {
   const { t, locale } = useI18n()
-  const [searchInput, setSearchInput] = useState(filters.search || '')
+  const [searchInput, setSearchInput] = useState(filters.search)
 
-  const updateParam = (key: string, value: string | null) => {
-    const url = new URL(window.location.href)
-    if (value && value !== 'all') {
-      url.searchParams.set(key, value)
-    } else {
-      url.searchParams.delete(key)
-    }
-    router.visit(url.toString())
-  }
+  const submitSearch = () => onSearchChange(searchInput)
 
   return (
     <Card>
@@ -55,16 +55,16 @@ export function SubscriptionsFiltersCard({ filters, plans }: Props) {
               placeholder={t('admin.subscriptions.search_placeholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && updateParam('search', searchInput)}
+              onKeyDown={(e) => e.key === 'Enter' && submitSearch()}
             />
-            <Button onClick={() => updateParam('search', searchInput)} variant="outline">
+            <Button onClick={submitSearch} variant="outline">
               <Search className="h-4 w-4" />
             </Button>
           </div>
 
           <Select
             value={filters.status || 'all'}
-            onValueChange={(value) => updateParam('status', value)}
+            onValueChange={onStatusChange}
           >
             <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder={t('admin.subscriptions.filter_status_placeholder')} />
@@ -81,7 +81,7 @@ export function SubscriptionsFiltersCard({ filters, plans }: Props) {
 
           <Select
             value={filters.planId || 'all'}
-            onValueChange={(value) => updateParam('planId', value)}
+            onValueChange={onPlanChange}
           >
             <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder={t('admin.subscriptions.filter_plan_placeholder')} />

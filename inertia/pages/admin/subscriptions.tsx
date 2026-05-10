@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/core/page-header'
 import { Head } from '@inertiajs/react'
 import { Receipt } from 'lucide-react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useInertiaTableQuery } from '@/hooks/use-inertia-table-query'
 import { SubscriptionsStatsRow } from '@/components/admin/subscriptions/subscriptions-stats-row'
 import { SubscriptionsFiltersCard } from '@/components/admin/subscriptions/subscriptions-filters-card'
 import { SubscriptionsTable } from '@/components/admin/subscriptions/subscriptions-table'
@@ -20,8 +21,18 @@ interface Props {
   filters: Filters
 }
 
-export default function SubscriptionsPage({ subscriptions, stats, plans, filters }: Props) {
+export default function SubscriptionsPage({ subscriptions, stats, plans, filters: initialFilters }: Props) {
   const { t } = useI18n()
+
+  const { filters, setFilter, setSearch } = useInertiaTableQuery<Required<Filters>>({
+    url: '/admin/subscriptions',
+    initial: {
+      status: initialFilters.status ?? '',
+      planId: initialFilters.planId ?? '',
+      search: initialFilters.search ?? '',
+    },
+    only: ['subscriptions', 'stats', 'filters'],
+  })
 
   return (
     <>
@@ -34,7 +45,13 @@ export default function SubscriptionsPage({ subscriptions, stats, plans, filters
             icon={Receipt}
           />
           <SubscriptionsStatsRow stats={stats} />
-          <SubscriptionsFiltersCard filters={filters} plans={plans} />
+          <SubscriptionsFiltersCard
+            filters={filters}
+            plans={plans}
+            onStatusChange={(value) => setFilter('status', value === 'all' ? '' : value)}
+            onPlanChange={(value) => setFilter('planId', value === 'all' ? '' : value)}
+            onSearchChange={(value) => setSearch('search', value)}
+          />
           <SubscriptionsTable subscriptions={subscriptions} />
         </div>
       </AdminLayout>

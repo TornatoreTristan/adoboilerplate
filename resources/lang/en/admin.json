@@ -562,6 +562,27 @@
     "confirm_cancel": "Cancel this subscription?\n\nThe subscription will remain active until the end of the current period.",
     "confirm_reactivate": "Reactivate this canceled subscription?"
   },
+  "flash": {
+    "user_updated": "User updated successfully",
+    "user_added_to_organization": "User added to organization successfully",
+    "stripe_configured": "Stripe configuration updated successfully",
+    "stripe_connected": "Stripe account connected successfully!",
+    "stripe_disconnected": "Stripe account disconnected successfully",
+    "stripe_connect_error": "Stripe error: {error}",
+    "stripe_invalid_state": "Invalid security state",
+    "stripe_connect_failed": "Connection error: {error}",
+    "stripe_disconnect_failed": "Disconnection error: {error}",
+    "subscription_paused": "Subscription paused successfully.",
+    "subscription_resumed": "Subscription resumed successfully.",
+    "subscription_canceled": "Subscription will be canceled at the end of the current period.",
+    "subscription_reactivated": "Subscription reactivated successfully.",
+    "subscription_action_failed": "An error occurred: {error}",
+    "no_file_provided": "No file provided",
+    "logo_updated": "Logo updated successfully",
+    "logo_upload_failed": "Error uploading logo",
+    "favicon_updated": "Favicon updated successfully",
+    "favicon_upload_failed": "Error uploading favicon"
+  },
   "mails": {
     "head_title": "Email Logs",
     "title": "Email Logs",

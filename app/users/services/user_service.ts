@@ -4,6 +4,7 @@ import type { CreateUserData } from '#shared/types/user'
 import type UserRepository from '#users/repositories/user_repository'
 import type User from '#users/models/user'
 import hash from '@adonisjs/core/services/hash'
+import { E } from '#shared/exceptions/index'
 
 @injectable()
 export default class UserService {
@@ -33,5 +34,19 @@ export default class UserService {
 
   async deleteAccount(userId: string): Promise<void> {
     await this.userRepo.delete(userId, { soft: true })
+  }
+
+  async updateAdmin(
+    userId: string,
+    data: { email?: string; fullName?: string | null }
+  ): Promise<User> {
+    if (data.email) {
+      const emailTaken = await this.userRepo.emailExists(data.email, userId)
+      if (emailTaken) {
+        E.emailAlreadyExists(data.email)
+      }
+    }
+
+    return this.userRepo.update(userId, data as any)
   }
 }
