@@ -9,6 +9,7 @@ import type AuthService from '#auth/services/auth_service'
 import type SessionService from '#sessions/services/session_service'
 import type EmailVerificationService from '#auth/services/email_verification_service'
 import type AccountLockoutService from '#auth/services/account_lockout_service'
+import type TwoFactorService from '#auth/services/two_factor_service'
 import RateLimitService from '#shared/services/rate_limit_service'
 import logger from '@adonisjs/core/services/logger'
 
@@ -83,6 +84,20 @@ export default class AuthController {
 
     // Successful credentials — reset the lockout counter.
     await accountLockoutService.reset(normalizedEmail)
+
+    // 2FA challenge — if the user has 2FA enabled, hold the login here and
+    // surface the challenge instead of writing user_id into the session.
+    // The frontend should then POST to /auth/2fa/challenge with the TOTP
+    // code (or a backup code) to finish authenticating.
+    const twoFactorService = getService<TwoFactorService>(TYPES.TwoFactorService)
+    if (twoFactorService.isEnabled(result.user!)) {
+      session.regenerate()
+      session.put('pending_2fa_user_id', result.user!.id)
+      if (this.isApiRequest(request)) {
+        return response.json({ success: true, twoFactorRequired: true })
+      }
+      return response.redirect('/auth/2fa/challenge')
+    }
 
     // Régénérer l'ID de session pour prévenir la session fixation
     session.regenerate()

@@ -31,6 +31,7 @@ export const TYPES = {
   EmailVerificationService: Symbol.for('EmailVerificationService'),
   GoogleAuthService: Symbol.for('GoogleAuthService'),
   AccountLockoutService: Symbol.for('AccountLockoutService'),
+  TwoFactorService: Symbol.for('TwoFactorService'),
   NotificationService: Symbol.for('NotificationService'),
   UserNotificationPreferenceService: Symbol.for('UserNotificationPreferenceService'),
   UploadService: Symbol.for('UploadService'),

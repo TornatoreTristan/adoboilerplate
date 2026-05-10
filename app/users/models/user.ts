@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import encryption from '@adonisjs/core/services/encryption'
 import Organization from '#organizations/models/organization'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import { getService } from '#shared/container/container'
@@ -39,6 +40,31 @@ export default class User extends BaseModel {
 
   @column.dateTime()
   declare deleted_at: DateTime
+
+  @column({
+    serializeAs: null,
+    prepare: (value: string | null) => (value ? encryption.encrypt(value) : null),
+    consume: (value: string | null) => (value ? encryption.decrypt<string>(value) : null),
+  })
+  declare twoFactorSecret: string | null
+
+  @column()
+  declare twoFactorEnabled: boolean
+
+  @column({
+    serializeAs: null,
+    prepare: (value: string[] | null) =>
+      value && value.length > 0 ? encryption.encrypt(value.join('\n')) : null,
+    consume: (value: string | null) => {
+      if (!value) return []
+      const decrypted = encryption.decrypt<string>(value)
+      return decrypted ? decrypted.split('\n').filter(Boolean) : []
+    },
+  })
+  declare twoFactorBackupCodes: string[]
+
+  @column.dateTime()
+  declare twoFactorConfirmedAt: DateTime | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
