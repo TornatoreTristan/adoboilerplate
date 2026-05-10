@@ -23,6 +23,19 @@ transmit.registerRoutes()
 const LocaleController = () => import('#shared/controllers/locale_controller')
 router.post('/locale', [LocaleController, 'update'])
 
+// Test-only debug routes used by middleware specs. Gated on NODE_ENV so
+// they never reach a built application.
+if (process.env.NODE_ENV === 'test') {
+  router
+    .get('/debug/current-organization', ({ organization, response }) => {
+      if (!organization) {
+        return response.notFound({ error: 'No organization in context' })
+      }
+      return response.ok({ id: organization.id, name: organization.name })
+    })
+    .use([middleware.auth(), middleware.requireOrganization(), middleware.organizationContext()])
+}
+
 // Page d'accueil (protégée par authentification et nécessite une organisation)
 router
   .on('/')
