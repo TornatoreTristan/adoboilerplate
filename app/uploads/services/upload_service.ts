@@ -1,4 +1,5 @@
 import { injectable, inject } from 'inversify'
+import { fileTypeFromBuffer } from 'file-type'
 import { TYPES } from '#shared/container/types'
 import UploadRepository from '#uploads/repositories/upload_repository'
 import StorageService from '#uploads/services/storage_service'
@@ -8,6 +9,20 @@ import Upload from '#uploads/models/upload'
 import type { UploadFilters, UploadMetadata, DiskType, VisibilityType } from '#uploads/types/upload'
 import logger from '@adonisjs/core/services/logger'
 import { E } from '#shared/exceptions/index'
+
+/**
+ * Mime types that file-type can't detect from magic bytes (text/* in
+ * particular has no signature) but are still safe to accept on the
+ * declared value alone, after the regex/allowlist checks at the validator.
+ */
+const MIME_TYPES_WITHOUT_MAGIC_BYTES = new Set([
+  'text/plain',
+  'text/csv',
+  'text/markdown',
+  'application/json',
+  'application/x-yaml',
+  'application/xml',
+])
 
 export interface UploadFileOptions {
   userId: string
@@ -29,6 +44,11 @@ export interface UploadFileOptions {
    * Skip image optimization (default: false)
    */
   skipImageOptimization?: boolean
+  /**
+   * Skip server-side MIME verification via magic bytes. Reserved for tests
+   * that upload synthetic buffers; never set this on a real user request.
+   */
+  skipMimeVerification?: boolean
 }
 
 @injectable()
@@ -47,6 +67,37 @@ export default class UploadService {
     let processedFilename = options.filename
     let processedMimeType = options.mimeType
     const metadata: UploadMetadata = options.metadata || {}
+
+    // Step 0: Verify the declared MIME type matches what's actually in the
+    // buffer. file-type reads magic bytes from the first ~4KB and can spot a
+    // PHP file masquerading as `image/jpeg`. text/* and a handful of plain
+    // formats have no signature so we skip detection there and trust the
+    // validator's allowlist.
+    if (!options.skipMimeVerification && !MIME_TYPES_WITHOUT_MAGIC_BYTES.has(options.mimeType)) {
+      const detected = await fileTypeFromBuffer(options.file)
+      if (!detected) {
+        logger.warn(
+          { filename: options.filename, claimedMime: options.mimeType },
+          'No magic-byte signature in upload buffer'
+        )
+        E.invalidMimeType(options.mimeType, [], { reason: 'magic_bytes_not_recognised' })
+      }
+      if (detected.mime !== options.mimeType) {
+        logger.warn(
+          {
+            filename: options.filename,
+            claimedMime: options.mimeType,
+            detectedMime: detected.mime,
+          },
+          'Upload MIME type mismatch — declared vs detected'
+        )
+        E.invalidMimeType(options.mimeType, [detected.mime], {
+          reason: 'mime_mismatch',
+          declared: options.mimeType,
+          detected: detected.mime,
+        })
+      }
+    }
 
     // Step 1: Virus Scanning
     if (!options.skipVirusScan) {

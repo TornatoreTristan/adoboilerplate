@@ -28,11 +28,17 @@ test.group('UploadsController', (group) => {
       fullName: 'Test Uploader',
     })
 
+    // Real PDF magic bytes — the upload service verifies the declared
+    // mimeType against the buffer's magic-byte signature, so an arbitrary
+    // text payload claiming to be application/pdf gets rejected.
+    const pdfBytes =
+      '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0/Kids[]>>endobj\n%%EOF'
+
     const response = await client.post('/api/uploads').withSession({ user_id: user.id }).form({
-      file: 'test file content',
+      file: pdfBytes,
       filename: 'document.pdf',
       mimeType: 'application/pdf',
-      size: 17,
+      size: pdfBytes.length,
       disk: 'local',
       visibility: 'private',
     })
@@ -195,6 +201,7 @@ test.group('UploadsController', (group) => {
       size: 7,
       disk: 'local',
       visibility: 'private',
+      skipMimeVerification: true,
     })
 
     const response = await client

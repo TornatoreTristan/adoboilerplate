@@ -132,6 +132,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "edge.js": "^6.2.1",
+    "file-type": "^22.0.1",
     "inversify": "^7.10.1",
     "ioredis": "^5.8.0",
     "lucide-react": "^0.544.0",
