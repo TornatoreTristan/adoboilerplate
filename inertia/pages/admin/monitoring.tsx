@@ -10,6 +10,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { Activity, Database, Disc, Mail, MemoryStick, Server, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface MonitoringData {
   status: 'ok' | 'degraded' | 'down'
@@ -61,6 +62,7 @@ interface CacheMetrics {
 }
 
 export default function Monitoring() {
+  const { t, locale } = useI18n()
   const [data, setData] = useState<MonitoringData | null>(null)
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -99,7 +101,7 @@ export default function Monitoring() {
         .slice(0, 50)
         .reverse()
         .map((item: any) => ({
-          time: new Date(item.createdAt).toLocaleTimeString('fr-FR', {
+          time: new Date(item.createdAt).toLocaleTimeString(locale === 'en' ? 'en-US' : 'fr-FR', {
             hour: '2-digit',
             minute: '2-digit',
           }),
@@ -146,14 +148,14 @@ export default function Monitoring() {
     const days = Math.floor(seconds / 86400)
     const hours = Math.floor((seconds % 86400) / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
-    return `${days}j ${hours}h ${minutes}m`
+    return t('admin.monitoring.uptime_format', { days, hours, minutes })
   }
 
   if (loading) {
     return (
       <>
-        <Head title="System Monitoring" />
-        <AdminLayout breadcrumbs={[{ label: 'Monitoring' }]}>
+        <Head title={t('admin.monitoring.head_title')} />
+        <AdminLayout breadcrumbs={[{ label: t('admin.monitoring.title') }]}>
           <div className="flex flex-col gap-6 p-6">
             <Skeleton className="h-20 w-full" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -170,11 +172,11 @@ export default function Monitoring() {
   if (!data) {
     return (
       <>
-        <Head title="System Monitoring" />
-        <AdminLayout breadcrumbs={[{ label: 'Monitoring' }]}>
+        <Head title={t('admin.monitoring.head_title')} />
+        <AdminLayout breadcrumbs={[{ label: t('admin.monitoring.title') }]}>
           <div className="flex flex-col gap-6 p-6">
             <Alert variant="destructive">
-              <AlertDescription>Failed to load monitoring data</AlertDescription>
+              <AlertDescription>{t('admin.monitoring.load_failed')}</AlertDescription>
             </Alert>
           </div>
         </AdminLayout>
@@ -192,14 +194,17 @@ export default function Monitoring() {
 
   return (
     <>
-      <Head title="System Monitoring" />
-      <AdminLayout breadcrumbs={[{ label: 'Monitoring' }]}>
+      <Head title={t('admin.monitoring.head_title')} />
+      <AdminLayout breadcrumbs={[{ label: t('admin.monitoring.title') }]}>
         <div className="flex flex-col gap-6 p-6">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <PageHeader
-              title="System Monitoring"
-              description={`Uptime: ${formatUptime(data.uptime)} • Status: ${data.status.toUpperCase()} • Last update: ${Math.floor((Date.now() - lastUpdate.getTime()) / 1000)}s ago`}
+              title={t('admin.monitoring.title')}
+              description={t('admin.monitoring.description', {
+                uptime: formatUptime(data.uptime),
+                status: data.status.toUpperCase(),
+                seconds: Math.floor((Date.now() - lastUpdate.getTime()) / 1000),
+              })}
             />
             <Button
               onClick={() => {
@@ -210,17 +215,16 @@ export default function Monitoring() {
               size="sm"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
+              {t('admin.monitoring.refresh')}
             </Button>
           </div>
 
-          {/* Health Checks */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center">
                   <Database className="w-4 h-4 mr-2" />
-                  Database
+                  {t('admin.monitoring.card_database')}
                   {getStatusBadge(data.health.database.status)}
                 </CardTitle>
               </CardHeader>
@@ -231,8 +235,10 @@ export default function Monitoring() {
                   )}
                   {data.health.database.details?.connection && (
                     <div className="text-sm text-muted-foreground">
-                      Pool: {data.health.database.details.connection.used}/
-                      {data.health.database.details.connection.max}
+                      {t('admin.monitoring.pool_label', {
+                        used: data.health.database.details.connection.used,
+                        max: data.health.database.details.connection.max,
+                      })}
                     </div>
                   )}
                 </div>
@@ -243,7 +249,7 @@ export default function Monitoring() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center">
                   <Server className="w-4 h-4 mr-2" />
-                  Redis
+                  {t('admin.monitoring.card_redis')}
                   {getStatusBadge(data.health.redis.status)}
                 </CardTitle>
               </CardHeader>
@@ -254,7 +260,7 @@ export default function Monitoring() {
                   )}
                   {data.health.redis.details?.memory && (
                     <div className="text-sm text-muted-foreground">
-                      Memory: {data.health.redis.details.memory.used}
+                      {t('admin.monitoring.memory_label', { value: data.health.redis.details.memory.used })}
                     </div>
                   )}
                 </div>
@@ -265,7 +271,7 @@ export default function Monitoring() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center">
                   <Disc className="w-4 h-4 mr-2" />
-                  Disk Space
+                  {t('admin.monitoring.card_disk')}
                   {getStatusBadge(data.health.disk.status)}
                 </CardTitle>
               </CardHeader>
@@ -273,11 +279,9 @@ export default function Monitoring() {
                 <div className="space-y-2">
                   {data.health.disk.details && (
                     <>
-                      <div className="text-2xl font-bold">
-                        {data.health.disk.details.freePercentage}%
-                      </div>
+                      <div className="text-2xl font-bold">{data.health.disk.details.freePercentage}%</div>
                       <div className="text-sm text-muted-foreground">
-                        {data.health.disk.details.free} free
+                        {t('admin.monitoring.free_suffix', { value: data.health.disk.details.free })}
                       </div>
                     </>
                   )}
@@ -289,7 +293,7 @@ export default function Monitoring() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center">
                   <Mail className="w-4 h-4 mr-2" />
-                  Email Queue
+                  {t('admin.monitoring.card_email')}
                   {getStatusBadge(data.health.email.status)}
                 </CardTitle>
               </CardHeader>
@@ -299,7 +303,7 @@ export default function Monitoring() {
                     <>
                       <div className="text-2xl font-bold">{data.health.email.details.waiting}</div>
                       <div className="text-sm text-muted-foreground">
-                        Pending • {data.health.email.details.failed} failed
+                        {t('admin.monitoring.pending_failed', { failed: data.health.email.details.failed })}
                       </div>
                     </>
                   )}
@@ -308,28 +312,25 @@ export default function Monitoring() {
             </Card>
           </div>
 
-          {/* Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center">
                   <Activity className="w-4 h-4 mr-2" />
-                  Performance
+                  {t('admin.monitoring.card_performance')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">CPU</span>
+                    <span className="text-muted-foreground">{t('admin.monitoring.metric_cpu')}</span>
                     <span className="font-medium">{data.metrics.process.cpuUsagePercent}%</span>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Memory</span>
-                    <span className="font-medium">
-                      {data.metrics.process.memoryUsage.percentage}%
-                    </span>
+                    <span className="text-muted-foreground">{t('admin.monitoring.metric_memory')}</span>
+                    <span className="font-medium">{data.metrics.process.memoryUsage.percentage}%</span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {data.metrics.process.memoryUsage.rss}
@@ -342,16 +343,16 @@ export default function Monitoring() {
               <CardHeader>
                 <CardTitle className="text-sm font-medium flex items-center">
                   <MemoryStick className="w-4 h-4 mr-2" />
-                  System
+                  {t('admin.monitoring.card_system')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">CPUs</span>
+                  <span className="text-muted-foreground">{t('admin.monitoring.metric_cpus')}</span>
                   <span className="font-medium">{data.metrics.system.cpuCount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total Memory</span>
+                  <span className="text-muted-foreground">{t('admin.monitoring.metric_total_memory')}</span>
                   <span className="font-medium">{data.metrics.system.totalMemory}</span>
                 </div>
               </CardContent>
@@ -359,28 +360,27 @@ export default function Monitoring() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Cache Stats</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('admin.monitoring.card_cache')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Hit Rate</span>
+                  <span className="text-muted-foreground">{t('admin.monitoring.metric_hit_rate')}</span>
                   <span className="font-medium">{data.metrics.cache.hitRate}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Keys</span>
+                  <span className="text-muted-foreground">{t('admin.monitoring.metric_keys')}</span>
                   <span className="font-medium">{data.metrics.cache.keyCount.toLocaleString()}</span>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Charts */}
           {history.length > 0 && (
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Response Time (Last 24h)</CardTitle>
-                  <CardDescription>Database and Redis latency over time</CardDescription>
+                  <CardTitle>{t('admin.monitoring.chart_response_time_title')}</CardTitle>
+                  <CardDescription>{t('admin.monitoring.chart_response_time_description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={chartConfig} className="h-[300px]">
@@ -419,8 +419,8 @@ export default function Monitoring() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>CPU & Memory Usage (Last 24h)</CardTitle>
-                    <CardDescription>Process resource consumption over time</CardDescription>
+                    <CardTitle>{t('admin.monitoring.chart_cpu_memory_title')}</CardTitle>
+                    <CardDescription>{t('admin.monitoring.chart_cpu_memory_description')}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-[300px]">
@@ -462,8 +462,8 @@ export default function Monitoring() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Cache Performance (Last 24h)</CardTitle>
-                    <CardDescription>Redis cache hit rate over time</CardDescription>
+                    <CardTitle>{t('admin.monitoring.chart_cache_title')}</CardTitle>
+                    <CardDescription>{t('admin.monitoring.chart_cache_description')}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-[300px]">
