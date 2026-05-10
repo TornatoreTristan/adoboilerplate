@@ -153,15 +153,28 @@ export default class ImageOptimizationService {
         error: error.message,
       })
 
-      // On error, return original buffer
+      // The buffer was rejected by sharp once already; calling sharp again
+      // here just to read metadata would throw the same error and turn the
+      // graceful fallback into a hard failure. Try to read it best-effort
+      // and fall back to safe defaults.
       logger.warn(`⚠️  Image optimization failed for ${filename}, using original`)
-      const metadata = await sharp(buffer).metadata()
+      let width = 0
+      let height = 0
+      let format = 'unknown'
+      try {
+        const metadata = await sharp(buffer).metadata()
+        width = metadata.width ?? 0
+        height = metadata.height ?? 0
+        format = metadata.format ?? 'unknown'
+      } catch {
+        // ignore — invalid buffer, defaults already set
+      }
 
       return {
         buffer,
-        width: metadata.width || 0,
-        height: metadata.height || 0,
-        format: metadata.format || 'unknown',
+        width,
+        height,
+        format,
         size: buffer.length,
         originalSize: buffer.length,
         reductionPercent: 0,

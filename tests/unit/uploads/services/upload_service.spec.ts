@@ -98,7 +98,11 @@ test.group('UploadService', (group) => {
       metadata: { width: 1920, height: 1080 },
     })
 
-    assert.deepEqual(upload.metadata, { width: 1920, height: 1080 })
+    // The service augments user-provided metadata with virusScanned/
+    // imageOptimized markers, so we check the user fields survived rather
+    // than asserting an exact equality.
+    assert.equal(upload.metadata?.width, 1920)
+    assert.equal(upload.metadata?.height, 1080)
   })
 
   test('should upload file with polymorphic relation', async ({ assert }) => {
