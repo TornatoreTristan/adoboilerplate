@@ -172,50 +172,16 @@ export default class SubscriptionService {
   }
 
   /**
-   * Annuler un abonnement à la fin de la période
-   * L'utilisateur garde l'accès jusqu'à la fin de la période payée
+   * Garantir que l'abonnement appartient bien à l'organisation appelante.
+   * Si organizationId est omis (contexte admin), aucune vérification n'est faite.
    */
-  async cancelSubscription(subscriptionId: string): Promise<Subscription> {
-    const subscription = await this.subscriptionRepository.findById(subscriptionId)
-
-    E.assertExists(subscription, 'Subscription', subscriptionId)
-
-    if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced()
+  private assertSubscriptionInOrganization(
+    subscription: Subscription,
+    organizationId?: string
+  ): void {
+    if (organizationId && subscription.organizationId !== organizationId) {
+      E.forbidden('agir sur cet abonnement')
     }
-
-    const stripe = await this.getStripeClient()
-
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      cancel_at_period_end: true,
-    })
-
-    return this.subscriptionRepository.update(subscriptionId, {
-      canceledAt: DateTime.now(),
-    })
-  }
-
-  /**
-   * Réactiver un abonnement annulé (avant la fin de la période)
-   */
-  async reactivateSubscription(subscriptionId: string): Promise<Subscription> {
-    const subscription = await this.subscriptionRepository.findById(subscriptionId)
-
-    E.assertExists(subscription, 'Subscription', subscriptionId)
-
-    if (!subscription.stripeSubscriptionId) {
-      E.subscriptionNotSynced()
-    }
-
-    const stripe = await this.getStripeClient()
-
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      cancel_at_period_end: false,
-    })
-
-    return this.subscriptionRepository.update(subscriptionId, {
-      canceledAt: null,
-    })
   }
 
   /**
@@ -236,28 +202,33 @@ export default class SubscriptionService {
   /**
    * Mettre en pause un abonnement
    * L'abonnement reste actif mais les factures ne sont plus générées
+   *
+   * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async pauseSubscription(subscriptionId: string): Promise<Subscription> {
+  async pauseSubscription(
+    subscriptionId: string,
+    organizationId?: string
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
+
+    this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
       E.subscriptionNotSynced(subscriptionId)
     }
 
     if (subscription.status === 'canceled') {
-      throw new Error('Impossible de mettre en pause un abonnement annulé')
+      E.validationError('Impossible de mettre en pause un abonnement annulé', 'status')
     }
 
     const stripe = await this.getStripeClient()
 
-    // Mettre en pause dans Stripe
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
       pause_collection: {
-        behavior: 'mark_uncollectible', // Les factures sont marquées comme non collectables
+        behavior: 'mark_uncollectible',
       },
     })
 
-    // Mettre à jour la base de données
     return this.subscriptionRepository.update(subscriptionId, {
       status: 'paused',
     })
@@ -265,26 +236,31 @@ export default class SubscriptionService {
 
   /**
    * Reprendre un abonnement en pause
+   *
+   * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async resumeSubscription(subscriptionId: string): Promise<Subscription> {
+  async resumeSubscription(
+    subscriptionId: string,
+    organizationId?: string
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
+
+    this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
       E.subscriptionNotSynced(subscriptionId)
     }
 
     if (subscription.status !== 'paused') {
-      throw new Error('Seuls les abonnements en pause peuvent être repris')
+      E.validationError('Seuls les abonnements en pause peuvent être repris', 'status')
     }
 
     const stripe = await this.getStripeClient()
 
-    // Reprendre dans Stripe
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      pause_collection: null, // Supprime la pause
+      pause_collection: null,
     })
 
-    // Mettre à jour la base de données
     return this.subscriptionRepository.update(subscriptionId, {
       status: 'active',
     })
@@ -293,26 +269,31 @@ export default class SubscriptionService {
   /**
    * Annuler un abonnement à la fin de la période en cours
    * L'abonnement reste actif jusqu'à currentPeriodEnd puis passe à canceled
+   *
+   * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async cancelSubscription(subscriptionId: string): Promise<Subscription> {
+  async cancelSubscription(
+    subscriptionId: string,
+    organizationId?: string
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
+
+    this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
       E.subscriptionNotSynced(subscriptionId)
     }
 
     if (subscription.status === 'canceled') {
-      throw new Error('Cet abonnement est déjà annulé')
+      E.validationError('Cet abonnement est déjà annulé', 'status')
     }
 
     const stripe = await this.getStripeClient()
 
-    // Annuler dans Stripe à la fin de période
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
       cancel_at_period_end: true,
     })
 
-    // Mettre à jour la base de données
     return this.subscriptionRepository.update(subscriptionId, {
       canceledAt: DateTime.now(),
     })
@@ -321,26 +302,31 @@ export default class SubscriptionService {
   /**
    * Réactiver un abonnement annulé (avant la fin de période)
    * Annule la demande d'annulation
+   *
+   * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async reactivateSubscription(subscriptionId: string): Promise<Subscription> {
+  async reactivateSubscription(
+    subscriptionId: string,
+    organizationId?: string
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
+
+    this.assertSubscriptionInOrganization(subscription, organizationId)
 
     if (!subscription.stripeSubscriptionId) {
       E.subscriptionNotSynced(subscriptionId)
     }
 
     if (!subscription.canceledAt) {
-      throw new Error('Cet abonnement n\'est pas en cours d\'annulation')
+      E.validationError('Cet abonnement n\'est pas en cours d\'annulation', 'status')
     }
 
     const stripe = await this.getStripeClient()
 
-    // Annuler la demande d'annulation dans Stripe
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
       cancel_at_period_end: false,
     })
 
-    // Mettre à jour la base de données
     return this.subscriptionRepository.update(subscriptionId, {
       canceledAt: null,
     })
