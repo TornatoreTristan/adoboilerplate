@@ -1,10 +1,10 @@
-# 🚀 AdonisJS 6 Enterprise Boilerplate
+# 🚀 AdonisJS 7 Enterprise Boilerplate
 
-> Un boilerplate AdonisJS 6 moderne avec architecture avancée pour applications d'entreprise
+> Un boilerplate AdonisJS 7 moderne avec architecture avancée pour applications d'entreprise
 
-[![AdonisJS](https://img.shields.io/badge/AdonisJS-6.x-purple.svg)](https://adonisjs.com)
+[![AdonisJS](https://img.shields.io/badge/AdonisJS-7.x-purple.svg)](https://adonisjs.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-24+-green.svg)](https://nodejs.org)
 
 **Project start:** 27 sept 2025 | **Last update:** 10 mai 2026 | **Version:** 0.1.5
 
@@ -67,7 +67,7 @@
 
 ## 🛠️ Stack Technique
 
-- **Backend:** AdonisJS 6 + TypeScript
+- **Backend:** AdonisJS 7 + TypeScript
 - **Base de données:** PostgreSQL avec Lucid ORM
 - **Cache:** Redis avec stratégie de tags
 - **Queue:** Bull pour jobs asynchrones (emails, etc.)
@@ -84,8 +84,8 @@
 
 ```bash
 # 1. Clone et installation
-git clone https://github.com/votre-username/boilerplate-adonisjs6.git
-cd boilerplate-adonisjs6
+git clone https://github.com/votre-username/adoboilerplate.git
+cd adoboilerplate
 npm install
 
 # 2. Configuration
@@ -226,4 +226,4 @@ Ce boilerplate est conçu pour être un point de départ solide pour vos applica
 
 ---
 
-**Développé avec ❤️ en utilisant AdonisJS 6**
+**Développé avec ❤️ en utilisant AdonisJS 7**

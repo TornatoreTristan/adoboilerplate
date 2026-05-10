@@ -1,6 +1,6 @@
 # 🤖 Claude Code Guidelines
 
-> Instructions pour maintenir la cohérence architecturale du boilerplate AdonisJS 6
+> Instructions pour maintenir la cohérence architecturale du boilerplate AdonisJS 7
 
 ## 🎯 Architecture Obligatoire
 

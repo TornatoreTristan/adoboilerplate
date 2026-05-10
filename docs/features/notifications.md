@@ -611,4 +611,4 @@ eventBus.on('notification.deleted', ({ record }) => {
 
 ---
 
-**Développé avec TDD strict et suivant les guidelines du boilerplate AdonisJS 6**
+**Développé avec TDD strict et suivant les guidelines du boilerplate AdonisJS 7**
