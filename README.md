@@ -57,7 +57,6 @@
 - **DDD Architecture** - Domain-Driven Design avec IoC Container (Inversify)
 - **Cache Redis** - Invalidation par tags et TTL configurable
 - **Full-Text Search** - PostgreSQL tsvector, GIN indexes, ranking, multi-langue
-- **Event System** - Événements asynchrones avec Inngest (workflows, retry)
 
 ### 🌍 Developer Experience
 
@@ -73,7 +72,6 @@
 - **Cache:** Redis avec stratégie de tags
 - **Queue:** Bull pour jobs asynchrones (emails, etc.)
 - **Storage:** Local filesystem + AWS S3
-- **Events & Workflows:** Inngest (reliable, observable, avec retry automatique)
 - **Real-time:** Transmit (Server-Sent Events) pour notifications en temps réel
 - **Error Monitoring:** Sentry (backend + frontend)
 - **Payments:** Stripe (subscriptions + one-time)
@@ -113,7 +111,6 @@ npm run dev
 - [📦 File Upload System](docs/features/uploads.md)
 - [🔔 Notifications](docs/features/notifications.md)
 - [📜 Audit Logs](docs/features/audit-logs.md)
-- [⚡ Inngest Event System](docs/features/inngest-events.md)
 - [⚡ Caching Strategy](docs/architecture/caching.md)
 - [🔍 Full-Text Search](docs/features/full-text-search.md)
 - [🌍 Internationalization (i18n)](docs/features/i18n.md)
@@ -155,27 +152,6 @@ class UserService {
     @inject(TYPES.CacheService) private cache: CacheService
   ) {}
 }
-```
-
-### Inngest Event System
-
-```typescript
-// Événements asynchrones avec retry automatique
-await inngestService.send({
-  name: 'user/registered',
-  data: { userId: user.id, email: user.email }
-})
-
-// Workflows multi-étapes avec observability
-inngest.createFunction(
-  { id: 'onboarding', retries: 3 },
-  { event: 'user/registered' },
-  async ({ event, step }) => {
-    await step.run('send-welcome', () => emailService.send(...))
-    await step.sleep('wait-1-day', '1d')
-    await step.run('send-tips', () => emailService.send(...))
-  }
-)
 ```
 
 ### Cache Redis avec Tags

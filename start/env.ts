@@ -134,14 +134,6 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Variables for configuring Inngest
-  |----------------------------------------------------------
-  */
-  INNGEST_EVENT_KEY: Env.schema.string.optional(),
-  INNGEST_SIGNING_KEY: Env.schema.string.optional(),
-
-  /*
-  |----------------------------------------------------------
   | Variables for configuring Sentry error monitoring
   |----------------------------------------------------------
   | All optional: Sentry is disabled when SENTRY_ENABLED is absent/false.

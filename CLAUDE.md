@@ -187,13 +187,11 @@ await userRepo.create(data, {
 })
 ```
 
-### Events & Hooks (Inngest)
+### Events & Hooks
 - Les événements sont automatiques via BaseRepository
 - **Sync** : `eventBus.on('model.before_create', handler)` - Validation, transformation
-- **Async** : Inngest Functions - Workflows, emails, webhooks (avec retry automatique)
 - Events disponibles :
   - Sync : `before_create`, `before_update`, `before_delete`
-  - Async (Inngest) : `{model}/created`, `{model}/updated`, `{model}/deleted`
 
 ## 🧪 Test-Driven Development (TDD)
 
