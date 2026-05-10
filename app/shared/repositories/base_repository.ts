@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify'
-import type { LucidModel, LucidRow, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
+import type { LucidModel, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import { DateTime } from 'luxon'
 import { TYPES } from '#shared/container/types'
 import type CacheService from '#shared/services/cache_service'
@@ -330,7 +330,11 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     const result = await query.count('* as total')
-    return parseInt(result[0]?.total || '0')
+    // Lucid types `count()` as returning model rows, but at runtime each row
+    // is a `{ $extras: { total } }` aggregate. Reach into $extras directly.
+    const row = result[0] as { $extras?: { total?: string | number } } | undefined
+    const total = row?.$extras?.total
+    return typeof total === 'number' ? total : parseInt((total as string) || '0', 10)
   }
 
   /**

@@ -131,16 +131,22 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
 
     const today = DateTime.now().startOf('day')
 
-    const [total, active, todaySessions] = await Promise.all([
-      baseQuery.clone().getCount(),
-      baseQuery.clone().where('is_active', true).getCount(),
-      baseQuery.clone().where('created_at', '>=', today.toJSDate()).getCount(),
+    const extractTotal = (rows: UserSession[]): number => {
+      const row = rows[0] as { $extras?: { total?: string | number } } | undefined
+      const total = row?.$extras?.total
+      return typeof total === 'number' ? total : Number.parseInt((total as string) || '0', 10)
+    }
+
+    const [totalRows, activeRows, todayRows] = await Promise.all([
+      baseQuery.clone().count('* as total'),
+      baseQuery.clone().where('is_active', true).count('* as total'),
+      baseQuery.clone().where('created_at', '>=', today.toJSDate()).count('* as total'),
     ])
 
     return {
-      total: Number.parseInt(total.toString()),
-      active: Number.parseInt(active.toString()),
-      today: Number.parseInt(todaySessions.toString()),
+      total: extractTotal(totalRows),
+      active: extractTotal(activeRows),
+      today: extractTotal(todayRows),
     }
   }
 
@@ -224,7 +230,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
     userId: string | number
   ): Promise<boolean> {
     const session = await this.findById(sessionId)
-    return session?.user_id === userId
+    return session?.userId === userId
   }
 
   /**
@@ -232,7 +238,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterCreate(session: UserSession): Promise<void> {
     await super.afterCreate(session)
-    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.userId}`])
   }
 
   /**
@@ -240,7 +246,7 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterUpdate(session: UserSession): Promise<void> {
     await super.afterUpdate(session)
-    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.userId}`])
   }
 
   /**
@@ -248,6 +254,6 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   protected async afterDelete(session: UserSession): Promise<void> {
     await super.afterDelete(session)
-    await this.cache?.invalidateTags([`user_sessions_${session.user_id}`])
+    await this.cache?.invalidateTags([`user_sessions_${session.userId}`])
   }
 }

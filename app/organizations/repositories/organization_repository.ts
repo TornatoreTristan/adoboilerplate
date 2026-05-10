@@ -103,7 +103,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     // Skip cache in test environment to avoid stale data with database transactions
     if (!isTestEnvironment()) {
       const cacheKey = this.buildCacheKey(String(userId), 'user_org_count')
-      const cached = await this.cache.get<number>(cacheKey)
+      const cached = await this.cache!.get<number>(cacheKey)
       if (cached !== null) return cached
     }
 
@@ -120,7 +120,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     // Only cache in non-test environments
     if (!isTestEnvironment()) {
       const cacheKey = this.buildCacheKey(String(userId), 'user_org_count')
-      await this.cache.set(cacheKey, count, { ttl: 300, tags: ['user_organizations'] })
+      await this.cache!.set(cacheKey, count, { ttl: 300, tags: ['user_organizations'] })
     }
 
     return count
@@ -181,7 +181,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
   async isUserMember(organizationId: string | number, userId: string | number): Promise<boolean> {
     const cacheKey = this.buildCacheKey(String(organizationId), 'member', userId)
 
-    const cached = await this.cache.get<boolean>(cacheKey)
+    const cached = await this.cache!.get<boolean>(cacheKey)
     if (cached !== null) return cached
 
     const org = await this.findByIdOrFail(organizationId)
@@ -194,7 +194,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const isMember = !!membership
 
     // Cache pendant 5 minutes
-    await this.cache.set(cacheKey, isMember, { ttl: 300, tags: ['org_members'] })
+    await this.cache!.set(cacheKey, isMember, { ttl: 300, tags: ['org_members'] })
 
     return isMember
   }
