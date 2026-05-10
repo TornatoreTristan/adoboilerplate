@@ -4,6 +4,22 @@ import { TYPES } from '#shared/container/types'
 import UploadService from '#uploads/services/upload_service'
 import { uploadFileValidator, getUploadsValidator } from '#uploads/validators/upload_validator'
 import { E } from '#shared/exceptions/index'
+import env from '#start/env'
+
+/** Match a concrete MIME (e.g. `image/jpeg`) against patterns like `image/*`. */
+function isMimeAllowed(mime: string, allowlist: string[]): boolean {
+  return allowlist.some((pattern) => {
+    if (pattern === '*/*') return true
+    if (pattern.endsWith('/*')) return mime.startsWith(pattern.slice(0, -1))
+    return pattern === mime
+  })
+}
+
+const allowedMimes = env
+  .get('UPLOADS_ALLOWED_MIMES', 'image/*,application/pdf,text/*')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean)
 
 export default class UploadsController {
   async store({ request, user, response }: HttpContext) {
@@ -12,19 +28,30 @@ export default class UploadsController {
 
     const data = await request.validateUsing(uploadFileValidator)
 
+    if (!isMimeAllowed(data.mimeType, allowedMimes)) {
+      E.invalidMimeType(data.mimeType, allowedMimes)
+    }
+
     const fileContent = Buffer.from(data.file || '')
+
+    // Cross-check the buffer length with the size declared by the client; a
+    // 1-byte buffer claiming size: 10_000_000 is either a bug or an attempt to
+    // smuggle metadata that doesn't match the payload.
+    if (fileContent.byteLength !== data.size) {
+      E.validationError('La taille déclarée ne correspond pas au contenu envoyé', 'size')
+    }
 
     const upload = await uploadService.uploadFile({
       userId: user.id,
       file: fileContent,
-      filename: request.input('filename'),
-      mimeType: request.input('mimeType'),
-      size: request.input('size'),
+      filename: data.filename,
+      mimeType: data.mimeType,
+      size: data.size,
       disk: data.disk || 'local',
       visibility: data.visibility || 'private',
       uploadableType: data.uploadableType,
       uploadableId: data.uploadableId,
-      metadata: request.input('metadata'),
+      metadata: data.metadata,
     })
 
     return response.status(201).json({ upload })
