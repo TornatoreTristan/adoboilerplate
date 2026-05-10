@@ -4,7 +4,7 @@ import { Head, router, Link } from '@inertiajs/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plug, CheckCircle2, Settings, LogOut } from 'lucide-react'
+import { Plug, CheckCircle2, LogOut } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface StripeConfig {
   isActive: boolean
@@ -39,12 +40,14 @@ interface Integration {
 }
 
 const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
+  const { t } = useI18n()
+
   const integrations: Integration[] = [
     {
       id: 'stripe',
       name: 'Stripe',
-      description: 'Acceptez les paiements et gérez vos abonnements avec Stripe',
-      category: 'Paiement',
+      description: t('admin.integrations_list.stripe_description'),
+      category: t('admin.integrations_list.category_payment'),
       isConnected: stripe?.isActive || false,
       icon: '💳',
       iconBg: 'bg-blue-100 dark:bg-blue-900',
@@ -52,7 +55,6 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
   ]
 
   const categories = [...new Set(integrations.map((int) => int.category))]
-
   const connectedCount = integrations.filter((int) => int.isConnected).length
 
   const handleDisconnect = () => {
@@ -61,12 +63,15 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
 
   return (
     <>
-      <Head title="Intégrations" />
-      <AdminLayout breadcrumbs={[{ label: 'Intégrations' }]}>
+      <Head title={t('admin.integrations_list.head_title')} />
+      <AdminLayout breadcrumbs={[{ label: t('admin.integrations_list.title') }]}>
         <div className="flex flex-col gap-6 p-6">
           <PageHeader
-            title="Intégrations"
-            description={`Connectez vos outils préférés • ${connectedCount} sur ${integrations.length} active${connectedCount > 1 ? 's' : ''}`}
+            title={t('admin.integrations_list.title')}
+            description={t('admin.integrations_list.description', {
+              connected: connectedCount,
+              total: integrations.length,
+            })}
             icon={Plug}
           />
 
@@ -86,7 +91,7 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
                         <div className="absolute top-3 right-3">
                           <Badge variant="default" className="flex items-center gap-1">
                             <CheckCircle2 className="h-3 w-3" />
-                            Connecté
+                            {t('admin.integrations_list.connected')}
                           </Badge>
                         </div>
                       )}
@@ -111,41 +116,43 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
                             <>
                               <div className="flex-1 space-y-2">
                                 <div className="text-xs text-muted-foreground">
-                                  Clé publique: {stripe?.publicKey}
+                                  {t('admin.integrations_list.public_key', {
+                                    key: stripe?.publicKey ?? '',
+                                  })}
                                 </div>
                               </div>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button variant="destructive" size="sm">
                                     <LogOut className="mr-2 h-4 w-4" />
-                                    Déconnecter
+                                    {t('admin.integrations_list.disconnect')}
                                   </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Déconnecter Stripe</AlertDialogTitle>
+                                    <AlertDialogTitle>
+                                      {t('admin.integrations_list.disconnect_dialog_title')}
+                                    </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Êtes-vous sûr de vouloir déconnecter votre compte Stripe ? Vous
-                                      devrez vous reconnecter pour accepter des paiements.
+                                      {t('admin.integrations_list.disconnect_dialog_description')}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                    <AlertDialogCancel>
+                                      {t('admin.integrations_list.dialog_cancel')}
+                                    </AlertDialogCancel>
                                     <AlertDialogAction onClick={handleDisconnect}>
-                                      Déconnecter
+                                      {t('admin.integrations_list.disconnect')}
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
                             </>
                           ) : (
-                            <Link
-                              href="/admin/integrations/stripe/connect"
-                              className="w-full"
-                            >
+                            <Link href="/admin/integrations/stripe/connect" className="w-full">
                               <Button size="sm" className="w-full">
                                 <Plug className="mr-2 h-4 w-4" />
-                                Connect with Stripe
+                                {t('admin.integrations_list.connect_stripe')}
                               </Button>
                             </Link>
                           )}
@@ -160,19 +167,16 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
 
           <Card className="border-dashed">
             <CardHeader>
-              <CardTitle className="text-base">Vous ne trouvez pas votre intégration ?</CardTitle>
-              <CardDescription>
-                Contactez-nous pour suggérer une nouvelle intégration ou découvrez comment créer
-                votre propre connecteur personnalisé.
-              </CardDescription>
+              <CardTitle className="text-base">{t('admin.integrations_list.missing_card_title')}</CardTitle>
+              <CardDescription>{t('admin.integrations_list.missing_card_description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
-                  Suggérer une intégration
+                  {t('admin.integrations_list.suggest_button')}
                 </Button>
                 <Button variant="ghost" size="sm">
-                  Documentation API
+                  {t('admin.integrations_list.docs_button')}
                 </Button>
               </div>
             </CardContent>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
 import { Head } from '@inertiajs/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -24,11 +24,10 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { AlertCircle, Info, AlertTriangle, XCircle, Skull, RefreshCw, Search } from 'lucide-react'
+import { AlertCircle, Info, AlertTriangle, XCircle, Skull, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useI18n } from '@/hooks/use-i18n'
@@ -59,7 +58,7 @@ interface LogStats {
 }
 
 export default function Logs() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [logs, setLogs] = useState<Log[]>([])
   const [stats, setStats] = useState<LogStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -114,7 +113,6 @@ export default function Logs() {
   const getLevelIcon = (level: string) => {
     switch (level) {
       case 'debug':
-        return <Info className="w-4 h-4" />
       case 'info':
         return <Info className="w-4 h-4" />
       case 'warn':
@@ -147,27 +145,26 @@ export default function Logs() {
 
   const getStatusCodeBadge = (code: number | null) => {
     if (!code) return null
-
     let variant: 'default' | 'secondary' | 'destructive' = 'default'
     if (code >= 500) variant = 'destructive'
     else if (code >= 400) variant = 'secondary'
-
     return <Badge variant={variant}>{code}</Badge>
   }
 
+  const dateLocale = locale === 'en' ? undefined : fr
+
   return (
     <>
-      <Head title="System Logs" />
-      <AdminLayout breadcrumbs={[{ label: 'Logs' }]}>
+      <Head title={t('admin.logs.head_title')} />
+      <AdminLayout breadcrumbs={[{ label: t('admin.logs.title') }]}>
         <div className="flex flex-col gap-6 p-6">
-          <PageHeader title="System Logs" description="View and search application logs" />
+          <PageHeader title={t('admin.logs.title')} description={t('admin.logs.description')} />
 
-          {/* Stats */}
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Logs</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.total_logs')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
@@ -175,7 +172,7 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Last 24h</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.last_24h')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.last24h.toLocaleString()}</div>
@@ -183,7 +180,7 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Errors</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.errors')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-600">
@@ -193,27 +190,24 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Warnings</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.warnings')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {stats.byLevel.warn || 0}
-                  </div>
+                  <div className="text-2xl font-bold text-yellow-600">{stats.byLevel.warn || 0}</div>
                 </CardContent>
               </Card>
             </div>
           )}
 
-          {/* Filters */}
           <Card>
             <CardHeader>
-              <CardTitle>Filters</CardTitle>
+              <CardTitle>{t('admin.logs.filters_title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Search logs..."
+                    placeholder={t('admin.logs.search_placeholder')}
                     value={filters.search}
                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                     className="w-full"
@@ -224,15 +218,15 @@ export default function Logs() {
                   onValueChange={(value) => setFilters({ ...filters, level: value })}
                 >
                   <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="All Levels" />
+                    <SelectValue placeholder={t('admin.logs.filter_level_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Levels</SelectItem>
-                    <SelectItem value="debug">Debug</SelectItem>
-                    <SelectItem value="info">Info</SelectItem>
-                    <SelectItem value="warn">Warning</SelectItem>
-                    <SelectItem value="error">Error</SelectItem>
-                    <SelectItem value="fatal">Fatal</SelectItem>
+                    <SelectItem value="all">{t('admin.logs.filter_level_all')}</SelectItem>
+                    <SelectItem value="debug">{t('admin.logs.level.debug')}</SelectItem>
+                    <SelectItem value="info">{t('admin.logs.level.info')}</SelectItem>
+                    <SelectItem value="warn">{t('admin.logs.level.warn')}</SelectItem>
+                    <SelectItem value="error">{t('admin.logs.level.error')}</SelectItem>
+                    <SelectItem value="fatal">{t('admin.logs.level.fatal')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
@@ -240,10 +234,10 @@ export default function Logs() {
                   onValueChange={(value) => setFilters({ ...filters, method: value })}
                 >
                   <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="All Methods" />
+                    <SelectValue placeholder={t('admin.logs.filter_method_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Methods</SelectItem>
+                    <SelectItem value="all">{t('admin.logs.filter_method_all')}</SelectItem>
                     <SelectItem value="GET">GET</SelectItem>
                     <SelectItem value="POST">POST</SelectItem>
                     <SelectItem value="PUT">PUT</SelectItem>
@@ -265,32 +259,31 @@ export default function Logs() {
             </CardContent>
           </Card>
 
-          {/* Logs Table */}
           <Card>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Level</TableHead>
-                    <TableHead>Message</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Time</TableHead>
+                    <TableHead>{t('admin.logs.col_level')}</TableHead>
+                    <TableHead>{t('admin.logs.col_message')}</TableHead>
+                    <TableHead>{t('admin.logs.col_method')}</TableHead>
+                    <TableHead>{t('admin.logs.col_url')}</TableHead>
+                    <TableHead>{t('admin.logs.col_status')}</TableHead>
+                    <TableHead>{t('admin.logs.col_user')}</TableHead>
+                    <TableHead>{t('admin.logs.col_time')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        Loading...
+                        {t('admin.logs.loading')}
                       </TableCell>
                     </TableRow>
                   ) : logs.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No logs found
+                        {t('admin.logs.no_results')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -302,9 +295,7 @@ export default function Logs() {
                       >
                         <TableCell>{getLevelBadge(log.level)}</TableCell>
                         <TableCell className="max-w-md truncate">{log.message}</TableCell>
-                        <TableCell>
-                          {log.method && <Badge variant="outline">{log.method}</Badge>}
-                        </TableCell>
+                        <TableCell>{log.method && <Badge variant="outline">{log.method}</Badge>}</TableCell>
                         <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                           {log.url}
                         </TableCell>
@@ -315,7 +306,7 @@ export default function Logs() {
                         <TableCell className="text-sm text-muted-foreground">
                           {formatDistanceToNow(new Date(log.createdAt), {
                             addSuffix: true,
-                            locale: fr,
+                            locale: dateLocale,
                           })}
                         </TableCell>
                       </TableRow>
@@ -326,11 +317,13 @@ export default function Logs() {
             </CardContent>
           </Card>
 
-          {/* Pagination */}
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {Math.min((page - 1) * perPage + 1, total)} to{' '}
-              {Math.min(page * perPage, total)} of {total} logs
+              {t('admin.logs.showing_range', {
+                from: Math.min((page - 1) * perPage + 1, total),
+                to: Math.min(page * perPage, total),
+                total,
+              })}
             </div>
             <div className="flex gap-2">
               <Button
@@ -339,7 +332,7 @@ export default function Logs() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t('admin.logs.previous')}
               </Button>
               <Button
                 variant="outline"
@@ -347,42 +340,42 @@ export default function Logs() {
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page * perPage >= total}
               >
-                Next
+                {t('admin.logs.next')}
               </Button>
             </div>
           </div>
         </div>
       </AdminLayout>
 
-      {/* Log Detail Dialog */}
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {selectedLog && getLevelBadge(selectedLog.level)}
-              Log Details
+              {t('admin.logs.detail_title')}
             </DialogTitle>
           </DialogHeader>
           {selectedLog && (
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold mb-2">Message</h4>
+                <h4 className="font-semibold mb-2">{t('admin.logs.detail_message')}</h4>
                 <p className="text-sm">{selectedLog.message}</p>
               </div>
 
               {selectedLog.url && (
                 <div>
-                  <h4 className="font-semibold mb-2">Request</h4>
+                  <h4 className="font-semibold mb-2">{t('admin.logs.detail_request')}</h4>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="font-medium">Method:</span> {selectedLog.method}
+                      <span className="font-medium">{t('admin.logs.detail_method')}</span> {selectedLog.method}
                     </p>
                     <p className="break-all">
-                      <span className="font-medium">URL:</span> {selectedLog.url}
+                      <span className="font-medium">{t('admin.logs.detail_url')}</span> {selectedLog.url}
                     </p>
                     {selectedLog.statusCode && (
                       <p>
-                        <span className="font-medium">Status:</span> {selectedLog.statusCode}
+                        <span className="font-medium">{t('admin.logs.detail_status')}</span>{' '}
+                        {selectedLog.statusCode}
                       </p>
                     )}
                   </div>
@@ -391,24 +384,27 @@ export default function Logs() {
 
               {selectedLog.user && (
                 <div>
-                  <h4 className="font-semibold mb-2">User</h4>
+                  <h4 className="font-semibold mb-2">{t('admin.logs.detail_user')}</h4>
                   <div className="text-sm space-y-1">
                     <p>{selectedLog.user.fullName || selectedLog.user.email}</p>
-                    <p className="text-muted-foreground">ID: {selectedLog.user.id}</p>
+                    <p className="text-muted-foreground">
+                      {t('admin.logs.detail_user_id')} {selectedLog.user.id}
+                    </p>
                   </div>
                 </div>
               )}
 
               {selectedLog.ip && (
                 <div>
-                  <h4 className="font-semibold mb-2">Client</h4>
+                  <h4 className="font-semibold mb-2">{t('admin.logs.detail_client')}</h4>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="font-medium">IP:</span> {selectedLog.ip}
+                      <span className="font-medium">{t('admin.logs.detail_ip')}</span> {selectedLog.ip}
                     </p>
                     {selectedLog.userAgent && (
                       <p className="break-all">
-                        <span className="font-medium">User Agent:</span> {selectedLog.userAgent}
+                        <span className="font-medium">{t('admin.logs.detail_user_agent')}</span>{' '}
+                        {selectedLog.userAgent}
                       </p>
                     )}
                   </div>
@@ -417,7 +413,7 @@ export default function Logs() {
 
               {selectedLog.context && Object.keys(selectedLog.context).length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-2">Context</h4>
+                  <h4 className="font-semibold mb-2">{t('admin.logs.detail_context')}</h4>
                   <pre className="text-xs bg-muted p-3 rounded-md overflow-x-auto">
                     {JSON.stringify(selectedLog.context, null, 2)}
                   </pre>
@@ -425,9 +421,9 @@ export default function Logs() {
               )}
 
               <div>
-                <h4 className="font-semibold mb-2">Timestamp</h4>
+                <h4 className="font-semibold mb-2">{t('admin.logs.detail_timestamp')}</h4>
                 <p className="text-sm">
-                  {new Date(selectedLog.createdAt).toLocaleString('fr-FR', {
+                  {new Date(selectedLog.createdAt).toLocaleString(locale === 'en' ? 'en-US' : 'fr-FR', {
                     dateStyle: 'full',
                     timeStyle: 'long',
                   })}

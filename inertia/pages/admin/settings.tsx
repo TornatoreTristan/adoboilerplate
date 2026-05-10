@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Settings, FileText, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { FormEventHandler, useState, useEffect } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Upload {
   id: string
@@ -34,6 +35,7 @@ interface SettingsPageProps {
 }
 
 const SettingsPage = ({ settings }: SettingsPageProps) => {
+  const { t } = useI18n()
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [uploadingFavicon, setUploadingFavicon] = useState(false)
   const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props
@@ -61,22 +63,12 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
 
   const handleBrandingSubmit: FormEventHandler = (e) => {
     e.preventDefault()
-    brandingForm.post('/admin/settings/branding', {
-      preserveScroll: true,
-      onSuccess: () => {
-        // Toast notification could be added here
-      },
-    })
+    brandingForm.post('/admin/settings/branding', { preserveScroll: true })
   }
 
   const handleLegalSubmit: FormEventHandler = (e) => {
     e.preventDefault()
-    legalForm.post('/admin/settings/legal', {
-      preserveScroll: true,
-      onSuccess: () => {
-        // Toast notification could be added here
-      },
-    })
+    legalForm.post('/admin/settings/legal', { preserveScroll: true })
   }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,9 +81,7 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
       router.post('/admin/settings/logo', formData, {
         forceFormData: true,
         onFinish: () => setUploadingLogo(false),
-        onSuccess: () => {
-          router.reload({ only: ['settings'] })
-        },
+        onSuccess: () => router.reload({ only: ['settings'] }),
       })
     }
   }
@@ -106,21 +96,19 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
       router.post('/admin/settings/favicon', formData, {
         forceFormData: true,
         onFinish: () => setUploadingFavicon(false),
-        onSuccess: () => {
-          router.reload({ only: ['settings'] })
-        },
+        onSuccess: () => router.reload({ only: ['settings'] }),
       })
     }
   }
 
   return (
     <>
-      <Head title="Paramètres de l'application" />
+      <Head title={t('admin.app_settings_page.head_title')} />
       <AdminLayout>
         <div className="flex flex-col gap-6 p-6">
           <PageHeader
-            title="Paramètres de l'application"
-            description="Configurez les paramètres généraux de votre application"
+            title={t('admin.app_settings_page.title')}
+            description={t('admin.app_settings_page.description')}
             separator={true}
           />
 
@@ -142,37 +130,34 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="branding" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                <span>Branding</span>
+                <span>{t('admin.app_settings_page.tab_branding')}</span>
               </TabsTrigger>
               <TabsTrigger value="legal" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                <span>CGV & CGU</span>
+                <span>{t('admin.app_settings_page.tab_legal')}</span>
               </TabsTrigger>
               <TabsTrigger value="privacy" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
-                <span>Mentions légales</span>
+                <span>{t('admin.app_settings_page.tab_privacy')}</span>
               </TabsTrigger>
             </TabsList>
 
-            {/* Branding Tab */}
             <TabsContent value="branding">
               <Card>
                 <CardHeader>
-                  <CardTitle>Identité de l'application</CardTitle>
-                  <CardDescription>
-                    Personnalisez le nom et les visuels de votre application
-                  </CardDescription>
+                  <CardTitle>{t('admin.app_settings_page.branding_title')}</CardTitle>
+                  <CardDescription>{t('admin.app_settings_page.branding_description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleBrandingSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="appName">Nom de l'application</Label>
+                      <Label htmlFor="appName">{t('admin.app_settings_page.app_name_label')}</Label>
                       <Input
                         id="appName"
                         type="text"
                         value={brandingForm.data.appName}
                         onChange={(e) => brandingForm.setData('appName', e.target.value)}
-                        placeholder="Mon Application"
+                        placeholder={t('admin.app_settings_page.app_name_placeholder')}
                       />
                       {brandingForm.errors.appName && (
                         <p className="text-sm text-red-500">{brandingForm.errors.appName}</p>
@@ -180,7 +165,7 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="logo">Logo de l'application</Label>
+                      <Label htmlFor="logo">{t('admin.app_settings_page.logo_label')}</Label>
                       <div className="flex items-center gap-4">
                         {settings.logo && (
                           <div className="flex items-center gap-2">
@@ -189,9 +174,7 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                               alt="Logo"
                               className="h-16 w-16 object-contain rounded border"
                             />
-                            <span className="text-sm text-muted-foreground">
-                              {settings.logo.filename}
-                            </span>
+                            <span className="text-sm text-muted-foreground">{settings.logo.filename}</span>
                           </div>
                         )}
                         <div>
@@ -210,17 +193,19 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                             onClick={() => document.getElementById('logo-upload')?.click()}
                             disabled={uploadingLogo}
                           >
-                            {uploadingLogo ? 'Upload en cours...' : 'Choisir un fichier'}
+                            {uploadingLogo
+                              ? t('admin.app_settings_page.uploading')
+                              : t('admin.app_settings_page.choose_file')}
                           </Button>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Format recommandé : PNG ou SVG, taille maximale 2 MB
+                        {t('admin.app_settings_page.logo_format_hint')}
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="favicon">Favicon de l'application</Label>
+                      <Label htmlFor="favicon">{t('admin.app_settings_page.favicon_label')}</Label>
                       <div className="flex items-center gap-4">
                         {settings.favicon && (
                           <div className="flex items-center gap-2">
@@ -229,9 +214,7 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                               alt="Favicon"
                               className="h-8 w-8 object-contain rounded border"
                             />
-                            <span className="text-sm text-muted-foreground">
-                              {settings.favicon.filename}
-                            </span>
+                            <span className="text-sm text-muted-foreground">{settings.favicon.filename}</span>
                           </div>
                         )}
                         <div>
@@ -250,18 +233,22 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                             onClick={() => document.getElementById('favicon-upload')?.click()}
                             disabled={uploadingFavicon}
                           >
-                            {uploadingFavicon ? 'Upload en cours...' : 'Choisir un fichier'}
+                            {uploadingFavicon
+                              ? t('admin.app_settings_page.uploading')
+                              : t('admin.app_settings_page.choose_file')}
                           </Button>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Format recommandé : ICO ou PNG 32x32, taille maximale 1 MB
+                        {t('admin.app_settings_page.favicon_format_hint')}
                       </p>
                     </div>
 
                     <div className="flex justify-end">
                       <Button type="submit" disabled={brandingForm.processing}>
-                        {brandingForm.processing ? 'Enregistrement...' : 'Enregistrer'}
+                        {brandingForm.processing
+                          ? t('admin.app_settings_page.submitting')
+                          : t('admin.app_settings_page.submit')}
                       </Button>
                     </div>
                   </form>
@@ -269,25 +256,24 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
               </Card>
             </TabsContent>
 
-            {/* Legal Documents Tab (CGV & CGU) */}
             <TabsContent value="legal">
               <Card>
                 <CardHeader>
-                  <CardTitle>Conditions générales</CardTitle>
-                  <CardDescription>
-                    Configurez vos conditions générales de vente et d'utilisation
-                  </CardDescription>
+                  <CardTitle>{t('admin.app_settings_page.legal_title')}</CardTitle>
+                  <CardDescription>{t('admin.app_settings_page.legal_description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLegalSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="termsOfService">Conditions Générales d'Utilisation (CGU)</Label>
+                      <Label htmlFor="termsOfService">
+                        {t('admin.app_settings_page.terms_of_service_label')}
+                      </Label>
                       <Textarea
                         id="termsOfService"
                         rows={10}
                         value={legalForm.data.termsOfService}
                         onChange={(e) => legalForm.setData('termsOfService', e.target.value)}
-                        placeholder="Entrez vos conditions générales d'utilisation..."
+                        placeholder={t('admin.app_settings_page.terms_of_service_placeholder')}
                         className="font-mono text-sm"
                       />
                       {legalForm.errors.termsOfService && (
@@ -296,13 +282,13 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="termsOfSale">Conditions Générales de Vente (CGV)</Label>
+                      <Label htmlFor="termsOfSale">{t('admin.app_settings_page.terms_of_sale_label')}</Label>
                       <Textarea
                         id="termsOfSale"
                         rows={10}
                         value={legalForm.data.termsOfSale}
                         onChange={(e) => legalForm.setData('termsOfSale', e.target.value)}
-                        placeholder="Entrez vos conditions générales de vente..."
+                        placeholder={t('admin.app_settings_page.terms_of_sale_placeholder')}
                         className="font-mono text-sm"
                       />
                       {legalForm.errors.termsOfSale && (
@@ -312,7 +298,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
 
                     <div className="flex justify-end">
                       <Button type="submit" disabled={legalForm.processing}>
-                        {legalForm.processing ? 'Enregistrement...' : 'Enregistrer'}
+                        {legalForm.processing
+                          ? t('admin.app_settings_page.submitting')
+                          : t('admin.app_settings_page.submit')}
                       </Button>
                     </div>
                   </form>
@@ -320,25 +308,24 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
               </Card>
             </TabsContent>
 
-            {/* Privacy Policy Tab */}
             <TabsContent value="privacy">
               <Card>
                 <CardHeader>
-                  <CardTitle>Politique de confidentialité</CardTitle>
-                  <CardDescription>
-                    Configurez votre politique de confidentialité et mentions légales
-                  </CardDescription>
+                  <CardTitle>{t('admin.app_settings_page.privacy_title')}</CardTitle>
+                  <CardDescription>{t('admin.app_settings_page.privacy_description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLegalSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="privacyPolicy">Mentions légales et politique de confidentialité</Label>
+                      <Label htmlFor="privacyPolicy">
+                        {t('admin.app_settings_page.privacy_policy_label')}
+                      </Label>
                       <Textarea
                         id="privacyPolicy"
                         rows={15}
                         value={legalForm.data.privacyPolicy}
                         onChange={(e) => legalForm.setData('privacyPolicy', e.target.value)}
-                        placeholder="Entrez vos mentions légales et politique de confidentialité..."
+                        placeholder={t('admin.app_settings_page.privacy_policy_placeholder')}
                         className="font-mono text-sm"
                       />
                       {legalForm.errors.privacyPolicy && (
@@ -348,7 +335,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
 
                     <div className="flex justify-end">
                       <Button type="submit" disabled={legalForm.processing}>
-                        {legalForm.processing ? 'Enregistrement...' : 'Enregistrer'}
+                        {legalForm.processing
+                          ? t('admin.app_settings_page.submitting')
+                          : t('admin.app_settings_page.submit')}
                       </Button>
                     </div>
                   </form>

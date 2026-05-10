@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Shield, Key, Lock, FileText } from 'lucide-react'
 import { Separator } from '#inertia/components/ui/separator'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Role {
   id: string
@@ -31,34 +32,37 @@ interface RoleDetailPageProps {
   permissions: Permission[]
 }
 
-const getResourceIcon = (resource: string) => {
-  return <FileText className="h-4 w-4" />
-}
+const getResourceIcon = () => <FileText className="h-4 w-4" />
 
 const getActionBadge = (action: string) => {
-  const variants: Record<string, { variant: 'default' | 'secondary' | 'outline' }> = {
-    read: { variant: 'outline' },
-    write: { variant: 'secondary' },
-    edit: { variant: 'secondary' },
-    delete: { variant: 'default' },
-    create: { variant: 'default' },
+  const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
+    read: 'outline',
+    write: 'secondary',
+    edit: 'secondary',
+    delete: 'default',
+    create: 'default',
   }
-
-  const config = variants[action.toLowerCase()] || { variant: 'outline' as const }
+  const variant = variants[action.toLowerCase()] ?? 'outline'
 
   return (
-    <Badge variant={config.variant} className="text-xs">
+    <Badge variant={variant} className="text-xs">
       {action}
     </Badge>
   )
 }
 
 const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
+  const { t, locale } = useI18n()
+  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+  const formatDateTime = (iso: string) =>
+    new Intl.DateTimeFormat(dateLocale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso))
+
   const permissionsByResource = permissions.reduce(
     (acc, permission) => {
-      if (!acc[permission.resource]) {
-        acc[permission.resource] = []
-      }
+      if (!acc[permission.resource]) acc[permission.resource] = []
       acc[permission.resource].push(permission)
       return acc
     },
@@ -67,8 +71,13 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
 
   return (
     <>
-      <Head title={`Rôle - ${role.name}`} />
-      <AdminLayout breadcrumbs={[{ label: 'Rôles', href: '/admin/roles' }, { label: role.name }]}>
+      <Head title={t('admin.role_detail.head_title', { name: role.name })} />
+      <AdminLayout
+        breadcrumbs={[
+          { label: t('admin.role_detail.breadcrumb_roles'), href: '/admin/roles' },
+          { label: role.name },
+        ]}
+      >
         <div className="flex flex-col gap-6 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -85,119 +94,104 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                     <Shield className="h-6 w-6 text-primary" />
                   )}
                 </div>
-                <PageHeader
-                  title={role.name}
-                  description={role.slug}
-                  separator={false}
-                />
+                <PageHeader title={role.name} description={role.slug} separator={false} />
               </div>
             </div>
             {role.isSystem && (
               <Badge variant="default" className="flex items-center gap-1">
                 <Lock className="h-3 w-3" />
-                Rôle système
+                {t('admin.role_detail.system_role_badge')}
               </Badge>
             )}
           </div>
           <Separator />
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Informations générales */}
             <Card>
               <CardHeader>
-                <CardTitle>Informations générales</CardTitle>
+                <CardTitle>{t('admin.role_detail.general_info_title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">ID</span>
+                    <span className="text-muted-foreground">{t('admin.role_detail.field_id')}</span>
                     <span className="font-mono text-xs">{role.id}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Slug</span>
+                    <span className="text-muted-foreground">{t('admin.role_detail.field_slug')}</span>
                     <span className="font-mono">{role.slug}</span>
                   </div>
 
                   {role.description && (
                     <div className="flex flex-col gap-2 text-sm">
-                      <span className="text-muted-foreground">Description</span>
+                      <span className="text-muted-foreground">{t('admin.role_detail.field_description')}</span>
                       <p className="text-sm">{role.description}</p>
                     </div>
                   )}
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Type</span>
+                    <span className="text-muted-foreground">{t('admin.role_detail.field_type')}</span>
                     {role.isSystem ? (
                       <span className="flex items-center gap-1">
                         <Lock className="h-3 w-3" />
-                        Système
+                        {t('admin.role_detail.type_system')}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1">
                         <Shield className="h-3 w-3" />
-                        Personnalisé
+                        {t('admin.role_detail.type_custom')}
                       </span>
                     )}
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Créé le</span>
-                    <span>
-                      {new Intl.DateTimeFormat('fr-FR', {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(role.createdAt))}
-                    </span>
+                    <span className="text-muted-foreground">{t('admin.role_detail.field_created_at')}</span>
+                    <span>{formatDateTime(role.createdAt)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dernière mise à jour</span>
-                    <span>
-                      {new Intl.DateTimeFormat('fr-FR', {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(role.updatedAt))}
-                    </span>
+                    <span className="text-muted-foreground">{t('admin.role_detail.field_updated_at')}</span>
+                    <span>{formatDateTime(role.updatedAt)}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Statistiques */}
             <Card>
               <CardHeader>
-                <CardTitle>Statistiques</CardTitle>
+                <CardTitle>{t('admin.role_detail.statistics_title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Permissions totales</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.role_detail.stats_total_permissions')}
+                  </span>
                   <span className="font-semibold">{permissions.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Ressources</span>
+                  <span className="text-sm text-muted-foreground">{t('admin.role_detail.stats_resources')}</span>
                   <span className="font-semibold">{Object.keys(permissionsByResource).length}</span>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Permissions par ressource */}
           <Card>
             <CardHeader>
-              <CardTitle>Permissions ({permissions.length})</CardTitle>
+              <CardTitle>{t('admin.role_detail.permissions_title', { count: permissions.length })}</CardTitle>
             </CardHeader>
             <CardContent>
               {permissions.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Aucune permission associée à ce rôle
+                  {t('admin.role_detail.empty_permissions')}
                 </p>
               ) : (
                 <div className="space-y-6">
                   {Object.entries(permissionsByResource).map(([resource, resourcePermissions]) => (
                     <div key={resource} className="space-y-3">
                       <div className="flex items-center gap-2">
-                        {getResourceIcon(resource)}
+                        {getResourceIcon()}
                         <h4 className="font-medium capitalize">{resource}</h4>
                         <Badge variant="outline" className="ml-auto">
                           {resourcePermissions.length}
@@ -215,9 +209,7 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                                 <span className="font-medium text-sm">{permission.name}</span>
                                 {getActionBadge(permission.action)}
                               </div>
-                              <p className="text-xs text-muted-foreground pl-6">
-                                {permission.slug}
-                              </p>
+                              <p className="text-xs text-muted-foreground pl-6">{permission.slug}</p>
                               {permission.description && (
                                 <p className="text-xs text-muted-foreground pl-6">
                                   {permission.description}
