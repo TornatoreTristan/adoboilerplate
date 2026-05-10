@@ -5,9 +5,11 @@ import NotificationService from '#notifications/services/notification_service'
 import type { NotificationType } from '#notifications/types/notification'
 
 export default class NotificationsController {
-  async index({ request, user, inertia }: HttpContext) {
-    if (!user) {
-      return inertia.location('/login')
+  async index({ request, response, session }: HttpContext) {
+    const userId = session.get('user_id')
+
+    if (!userId) {
+      return response.status(401).json({ error: 'Non authentifié' })
     }
 
     const notificationService = getService<NotificationService>(TYPES.NotificationService)
@@ -15,23 +17,20 @@ export default class NotificationsController {
     const unreadOnly = request.input('unread') === 'true'
     const type = request.input('type') as NotificationType | undefined
 
-    const notifications = await notificationService.getUserNotifications(user.id, {
+    const notifications = await notificationService.getUserNotifications(userId, {
       unreadOnly,
       type,
     })
 
-    const unreadCount = await notificationService.getUnreadCount(user.id)
+    const unreadCount = await notificationService.getUnreadCount(userId)
 
-    // Trier les notifications : non lues en premier, puis par date décroissante
+    // Trier : non lues en premier, puis par date décroissante
     const sortedNotifications = notifications.sort((a, b) => {
-      // Si une est lue et l'autre non, la non lue vient en premier
       if (!a.readAt && b.readAt) return -1
       if (a.readAt && !b.readAt) return 1
-      // Sinon, trier par date de création (plus récente en premier)
       return b.createdAt.toMillis() - a.createdAt.toMillis()
     })
 
-    // Convertir manuellement les notifications pour Inertia
     const serializedNotifications = sortedNotifications.map((n) => ({
       id: n.id,
       type: n.type,
@@ -44,8 +43,8 @@ export default class NotificationsController {
       createdAt: n.createdAt.toISO(),
     }))
 
-    return inertia.render('notifications', {
-      notifications: serializedNotifications as any,
+    return response.json({
+      notifications: serializedNotifications,
       unreadCount,
     })
   }
@@ -82,7 +81,7 @@ export default class NotificationsController {
 
     await notificationService.markAsRead(notificationId)
 
-    return response.status(303).redirect().back()
+    return response.json({ success: true })
   }
 
   async markAllAsRead({ response, session }: HttpContext) {
@@ -93,9 +92,9 @@ export default class NotificationsController {
     }
 
     const notificationService = getService<NotificationService>(TYPES.NotificationService)
-    await notificationService.markAllAsReadForUser(userId)
+    const count = await notificationService.markAllAsReadForUser(userId)
 
-    return response.status(303).redirect().back()
+    return response.json({ success: true, count })
   }
 
   async destroy({ params, response, session }: HttpContext) {
@@ -117,7 +116,7 @@ export default class NotificationsController {
 
     await notificationService.deleteNotification(notificationId)
 
-    return response.status(303).redirect().back()
+    return response.json({ success: true })
   }
 
   async executeAction({ params, response, session }: HttpContext) {
