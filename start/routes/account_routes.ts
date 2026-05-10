@@ -42,6 +42,18 @@ router
     })
     router.put('/communication-preferences', [UsersController, 'updateCommunicationPreferences'])
 
+    // Security (2FA, etc.) — fetches the current 2FA status server-side so
+    // the page renders the right UI on first paint instead of a loading state.
+    router.get('/security', async ({ inertia, user }) => {
+      return inertia.render('account/security', {
+        status: {
+          enabled: user?.twoFactorEnabled === true && user.twoFactorSecret !== null,
+          confirmedAt: user?.twoFactorConfirmedAt?.toISO() ?? null,
+          remainingBackupCodes: user?.twoFactorBackupCodes?.length ?? 0,
+        },
+      })
+    })
+
     // GDPR - Données personnelles
     router.get('/data-privacy', [GdprController, 'index']).as('account.data-privacy')
     router.get('/data-export', [GdprController, 'exportData'])

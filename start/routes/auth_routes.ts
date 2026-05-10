@@ -41,6 +41,12 @@ router
 // hasn't fully signed in yet; pending_2fa_user_id in the session is what
 // gates access). Throttled because brute-forcing 6-digit TOTP codes is
 // otherwise tractable.
+router.get('/auth/2fa/challenge', async ({ inertia, session, response }) => {
+  if (!session.get('pending_2fa_user_id')) {
+    return response.redirect('/login')
+  }
+  return inertia.render('auth/two-factor-challenge', {})
+})
 router
   .post('/auth/2fa/challenge', [TwoFactorController, 'loginChallenge'])
   .use([middleware.throttle({ maxRequests: 10, windowMs: 60000, keyPrefix: '2fa-challenge' })])

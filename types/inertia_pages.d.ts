@@ -20,6 +20,7 @@ declare module '@adonisjs/inertia/types' {
     'account/data-privacy': ComponentProps
     'account/preferences': ComponentProps
     'account/profile': ComponentProps
+    'account/security': ComponentProps
     'account/sessions': ComponentProps
     'admin/audit-logs/index': ComponentProps
     'admin/audit-logs/show': ComponentProps
@@ -43,6 +44,7 @@ declare module '@adonisjs/inertia/types' {
     'auth/email-verification-result': ComponentProps
     'auth/login': ComponentProps
     'auth/register': ComponentProps
+    'auth/two-factor-challenge': ComponentProps
     'auth/verify-email-notice': ComponentProps
     'errors/not_found': ComponentProps
     'errors/server_error': ComponentProps
