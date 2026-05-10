@@ -170,7 +170,7 @@ export function AdminSidebar() {
 
         {/* Groupe Paramètres */}
         <SidebarGroup>
-          <SidebarGroupLabel>Paramètres</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('common.settings')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {parametresItems.map((item) => (

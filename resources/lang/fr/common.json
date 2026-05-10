@@ -1,5 +1,11 @@
 {
   "welcome": "Bienvenue",
+  "theme": {
+    "toggle": "Changer de thème",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
   "home": "Accueil",
   "search": "Rechercher",
   "settings": "Paramètres",

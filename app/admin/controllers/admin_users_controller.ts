@@ -1,25 +1,30 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { getService } from '#shared/container/container'
-import { TYPES } from '#shared/container/types'
-import type UserRepository from '#users/repositories/user_repository'
-import type AdminService from '#admin/services/admin_service'
-import type UserService from '#users/services/user_service'
-import type AuditLogService from '#audit/services/audit_log_service'
+import UserRepository from '#users/repositories/user_repository'
+import AdminService from '#admin/services/admin_service'
+import UserService from '#users/services/user_service'
+import AuditLogService from '#audit/services/audit_log_service'
 import { updateUserValidator } from '#admin/validators/update_user_validator'
 import { AdminUserDto } from '#admin/presenters/admin_user_dto'
 import { asInertiaProps } from '#shared/types/inertia_props'
 
+@inject()
 export default class AdminUsersController {
-  async users({ request, inertia }: HttpContext) {
-    const adminService = getService<AdminService>(TYPES.AdminService)
+  constructor(
+    private userRepository: UserRepository,
+    private adminService: AdminService,
+    private userService: UserService,
+    private auditLogService: AuditLogService
+  ) {}
 
+  async users({ request, inertia }: HttpContext) {
     const page = Number(request.input('page', 1)) || 1
     const perPage = Number(request.input('perPage', 20)) || 20
     const search = (request.input('search', '') as string).trim() || undefined
     const dateFrom = (request.input('dateFrom', '') as string) || undefined
     const dateTo = (request.input('dateTo', '') as string) || undefined
 
-    const { data, meta } = await adminService.getUsersWithLastActivity({
+    const { data, meta } = await this.adminService.getUsersWithLastActivity({
       page,
       perPage,
       search,
@@ -38,13 +43,9 @@ export default class AdminUsersController {
   }
 
   async userDetail({ params, inertia }: HttpContext) {
-    const userRepository = getService<UserRepository>(TYPES.UserRepository)
-    const adminService = getService<AdminService>(TYPES.AdminService)
-    const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
-
-    const user = await userRepository.findByIdOrFail(params.id)
-    const sessions = await adminService.getUserSessions(params.id)
-    const auditLogs = await auditLogService.getUserLogs(params.id, 50)
+    const user = await this.userRepository.findByIdOrFail(params.id)
+    const sessions = await this.adminService.getUserSessions(params.id)
+    const auditLogs = await this.auditLogService.getUserLogs(params.id, 50)
 
     return inertia.render(
       'admin/user-detail',
@@ -57,13 +58,11 @@ export default class AdminUsersController {
   }
 
   async updateUser({ params, request, response, session, i18n }: HttpContext) {
-    const userService = getService<UserService>(TYPES.UserService)
     const data = await request.validateUsing(updateUserValidator)
 
-    await userService.updateAdmin(params.id, data)
+    await this.userService.updateAdmin(params.id, data)
 
     session.flash('success', i18n.t('admin.flash.user_updated'))
     return response.redirect().back()
   }
-
 }

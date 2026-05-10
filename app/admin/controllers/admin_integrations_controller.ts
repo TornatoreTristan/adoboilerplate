@@ -1,17 +1,21 @@
+import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { getService } from '#shared/container/container'
-import { TYPES } from '#shared/container/types'
-import type AdminService from '#admin/services/admin_service'
-import type StripeConnectService from '#integrations/services/stripe_connect_service'
+import AdminService from '#admin/services/admin_service'
+import StripeConnectService from '#integrations/services/stripe_connect_service'
 import { configureStripeValidator } from '#admin/validators/configure_stripe_validator'
 import { AdminIntegrationDtoPresenter } from '#admin/presenters/admin_integration_dto'
 import { asInertiaProps } from '#shared/types/inertia_props'
 import { randomBytes } from 'node:crypto'
 
+@inject()
 export default class AdminIntegrationsController {
+  constructor(
+    private adminService: AdminService,
+    private stripeConnectService: StripeConnectService
+  ) {}
+
   async integrations({ inertia }: HttpContext) {
-    const adminService = getService<AdminService>(TYPES.AdminService)
-    const stripeIntegration = await adminService.getIntegration('stripe')
+    const stripeIntegration = await this.adminService.getIntegration('stripe')
 
     return inertia.render(
       'admin/integrations',
@@ -24,10 +28,9 @@ export default class AdminIntegrationsController {
   }
 
   async configureStripe({ request, response, session, i18n }: HttpContext) {
-    const adminService = getService<AdminService>(TYPES.AdminService)
     const data = await request.validateUsing(configureStripeValidator)
 
-    const existingIntegration = await adminService.getIntegration('stripe')
+    const existingIntegration = await this.adminService.getIntegration('stripe')
 
     const config: Record<string, string> = {
       publicKey: data.publicKey,
@@ -35,26 +38,21 @@ export default class AdminIntegrationsController {
       webhookSecret: data.webhookSecret || existingIntegration?.config.webhookSecret || '',
     }
 
-    await adminService.configureIntegration('stripe', config, data.isActive)
+    await this.adminService.configureIntegration('stripe', config, data.isActive)
 
     session.flash('success', i18n.t('admin.flash.stripe_configured'))
     return response.redirect().back()
   }
 
   async stripeConnectAuthorize({ response, session }: HttpContext) {
-    const stripeConnectService = getService<StripeConnectService>(TYPES.StripeConnectService)
-
     const state = randomBytes(32).toString('hex')
     session.put('stripe_oauth_state', state)
 
-    const authUrl = stripeConnectService.getAuthorizationUrl(state)
+    const authUrl = this.stripeConnectService.getAuthorizationUrl(state)
     return response.redirect(authUrl)
   }
 
   async stripeConnectCallback({ request, response, session, i18n }: HttpContext) {
-    const adminService = getService<AdminService>(TYPES.AdminService)
-    const stripeConnectService = getService<StripeConnectService>(TYPES.StripeConnectService)
-
     const { code, state, error } = request.qs()
 
     if (error) {
@@ -71,9 +69,9 @@ export default class AdminIntegrationsController {
     session.forget('stripe_oauth_state')
 
     try {
-      const tokens = await stripeConnectService.exchangeCodeForToken(code)
+      const tokens = await this.stripeConnectService.exchangeCodeForToken(code)
 
-      await adminService.configureIntegration(
+      await this.adminService.configureIntegration(
         'stripe',
         {
           accessToken: tokens.access_token,
@@ -94,17 +92,14 @@ export default class AdminIntegrationsController {
   }
 
   async stripeDisconnect({ response, session, i18n }: HttpContext) {
-    const adminService = getService<AdminService>(TYPES.AdminService)
-    const stripeConnectService = getService<StripeConnectService>(TYPES.StripeConnectService)
-
     try {
-      const integration = await adminService.getIntegration('stripe')
+      const integration = await this.adminService.getIntegration('stripe')
 
       if (integration?.config.stripeUserId) {
-        await stripeConnectService.disconnectAccount(integration.config.stripeUserId)
+        await this.stripeConnectService.disconnectAccount(integration.config.stripeUserId)
       }
 
-      await adminService.configureIntegration('stripe', {}, false)
+      await this.adminService.configureIntegration('stripe', {}, false)
 
       session.flash('success', i18n.t('admin.flash.stripe_disconnected'))
     } catch (err) {

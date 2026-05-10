@@ -19,7 +19,7 @@ test.group('UserNotificationPreferenceRepository', (group) => {
 
     // Créer un utilisateur de test
     const user = await userRepository.create({
-      email: `test-prefs-${Date.now()}@example.com`,
+      email: `test-prefs-${Date.now()}-${Math.random().toString(36).slice(2, 10)}@example.com`,
       password: 'password123',
       fullName: 'Test Preferences User',
     } as any)

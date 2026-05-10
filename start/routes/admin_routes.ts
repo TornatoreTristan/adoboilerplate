@@ -61,10 +61,7 @@ router
     router.post('/admin/subscriptions/:id/pause', [AdminSubscriptionsController, 'pause'])
     router.post('/admin/subscriptions/:id/resume', [AdminSubscriptionsController, 'resume'])
     router.post('/admin/subscriptions/:id/cancel', [AdminSubscriptionsController, 'cancel'])
-    router.post('/admin/subscriptions/:id/reactivate', [
-      AdminSubscriptionsController,
-      'reactivate',
-    ])
+    router.post('/admin/subscriptions/:id/reactivate', [AdminSubscriptionsController, 'reactivate'])
 
     // Plans
     router.get('/admin/plans', [PlansController, 'index'])

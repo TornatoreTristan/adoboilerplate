@@ -6,7 +6,7 @@ export function initSentry() {
   const enabled = import.meta.env.VITE_SENTRY_ENABLED === 'true'
 
   if (!enabled || !dsn) {
-    console.log('[Sentry] Client-side monitoring disabled')
+    console.warn('[Sentry] Client-side monitoring disabled')
     return
   }
 
@@ -71,7 +71,7 @@ export function initSentry() {
     ],
   })
 
-  console.log(
+  console.warn(
     `[Sentry] Client initialized for environment: ${import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE}`
   )
 }

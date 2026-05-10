@@ -14,7 +14,7 @@ export default function Home() {
       {
         preserveScroll: true,
         onSuccess: () => {
-          console.log('Test notification sent!')
+          console.warn('Test notification sent!')
         },
         onError: (errors) => {
           console.error('Failed to send test notification:', errors)

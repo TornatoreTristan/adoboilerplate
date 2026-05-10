@@ -89,7 +89,10 @@ export class AdminSubscriptionDtoPresenter {
     }
   }
 
-  static presentPlanSummary(plan: { id: string; nameI18n: TranslatableField }): AdminPlanSummaryDto {
+  static presentPlanSummary(plan: {
+    id: string
+    nameI18n: TranslatableField
+  }): AdminPlanSummaryDto {
     return {
       id: plan.id,
       nameI18n: plan.nameI18n,

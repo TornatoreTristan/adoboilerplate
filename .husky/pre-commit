@@ -1,0 +1,2 @@
+npx lint-staged
+./scripts/check-no-hardcoded-french.sh

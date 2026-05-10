@@ -191,7 +191,7 @@ export function configureContainer(): Container {
   // ==========================================
 
   container.bind<AuditLogRepository>(TYPES.AuditLogRepository).to(AuditLogRepository)
-  container.bind<AuditLogService>(TYPES.AuditLogService).to(AuditLogService)
+  container.bind<AuditLogService>(TYPES.AuditLogService).to(AuditLogService).inSingletonScope()
 
   // ==========================================
   // APP SETTINGS
@@ -223,7 +223,7 @@ export function configureContainer(): Container {
   // REPOSITORIES
   // ==========================================
 
-  container.bind(TYPES.UserRepository).to(UserRepository)
+  container.bind(TYPES.UserRepository).to(UserRepository).inSingletonScope()
   container.bind(TYPES.OrganizationRepository).to(OrganizationRepository)
   container.bind(TYPES.SessionRepository).to(SessionRepository)
   container.bind(TYPES.PasswordResetRepository).to(PasswordResetRepository)
@@ -247,7 +247,7 @@ export function configureContainer(): Container {
 
   container.bind<AuthService>(TYPES.AuthService).to(AuthService)
   container.bind<PasswordResetService>(TYPES.PasswordResetService).to(PasswordResetService)
-  container.bind<UserService>(TYPES.UserService).to(UserService)
+  container.bind<UserService>(TYPES.UserService).to(UserService).inSingletonScope()
   container.bind<OrganizationService>(TYPES.OrganizationService).to(OrganizationService)
   container.bind<SessionService>(TYPES.SessionService).to(SessionService)
   container.bind<GoogleAuthService>(TYPES.GoogleAuthService).to(GoogleAuthService)
@@ -268,10 +268,16 @@ export function configureContainer(): Container {
     .bind<UserNotificationPreferenceService>(TYPES.UserNotificationPreferenceService)
     .to(UserNotificationPreferenceService)
   container.bind<AuthorizationService>(TYPES.AuthorizationService).to(AuthorizationService)
-  container.bind<AdminService>(TYPES.AdminService).to(AdminService)
-  container.bind<StripeConnectService>(TYPES.StripeConnectService).to(StripeConnectService)
-  container.bind<PlanService>(TYPES.PlanService).to(PlanService)
-  container.bind<SubscriptionService>(TYPES.SubscriptionService).to(SubscriptionService)
+  container.bind<AdminService>(TYPES.AdminService).to(AdminService).inSingletonScope()
+  container
+    .bind<StripeConnectService>(TYPES.StripeConnectService)
+    .to(StripeConnectService)
+    .inSingletonScope()
+  container.bind<PlanService>(TYPES.PlanService).to(PlanService).inSingletonScope()
+  container
+    .bind<SubscriptionService>(TYPES.SubscriptionService)
+    .to(SubscriptionService)
+    .inSingletonScope()
   container
     .bind<PricingCalculatorService>(TYPES.PricingCalculatorService)
     .to(PricingCalculatorService)
