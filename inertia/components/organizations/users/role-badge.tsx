@@ -1,22 +1,17 @@
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge, type StatusBadgeVariant } from '@/components/core/status-badge'
 import { useI18n } from '@/hooks/use-i18n'
 
-interface Props {
-  role: string
+const VARIANTS: Record<string, StatusBadgeVariant> = {
+  owner: 'default',
+  admin: 'secondary',
 }
 
-/**
- * Single source of truth for role-badge styling + label translation.
- * Used in members tables, the invitations table and the view dialog.
- */
-export function RoleBadge({ role }: Props) {
+export function RoleBadge({ role }: { role: string }) {
   const { t } = useI18n()
-  const variant: 'default' | 'secondary' | 'outline' =
-    role === 'owner' ? 'default' : role === 'admin' ? 'secondary' : 'outline'
-
-  const knownLabel = ['owner', 'admin', 'moderator', 'member'].includes(role)
+  const variant = VARIANTS[role] || 'outline'
+  const label = ['owner', 'admin', 'moderator', 'member'].includes(role)
     ? t(`organizations.users.role.${role}`)
     : role
 
-  return <Badge variant={variant}>{knownLabel}</Badge>
+  return <StatusBadge label={label} variant={variant} />
 }

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
+import { KeyValueRow } from '@/components/core/key-value-row'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { useI18n } from '@/hooks/use-i18n'
 import type { Session } from './types'
 
@@ -9,8 +9,8 @@ interface Props {
 }
 
 export function UserStatsCard({ sessions }: Props) {
-  const { t, locale } = useI18n()
-  const distanceLocale = locale === 'en' ? enUS : fr
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
 
   return (
     <Card>
@@ -18,38 +18,25 @@ export function UserStatsCard({ sessions }: Props) {
         <CardTitle>{t('admin.user_detail.statistics_title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Row
+        <KeyValueRow
           label={t('admin.user_detail.stats_total_sessions')}
-          value={<span className="font-semibold">{sessions.length}</span>}
+          value={sessions.length}
+          valueClassName="font-semibold"
         />
-        <Row
+        <KeyValueRow
           label={t('admin.user_detail.stats_active_sessions')}
-          value={<span className="font-semibold">{sessions.filter((s) => s.isActive).length}</span>}
+          value={sessions.filter((s) => s.isActive).length}
+          valueClassName="font-semibold"
         />
         {sessions.length > 0 && (
-          <Row
+          <KeyValueRow
             label={t('admin.user_detail.stats_last_activity')}
-            value={
-              <span className="text-sm">
-                {t('admin.user_detail.stats_time_ago', {
-                  time: formatDistanceToNow(new Date(sessions[0].lastActivity), {
-                    locale: distanceLocale,
-                  }),
-                })}
-              </span>
-            }
+            value={t('admin.user_detail.stats_time_ago', {
+              time: formatRelative(sessions[0].lastActivity, { addSuffix: false }),
+            })}
           />
         )}
       </CardContent>
     </Card>
-  )
-}
-
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      {value}
-    </div>
   )
 }

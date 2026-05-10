@@ -3,9 +3,8 @@ import { Badge } from '@/components/ui/badge'
 import { DataTable } from '@/components/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Eye, MousePointerClick, Paperclip } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { EmailStatusBadge } from './email-status-badge'
 import type { EmailLog, MailsLogsPayload } from './types'
 
@@ -15,8 +14,8 @@ interface Props {
 }
 
 export function MailsTable({ logs, onPageChange }: Props) {
-  const { t, locale } = useI18n()
-  const distanceLocale = locale === 'en' ? enUS : fr
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
 
   const columns: ColumnDef<EmailLog>[] = useMemo(
     () => [
@@ -88,15 +87,12 @@ export function MailsTable({ logs, onPageChange }: Props) {
         header: t('admin.mails.column_date'),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {formatDistanceToNow(new Date(row.getValue('createdAt') as string), {
-              locale: distanceLocale,
-              addSuffix: true,
-            })}
+            {formatRelative(row.getValue('createdAt') as string)}
           </span>
         ),
       },
     ],
-    [t, distanceLocale]
+    [t, formatRelative]
   )
 
   return (

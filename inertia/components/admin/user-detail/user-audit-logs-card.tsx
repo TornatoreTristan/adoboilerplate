@@ -3,9 +3,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollText } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
+import { EmptyState } from '@/components/core/empty-state'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { formatAction, getActionBadgeVariant } from './helpers'
 import type { AuditLog } from './types'
 
@@ -14,8 +14,8 @@ interface Props {
 }
 
 export function UserAuditLogsCard({ auditLogs }: Props) {
-  const { t, locale } = useI18n()
-  const distanceLocale = locale === 'en' ? enUS : fr
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
 
   return (
     <Card>
@@ -36,9 +36,7 @@ export function UserAuditLogsCard({ auditLogs }: Props) {
       </CardHeader>
       <CardContent>
         {auditLogs.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {t('admin.user_detail.empty_audit_logs')}
-          </p>
+          <EmptyState message={t('admin.user_detail.empty_audit_logs')} />
         ) : (
           <div className="space-y-3">
             {auditLogs.map((log) => (
@@ -60,9 +58,7 @@ export function UserAuditLogsCard({ auditLogs }: Props) {
                     <span>·</span>
                     <span>
                       {t('admin.user_detail.audit_log_time_ago', {
-                        time: formatDistanceToNow(new Date(log.createdAt), {
-                          locale: distanceLocale,
-                        }),
+                        time: formatRelative(log.createdAt, { addSuffix: false }),
                       })}
                     </span>
                   </div>

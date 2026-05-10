@@ -1,8 +1,9 @@
 import { Link } from '@adonisjs/inertia/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Shield, UserCog, Users } from 'lucide-react'
+import { StatusBadge, type StatusBadgeVariant } from '@/components/core/status-badge'
+import { EmptyState } from '@/components/core/empty-state'
 import { useI18n } from '@/hooks/use-i18n'
 import { AddMemberDialog } from './add-member-dialog'
 import type { Member } from './types'
@@ -12,12 +13,6 @@ interface Props {
   members: Member[]
 }
 
-const getRoleIcon = (role: string) => {
-  if (role === 'admin' || role === 'owner') return <Shield className="h-4 w-4" />
-  if (role === 'moderator') return <UserCog className="h-4 w-4" />
-  return <Users className="h-4 w-4" />
-}
-
 export function OrganizationMembersCard({ organizationId, members }: Props) {
   const { t, locale } = useI18n()
   const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
@@ -25,7 +20,7 @@ export function OrganizationMembersCard({ organizationId, members }: Props) {
     new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium' }).format(new Date(iso))
 
   const renderRoleBadge = (role: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
+    const variants: Record<string, StatusBadgeVariant> = {
       owner: 'default',
       admin: 'default',
       moderator: 'secondary',
@@ -33,12 +28,13 @@ export function OrganizationMembersCard({ organizationId, members }: Props) {
     }
     const variant = variants[role] ?? 'outline'
     const label = variants[role] ? t(`admin.organization_detail.role.${role}`) : role
-    return (
-      <Badge variant={variant} className="flex items-center gap-1 w-fit">
-        {getRoleIcon(role)}
-        {label}
-      </Badge>
-    )
+    const Icon =
+      role === 'admin' || role === 'owner'
+        ? Shield
+        : role === 'moderator'
+          ? UserCog
+          : Users
+    return <StatusBadge label={label} variant={variant} icon={Icon} />
   }
 
   return (
@@ -51,9 +47,7 @@ export function OrganizationMembersCard({ organizationId, members }: Props) {
       </CardHeader>
       <CardContent>
         {members.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {t('admin.organization_detail.empty_members')}
-          </p>
+          <EmptyState message={t('admin.organization_detail.empty_members')} />
         ) : (
           <div className="space-y-4">
             {members.map((member) => (

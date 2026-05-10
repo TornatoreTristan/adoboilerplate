@@ -1,8 +1,8 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
+import { EmptyState } from '@/components/core/empty-state'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { getDeviceIcon } from './helpers'
 import type { Session } from './types'
 
@@ -11,8 +11,8 @@ interface Props {
 }
 
 export function UserSessionsCard({ sessions }: Props) {
-  const { t, locale } = useI18n()
-  const distanceLocale = locale === 'en' ? enUS : fr
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
 
   return (
     <Card>
@@ -23,9 +23,7 @@ export function UserSessionsCard({ sessions }: Props) {
       </CardHeader>
       <CardContent>
         {sessions.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {t('admin.user_detail.empty_sessions')}
-          </p>
+          <EmptyState message={t('admin.user_detail.empty_sessions')} />
         ) : (
           <div className="space-y-4">
             {sessions.map((session) => (
@@ -63,9 +61,7 @@ export function UserSessionsCard({ sessions }: Props) {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {t('admin.user_detail.session_last_activity', {
-                        time: formatDistanceToNow(new Date(session.lastActivity), {
-                          locale: distanceLocale,
-                        }),
+                        time: formatRelative(session.lastActivity, { addSuffix: false }),
                       })}
                     </p>
                   </div>

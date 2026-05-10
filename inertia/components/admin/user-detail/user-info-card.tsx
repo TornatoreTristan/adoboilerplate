@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { CheckCircle2, XCircle } from 'lucide-react'
+import { KeyValueRow } from '@/components/core/key-value-row'
 import { useI18n } from '@/hooks/use-i18n'
 import type { User } from './types'
 
@@ -78,8 +79,12 @@ export function UserInfoCard({ user, isEditing, data, setData, errors }: Props) 
         </div>
 
         <div className="space-y-2">
-          <Row label={t('admin.user_detail.field_id')} value={<span className="font-mono">{user.id}</span>} />
-          <Row
+          <KeyValueRow
+            label={t('admin.user_detail.field_id')}
+            value={user.id}
+            valueClassName="font-mono"
+          />
+          <KeyValueRow
             label={t('admin.user_detail.field_account_type')}
             value={
               user.googleId ? (
@@ -89,7 +94,7 @@ export function UserInfoCard({ user, isEditing, data, setData, errors }: Props) 
               )
             }
           />
-          <Row
+          <KeyValueRow
             label={t('admin.user_detail.field_email_verified')}
             value={
               user.isEmailVerified ? (
@@ -105,25 +110,16 @@ export function UserInfoCard({ user, isEditing, data, setData, errors }: Props) 
               )
             }
           />
-          <Row
+          <KeyValueRow
             label={t('admin.user_detail.field_signup')}
-            value={<span>{formatDateTime(user.createdAt)}</span>}
+            value={formatDateTime(user.createdAt)}
           />
-          <Row
+          <KeyValueRow
             label={t('admin.user_detail.field_updated_at')}
-            value={<span>{formatDateTime(user.updatedAt)}</span>}
+            value={formatDateTime(user.updatedAt)}
           />
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      {value}
-    </div>
   )
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
+import { PaginationFooter } from '@/components/core/pagination-footer'
 import { Head } from '@inertiajs/react'
-import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/use-i18n'
 import { useLogs } from '@/components/admin/logs/use-logs'
 import { LogsStatsRow } from '@/components/admin/logs/logs-stats-row'
@@ -41,33 +41,12 @@ export default function Logs() {
 
           <LogsTable logs={logs} loading={loading} onSelect={setSelectedLog} />
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {t('admin.logs.showing_range', {
-                from: Math.min((page - 1) * perPage + 1, total),
-                to: Math.min(page * perPage, total),
-                total,
-              })}
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                {t('admin.logs.previous')}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page * perPage >= total}
-              >
-                {t('admin.logs.next')}
-              </Button>
-            </div>
-          </div>
+          <PaginationFooter
+            page={page}
+            perPage={perPage}
+            total={total}
+            onPageChange={setPage}
+          />
         </div>
       </AdminLayout>
 

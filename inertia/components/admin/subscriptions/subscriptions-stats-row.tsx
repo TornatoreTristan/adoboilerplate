@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card'
+import { StatTile } from '@/components/core/stat-tile'
 import { useI18n } from '@/hooks/use-i18n'
 import type { Stats } from './types'
 
@@ -6,10 +6,6 @@ interface Props {
   stats: Stats
 }
 
-/**
- * Six mini-cards on the dashboard. Pulled out of the main page so each
- * card can be re-rendered independently when its specific stat changes.
- */
 export function SubscriptionsStatsRow({ stats }: Props) {
   const { t } = useI18n()
   const items: Array<{ key: keyof Stats; labelKey: string }> = [
@@ -24,14 +20,7 @@ export function SubscriptionsStatsRow({ stats }: Props) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
       {items.map((item) => (
-        <Card key={item.key}>
-          <CardHeader className="pb-2">
-            <CardDescription>{t(item.labelKey)}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats[item.key]}</div>
-          </CardContent>
-        </Card>
+        <StatTile key={item.key} title={t(item.labelKey)} value={stats[item.key]} />
       ))}
     </div>
   )

@@ -8,9 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDistanceToNow } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
 import { useI18n } from '@/hooks/use-i18n'
+import { useRelativeDate } from '@/hooks/use-relative-date'
 import { LogLevelBadge, StatusCodeBadge } from './log-level-badge'
 import type { Log } from './types'
 
@@ -21,8 +20,8 @@ interface Props {
 }
 
 export function LogsTable({ logs, loading, onSelect }: Props) {
-  const { t, locale } = useI18n()
-  const dateLocale = locale === 'en' ? enUS : fr
+  const { t } = useI18n()
+  const formatRelative = useRelativeDate()
 
   return (
     <Card>
@@ -76,10 +75,7 @@ export function LogsTable({ logs, loading, onSelect }: Props) {
                     {log.user ? log.user.fullName || log.user.email : '-'}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(log.createdAt), {
-                      addSuffix: true,
-                      locale: dateLocale,
-                    })}
+                    {formatRelative(log.createdAt)}
                   </TableCell>
                 </TableRow>
               ))

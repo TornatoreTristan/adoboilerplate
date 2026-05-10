@@ -1,24 +1,18 @@
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge, type StatusBadgeVariant } from '@/components/core/status-badge'
 import type { HealthStatus } from './types'
 
-interface Props {
-  status: HealthStatus | string
+const VARIANTS: Record<string, StatusBadgeVariant> = {
+  ok: 'default',
+  degraded: 'secondary',
+  down: 'destructive',
 }
 
-/**
- * Tiny shared atom — the same status badge appears next to every
- * health card title, so it lives in its own file to keep the variant
- * mapping in one place.
- */
-export function HealthStatusBadge({ status }: Props) {
-  const variants: Record<string, 'default' | 'secondary' | 'destructive'> = {
-    ok: 'default',
-    degraded: 'secondary',
-    down: 'destructive',
-  }
+export function HealthStatusBadge({ status }: { status: HealthStatus | string }) {
   return (
-    <Badge variant={variants[status] || 'default'} className="ml-2">
-      {status.toUpperCase()}
-    </Badge>
+    <StatusBadge
+      label={status.toUpperCase()}
+      variant={VARIANTS[status] || 'default'}
+      className="ml-2"
+    />
   )
 }
