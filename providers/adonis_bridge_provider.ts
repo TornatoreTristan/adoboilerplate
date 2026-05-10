@@ -8,6 +8,7 @@ import UserService from '#users/services/user_service'
 import AuditLogService from '#audit/services/audit_log_service'
 import SubscriptionService from '#billing/services/subscription_service'
 import StripeConnectService from '#integrations/services/stripe_connect_service'
+import QueueService from '#shared/services/queue_service'
 
 /**
  * Bridges the Inversify container with the AdonisJS (fold) container.
@@ -48,5 +49,14 @@ export default class AdonisBridgeProvider {
     this.app.container.singleton(StripeConnectService, () =>
       serviceContainer.get<StripeConnectService>(TYPES.StripeConnectService)
     )
+
+    this.app.container.singleton(QueueService, () =>
+      serviceContainer.get<QueueService>(TYPES.QueueService)
+    )
+  }
+
+  async boot() {
+    const queueService = serviceContainer.get<QueueService>(TYPES.QueueService)
+    queueService.registerKnownQueues()
   }
 }

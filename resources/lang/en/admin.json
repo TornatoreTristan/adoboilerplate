@@ -6,6 +6,7 @@
   "plans": "Plans",
   "monitoring": "Monitoring",
   "logs": "Logs",
+  "job_queues": "Job Queues",
   "app_settings": "Application Settings",
   "back_to_app": "Back to app",
   "audit_logs": {
@@ -561,6 +562,47 @@
     "confirm_resume": "Resume this subscription?",
     "confirm_cancel": "Cancel this subscription?\n\nThe subscription will remain active until the end of the current period.",
     "confirm_reactivate": "Reactivate this canceled subscription?"
+  },
+  "queues": {
+    "head_title": "Job Queues",
+    "title": "Job Queues",
+    "description": "Monitor and manage background job queues",
+    "stats": {
+      "active": "Active",
+      "waiting": "Waiting",
+      "completed": "Completed",
+      "failed": "Failed",
+      "delayed": "Delayed",
+      "paused": "Paused"
+    },
+    "actions": {
+      "view_details": "View details",
+      "pause": "Pause",
+      "resume": "Resume",
+      "retry": "Retry",
+      "remove": "Remove",
+      "confirm_remove": "Are you sure you want to remove this job? This action cannot be undone."
+    },
+    "failed_jobs": {
+      "title": "Failed jobs ({count})",
+      "empty": "No failed jobs",
+      "column_id": "ID",
+      "column_name": "Name",
+      "column_attempts": "Attempts",
+      "column_error": "Error",
+      "column_date": "Failed at",
+      "column_actions": "Actions"
+    },
+    "flash": {
+      "job_retried": "Job retried successfully",
+      "job_removed": "Job removed successfully",
+      "queue_paused": "Queue has been paused",
+      "queue_resumed": "Queue has been resumed"
+    },
+    "status": {
+      "running": "Running",
+      "paused": "Paused"
+    }
   },
   "flash": {
     "user_updated": "User updated successfully",

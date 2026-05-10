@@ -6,6 +6,7 @@
   "plans": "Plans",
   "monitoring": "Monitoring",
   "logs": "Logs",
+  "job_queues": "Files de tâches",
   "app_settings": "Paramètres de l'application",
   "back_to_app": "Retour à l'app",
   "audit_logs": {
@@ -561,6 +562,47 @@
     "confirm_resume": "Voulez-vous reprendre cet abonnement ?",
     "confirm_cancel": "Voulez-vous annuler cet abonnement ?\n\nL'abonnement restera actif jusqu'à la fin de la période en cours.",
     "confirm_reactivate": "Voulez-vous réactiver cet abonnement annulé ?"
+  },
+  "queues": {
+    "head_title": "Files de traitement",
+    "title": "Files de traitement",
+    "description": "Superviser et gérer les files de tâches en arrière-plan",
+    "stats": {
+      "active": "Actives",
+      "waiting": "En attente",
+      "completed": "Terminées",
+      "failed": "Échouées",
+      "delayed": "Différées",
+      "paused": "En pause"
+    },
+    "actions": {
+      "view_details": "Voir les détails",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre",
+      "retry": "Relancer",
+      "remove": "Supprimer",
+      "confirm_remove": "Voulez-vous vraiment supprimer cette tâche ? Cette action est irréversible."
+    },
+    "failed_jobs": {
+      "title": "Tâches échouées ({count})",
+      "empty": "Aucune tâche échouée",
+      "column_id": "ID",
+      "column_name": "Nom",
+      "column_attempts": "Tentatives",
+      "column_error": "Erreur",
+      "column_date": "Date d'échec",
+      "column_actions": "Actions"
+    },
+    "flash": {
+      "job_retried": "La tâche a été relancée avec succès",
+      "job_removed": "La tâche a été supprimée avec succès",
+      "queue_paused": "La file de traitement a été mise en pause",
+      "queue_resumed": "La file de traitement a repris son activité"
+    },
+    "status": {
+      "running": "Active",
+      "paused": "En pause"
+    }
   },
   "flash": {
     "user_updated": "Utilisateur mis à jour avec succès",

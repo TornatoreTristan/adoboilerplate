@@ -265,3 +265,25 @@ export class UploadFailedException extends AppException {
     super(message, details)
   }
 }
+
+// =====================================================
+// EXCEPTIONS FILES D'ATTENTE (QUEUES)
+// =====================================================
+
+export class QueueNotFoundException extends AppException {
+  readonly code = ERROR_CODES.QUEUE_NOT_FOUND
+  readonly status = 404
+
+  constructor(message = 'File de traitement introuvable', details?: ErrorDetails) {
+    super(message, details)
+  }
+}
+
+export class QueueJobNotFoundException extends AppException {
+  readonly code = ERROR_CODES.QUEUE_JOB_NOT_FOUND
+  readonly status = 404
+
+  constructor(message = 'Tâche introuvable dans la file de traitement', details?: ErrorDetails) {
+    super(message, details)
+  }
+}

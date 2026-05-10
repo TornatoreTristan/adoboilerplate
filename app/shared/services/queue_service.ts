@@ -2,6 +2,7 @@ import { injectable } from 'inversify'
 import Bull from 'bull'
 import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
+import { E } from '#shared/exceptions/exception_helpers'
 
 /**
  * Default retry policy applied to every queue obtained from this service.
@@ -173,6 +174,151 @@ export default class QueueService {
     const replayed = await this.add(originalQueue, dead.name, dead.data?.data ?? dead.data)
     await dead.remove()
     return replayed
+  }
+
+  /**
+   * Force-instantiate every queue that has a registered processor so that
+   * the admin UI can list them even if no job has been enqueued yet during
+   * this HTTP-server lifecycle.
+   */
+  registerKnownQueues(): void {
+    const knownQueues = ['email']
+    for (const name of knownQueues) {
+      this.getQueue(name)
+      this.getDeadLetterQueue(name)
+    }
+  }
+
+  /**
+   * List all queues that have been instantiated (main + dead-letter).
+   */
+  listQueues(): { name: string; isDeadLetter: boolean }[] {
+    const result: { name: string; isDeadLetter: boolean }[] = []
+
+    for (const name of this.queues.keys()) {
+      result.push({ name, isDeadLetter: false })
+    }
+
+    for (const name of this.deadLetterQueues.keys()) {
+      result.push({ name, isDeadLetter: true })
+    }
+
+    return result
+  }
+
+  /**
+   * Return job counts for a queue. Throws if the queue has not been
+   * instantiated.
+   */
+  async getQueueStats(name: string): Promise<{
+    active: number
+    waiting: number
+    completed: number
+    failed: number
+    delayed: number
+    paused: number
+  }> {
+    const queue = this.resolveQueue(name)
+    const [counts, pausedCount] = await Promise.all([queue.getJobCounts(), queue.getPausedCount()])
+    return {
+      active: counts.active ?? 0,
+      waiting: counts.waiting ?? 0,
+      completed: counts.completed ?? 0,
+      failed: counts.failed ?? 0,
+      delayed: counts.delayed ?? 0,
+      paused: pausedCount ?? 0,
+    }
+  }
+
+  /**
+   * Return the most recent failed jobs (up to `limit`).
+   */
+  async getFailedJobs(
+    name: string,
+    limit: number = 50
+  ): Promise<
+    {
+      id: Bull.JobId
+      name: string
+      data: unknown
+      failedReason: string | undefined
+      attemptsMade: number
+      maxAttempts: number
+      timestamp: number
+      processedOn: number | undefined
+      finishedOn: number | undefined
+      stacktrace: string[]
+    }[]
+  > {
+    const queue = this.resolveQueue(name)
+    const jobs = await queue.getFailed(0, limit - 1)
+    return jobs.map((job) => ({
+      id: job.id,
+      name: job.name,
+      data: job.data,
+      failedReason: job.failedReason,
+      attemptsMade: job.attemptsMade,
+      maxAttempts: (job.opts.attempts as number | undefined) ?? DEFAULT_JOB_OPTIONS.attempts ?? 1,
+      timestamp: job.timestamp,
+      processedOn: job.processedOn,
+      finishedOn: job.finishedOn,
+      stacktrace: job.stacktrace ?? [],
+    }))
+  }
+
+  /**
+   * Retry a specific failed job. Throws if the queue or job is not found.
+   */
+  async retryFailedJob(name: string, jobId: string): Promise<void> {
+    const queue = this.resolveQueue(name)
+    const job = await queue.getJob(jobId)
+    if (!job) {
+      E.queueJobNotFound(jobId, name)
+    }
+    await job.retry()
+  }
+
+  /**
+   * Remove a specific failed job. Throws if the queue or job is not found.
+   */
+  async removeFailedJob(name: string, jobId: string): Promise<void> {
+    const queue = this.resolveQueue(name)
+    const job = await queue.getJob(jobId)
+    if (!job) {
+      E.queueJobNotFound(jobId, name)
+    }
+    await job.remove()
+  }
+
+  /**
+   * Pause a queue (new jobs are dequeued but not processed).
+   */
+  async pauseQueue(name: string): Promise<void> {
+    const queue = this.resolveQueue(name)
+    await queue.pause()
+  }
+
+  /**
+   * Resume a paused queue.
+   */
+  async resumeQueue(name: string): Promise<void> {
+    const queue = this.resolveQueue(name)
+    await queue.resume()
+  }
+
+  /**
+   * Resolve an instantiated queue by name (main or dead-letter).
+   * Throws `QueueNotFoundException` when not found so the caller never gets
+   * a silently-created empty queue.
+   */
+  private resolveQueue(name: string): Bull.Queue {
+    if (this.queues.has(name)) {
+      return this.queues.get(name)!
+    }
+    if (this.deadLetterQueues.has(name)) {
+      return this.deadLetterQueues.get(name)!
+    }
+    E.queueNotFound(name)
   }
 
   /**

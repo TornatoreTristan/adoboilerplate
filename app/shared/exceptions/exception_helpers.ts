@@ -19,6 +19,8 @@ import {
   FileTooLargeException,
   InvalidMimeTypeException,
   UploadFailedException,
+  QueueNotFoundException,
+  QueueJobNotFoundException,
 } from './domain_exceptions.js'
 import type { ErrorDetails } from './app_exception.js'
 
@@ -199,6 +201,30 @@ export class ExceptionHelpers {
 
   static subscriptionNotSynced(details?: ErrorDetails): never {
     throw new SubscriptionNotSyncedException(undefined, details)
+  }
+
+  // =====================================================
+  // QUEUE HELPERS
+  // =====================================================
+
+  static queueNotFound(name?: string, details?: ErrorDetails): never {
+    throw new QueueNotFoundException(
+      name ? `File de traitement "${name}" introuvable` : undefined,
+      details
+    )
+  }
+
+  static queueJobNotFound(
+    jobId?: string | number,
+    queueName?: string,
+    details?: ErrorDetails
+  ): never {
+    throw new QueueJobNotFoundException(
+      jobId
+        ? `Tâche ${jobId}${queueName ? ` dans la file "${queueName}"` : ''} introuvable`
+        : undefined,
+      details
+    )
   }
 
   // =====================================================

@@ -12,6 +12,7 @@ import {
   FileText,
   ScrollText,
   Settings,
+  Layers,
 } from 'lucide-react'
 import { usePage } from '@inertiajs/react'
 import { useI18n } from '@/hooks/use-i18n'
@@ -88,6 +89,11 @@ export function AdminSidebar() {
       title: t('admin.audit_logs.title'),
       url: '/admin/audit-logs',
       icon: ScrollText,
+    },
+    {
+      title: t('admin.job_queues'),
+      url: '/admin/queues',
+      icon: Layers,
     },
   ]
 

@@ -24,6 +24,8 @@ declare module '@adonisjs/inertia/types' {
     'account/sessions': ComponentProps
     'admin/audit-logs/index': ComponentProps
     'admin/audit-logs/show': ComponentProps
+    'admin/queues/index': ComponentProps
+    'admin/queues/show': ComponentProps
     'admin/index': ComponentProps
     'admin/integrations': ComponentProps
     'admin/logs': ComponentProps

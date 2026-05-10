@@ -15,6 +15,7 @@ const MonitoringController = () => import('#admin/controllers/monitoring_control
 const LogsController = () => import('#admin/controllers/logs_controller')
 const AuditLogsController = () => import('#audit/controllers/audit_logs_controller')
 const AppSettingsController = () => import('#admin/controllers/app_settings_controller')
+const AdminQueuesController = () => import('#admin/controllers/admin_queues_controller')
 
 router
   .group(() => {
@@ -109,5 +110,13 @@ router
     router.post('/admin/settings/legal', [AppSettingsController, 'updateLegal'])
     router.post('/admin/settings/logo', [AppSettingsController, 'uploadLogo'])
     router.post('/admin/settings/favicon', [AppSettingsController, 'uploadFavicon'])
+
+    // Queues
+    router.get('/admin/queues', [AdminQueuesController, 'index'])
+    router.get('/admin/queues/:name', [AdminQueuesController, 'show'])
+    router.post('/admin/queues/:name/jobs/:id/retry', [AdminQueuesController, 'retry'])
+    router.post('/admin/queues/:name/jobs/:id/remove', [AdminQueuesController, 'remove'])
+    router.post('/admin/queues/:name/pause', [AdminQueuesController, 'pause'])
+    router.post('/admin/queues/:name/resume', [AdminQueuesController, 'resume'])
   })
   .use([middleware.auth(), middleware.superAdmin()])
