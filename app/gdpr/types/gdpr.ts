@@ -42,8 +42,8 @@ export interface UserDataExport {
     id: string
     planName: string
     status: string
-    currentPeriodStart: string
-    currentPeriodEnd: string
+    currentPeriodStart: string | null
+    currentPeriodEnd: string | null
   }>
 }
 

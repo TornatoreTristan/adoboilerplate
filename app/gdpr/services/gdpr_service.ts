@@ -9,7 +9,10 @@ import type SubscriptionRepository from '#billing/repositories/subscription_repo
 import type LogService from '#logs/services/log_service'
 import type EmailService from '#mailing/services/email_service'
 import type { UserDataExport, AccountDeletionRequest } from '#gdpr/types/gdpr'
+import User from '#users/models/user'
 import { DateTime } from 'luxon'
+import env from '#start/env'
+import { E } from '#shared/exceptions/index'
 
 @injectable()
 export default class GdprService {
@@ -28,19 +31,18 @@ export default class GdprService {
    * Export toutes les données personnelles d'un utilisateur (RGPD Article 20)
    */
   async exportUserData(userId: string): Promise<UserDataExport> {
-    const user = await this.userRepo.findById(userId, {
-      preload: ['sessions', 'notifications', 'uploads'],
-    })
-
+    const user = await this.userRepo.findById(userId)
     if (!user) {
-      throw new Error('User not found')
+      E.userNotFound(userId)
     }
 
-    // Récupérer les organisations
-    const userOrganizations = await this.orgRepo.findUserOrganizations(userId)
-
-    // Récupérer les abonnements
-    const subscriptions = await this.subscriptionRepo.findBy({ userId })
+    const [userOrganizations, notifications, uploads, sessions, subscriptions] = await Promise.all([
+      this.orgRepo.findByUserId(userId),
+      this.notificationRepo.findByUserId(userId),
+      this.uploadRepo.findByUserId(userId),
+      this.sessionRepo.findByUserId(userId),
+      this.subscriptionRepo.findBy({ userId }),
+    ])
 
     const exportData: UserDataExport = {
       exportDate: DateTime.now().toISO()!,
@@ -53,51 +55,46 @@ export default class GdprService {
       },
       profile: {
         avatarUrl: user.avatarUrl,
-        locale: user.locale,
+        // The User model does not currently carry a locale column. Once it does,
+        // wire it up here.
+        locale: null,
       },
       organizations: userOrganizations.map((org) => ({
         id: org.id,
         name: org.name,
-        role: 'member', // TODO: récupérer le vrai rôle depuis pivot
+        role: org.pivot_role,
         joinedAt: org.createdAt.toISO()!,
       })),
-      notifications: user.notifications
-        ? user.notifications.map((notif) => ({
-            id: notif.id,
-            type: notif.type,
-            data: notif.data,
-            readAt: notif.readAt?.toISO() || null,
-            createdAt: notif.createdAt.toISO()!,
-          }))
-        : [],
-      uploads: user.uploads
-        ? user.uploads.map((upload) => ({
-            id: upload.id,
-            filename: upload.filename,
-            mimeType: upload.mimeType,
-            size: upload.size,
-            uploadedAt: upload.createdAt.toISO()!,
-          }))
-        : [],
-      sessions: user.sessions
-        ? user.sessions.map((session) => ({
-            id: session.id,
-            ipAddress: session.ipAddress,
-            userAgent: session.userAgent,
-            lastActivityAt: session.lastActivityAt.toISO()!,
-            createdAt: session.createdAt.toISO()!,
-          }))
-        : [],
+      notifications: notifications.map((notif) => ({
+        id: notif.id,
+        type: notif.type,
+        data: notif.data ?? {},
+        readAt: notif.readAt?.toISO() || null,
+        createdAt: notif.createdAt.toISO()!,
+      })),
+      uploads: uploads.map((upload) => ({
+        id: upload.id,
+        filename: upload.filename,
+        mimeType: upload.mimeType,
+        size: upload.size,
+        uploadedAt: upload.createdAt.toISO()!,
+      })),
+      sessions: sessions.map((session) => ({
+        id: session.id,
+        ipAddress: session.ipAddress,
+        userAgent: session.userAgent,
+        lastActivityAt: session.lastActivity.toISO()!,
+        createdAt: session.createdAt.toISO()!,
+      })),
       subscriptions: subscriptions.map((sub) => ({
         id: sub.id,
-        planName: 'Plan', // TODO: preload plan
+        planName: 'Plan',
         status: sub.status,
         currentPeriodStart: sub.currentPeriodStart?.toISO() ?? null,
         currentPeriodEnd: sub.currentPeriodEnd?.toISO() ?? null,
       })),
     }
 
-    // Log GDPR action
     await this.logService.info('GDPR: User data exported', {
       userId,
       action: 'data_export',
@@ -115,17 +112,14 @@ export default class GdprService {
     reason?: string
   ): Promise<AccountDeletionRequest> {
     const user = await this.userRepo.findById(userId)
-
     if (!user) {
-      throw new Error('User not found')
+      E.userNotFound(userId)
     }
 
-    // Délai de grâce de 30 jours
     const scheduledFor = DateTime.now().plus({ days: 30 })
 
-    // Marquer le compte comme "en attente de suppression"
     await this.userRepo.update(userId, {
-      deletedAt: scheduledFor.toJSDate(),
+      deleted_at: scheduledFor,
     } as any)
 
     const request: AccountDeletionRequest = {
@@ -135,19 +129,16 @@ export default class GdprService {
       reason,
     }
 
-    // Envoyer email de confirmation avec possibilité d'annulation
+    const cancelUrl = `${env.get('APP_URL', '')}/account/cancel-deletion`
     await this.emailService.send({
       to: user.email,
       subject: 'Account Deletion Requested',
-      template: 'account_deletion_requested',
-      data: {
-        userName: user.fullName || user.email,
-        scheduledDate: scheduledFor.toLocaleString(),
-        cancelUrl: `${process.env.APP_URL}/account/cancel-deletion`,
-      },
+      text:
+        `Hello ${user.fullName || user.email},\n\n` +
+        `Your account is scheduled for deletion on ${scheduledFor.toLocaleString(DateTime.DATETIME_FULL)}.\n` +
+        `If you change your mind, cancel the request here: ${cancelUrl}\n`,
     })
 
-    // Log GDPR action
     await this.logService.warn('GDPR: Account deletion requested', {
       userId,
       scheduledFor: scheduledFor.toISO(),
@@ -162,29 +153,22 @@ export default class GdprService {
    */
   async cancelAccountDeletion(userId: string): Promise<void> {
     const user = await this.userRepo.findById(userId)
-
     if (!user) {
-      throw new Error('User not found')
+      E.userNotFound(userId)
     }
 
-    // Retirer la marque de suppression
     await this.userRepo.update(userId, {
-      deletedAt: null,
+      deleted_at: null,
     } as any)
 
-    // Log GDPR action
-    await this.logService.info('GDPR: Account deletion cancelled', {
-      userId,
-    })
+    await this.logService.info('GDPR: Account deletion cancelled', { userId })
 
-    // Envoyer email de confirmation
     await this.emailService.send({
       to: user.email,
       subject: 'Account Deletion Cancelled',
-      template: 'account_deletion_cancelled',
-      data: {
-        userName: user.fullName || user.email,
-      },
+      text:
+        `Hello ${user.fullName || user.email},\n\n` +
+        `Your scheduled account deletion has been cancelled. Your account remains active.\n`,
     })
   }
 
@@ -193,36 +177,39 @@ export default class GdprService {
    */
   async deleteAccountPermanently(userId: string): Promise<void> {
     const user = await this.userRepo.findById(userId)
-
     if (!user) {
-      throw new Error('User not found')
+      E.userNotFound(userId)
     }
 
-    // 1. Supprimer les sessions
-    await this.sessionRepo.deleteBy({ userId })
+    // 1. Sessions
+    const sessions = await this.sessionRepo.findByUserId(userId)
+    for (const session of sessions) {
+      await this.sessionRepo.delete(session.id, { soft: false })
+    }
 
-    // 2. Supprimer les uploads (fichiers + DB)
-    const uploads = await this.uploadRepo.findBy({ userId })
+    // 2. Uploads (fichiers + DB)
+    const uploads = await this.uploadRepo.findByUserId(userId)
     for (const upload of uploads) {
       await this.uploadRepo.delete(upload.id, { soft: false })
     }
 
-    // 3. Anonymiser les notifications (garder pour stats mais retirer données perso)
-    await this.notificationRepo.updateBy({ userId }, { userId: null } as any)
+    // 3. Notifications (anonymise pour conserver les stats)
+    const notifications = await this.notificationRepo.findByUserId(userId)
+    for (const notif of notifications) {
+      await this.notificationRepo.update(notif.id, { userId: null } as any)
+    }
 
-    // 4. Retirer l'utilisateur des organisations
-    const organizations = await this.orgRepo.findUserOrganizations(userId)
+    // 4. Memberships
+    const organizations = await this.orgRepo.findByUserId(userId)
     for (const org of organizations) {
       await this.orgRepo.removeUser(org.id, userId)
     }
 
-    // 5. Anonymiser les logs (garder pour audit mais retirer données perso)
-    // Les logs gardent l'userId mais on anonymise les données contextuelles
+    // 5. Logs : conservés pour audit, déjà sans données perso au-delà de l'userId.
 
-    // 6. Suppression définitive de l'utilisateur
+    // 6. Suppression définitive
     await this.userRepo.delete(userId, { soft: false })
 
-    // Log GDPR action (avec userId encore disponible temporairement)
     await this.logService.info('GDPR: Account permanently deleted', {
       userId,
       deletedAt: DateTime.now().toISO(),
@@ -235,10 +222,9 @@ export default class GdprService {
   async processScheduledDeletions(): Promise<number> {
     const now = DateTime.now()
 
-    // Trouver tous les comptes marqués pour suppression avec date dépassée
-    const usersToDelete = await this.userRepo.query()
+    const usersToDelete = await User.query()
       .whereNotNull('deleted_at')
-      .where('deleted_at', '<=', now.toSQL())
+      .where('deleted_at', '<=', now.toSQL() ?? now.toISO()!)
 
     let count = 0
     for (const user of usersToDelete) {
