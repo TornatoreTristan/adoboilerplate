@@ -21,7 +21,10 @@ import logger from '@adonisjs/core/services/logger'
  */
 @injectable()
 export default class NotificationListeners {
-  private handlers: Map<string, EventHandler> = new Map()
+  // Multiple register() calls would leak handlers if we keyed by event name
+  // alone (Map.set overwrites). We track every handler ever registered so
+  // unregisterAll() can detach all of them from the EventBus.
+  private handlers: Array<{ eventName: string; handler: EventHandler }> = []
 
   constructor(
     @inject(TYPES.NotificationService) private notificationService: NotificationService,
@@ -41,10 +44,10 @@ export default class NotificationListeners {
    * Désinscrire tous les listeners
    */
   unregisterAll(): void {
-    for (const [eventName, handler] of this.handlers.entries()) {
+    for (const { eventName, handler } of this.handlers) {
       this.eventBus.off(eventName, handler)
     }
-    this.handlers.clear()
+    this.handlers = []
   }
 
   /**
@@ -54,7 +57,7 @@ export default class NotificationListeners {
     // EventEmitter only knows about the unparameterised EventHandler signature;
     // the generic version above is just for editor ergonomics.
     const erased = handler as EventHandler
-    this.handlers.set(eventName, erased)
+    this.handlers.push({ eventName, handler: erased })
     this.eventBus.on(eventName, erased)
   }
 
