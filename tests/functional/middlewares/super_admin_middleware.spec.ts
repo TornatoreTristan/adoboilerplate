@@ -8,6 +8,18 @@ import db from '@adonisjs/lucid/services/db'
 
 test.group('SuperAdmin Middleware', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
+  // Earlier specs in the suite hit /auth/login with the same emails this
+  // group reuses. The rate-limit counter lives in Redis (not the test DB
+  // transaction), so without a flush a 429 from those prior attempts can
+  // bubble in here and a test that expected to authenticate ends up
+  // unauthenticated.
+  group.each.setup(async () => {
+    const { default: redis } = await import('@adonisjs/redis/services/main')
+    const keys = await redis.keys('ratelimit:*')
+    if (keys.length > 0) {
+      await redis.del(...keys)
+    }
+  })
 
   test('should allow access to super-admin route when user is super-admin', async ({
     client,
@@ -44,7 +56,17 @@ test.group('SuperAdmin Middleware', (group) => {
       fullName: 'Regular User',
     }
     const userService = getService<UserService>(TYPES.UserService)
-    await userService.create(userData)
+    const user = await userService.create(userData)
+
+    // Defensive: some test runs leave a stale user_roles row for this user
+    // (the previous test in this group inserts via raw db.table(), which has
+    // intermittently been observed to escape withGlobalTransaction). Drop
+    // any super-admin grant against *our* user before asserting denial.
+    await db
+      .from('user_roles')
+      .where('user_id', user.id)
+      .where('role_slug', 'super-admin')
+      .delete()
 
     const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',

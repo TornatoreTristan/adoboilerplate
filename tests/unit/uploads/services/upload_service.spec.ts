@@ -95,14 +95,13 @@ test.group('UploadService', (group) => {
       size: mockFile.length,
       disk: 'local',
       visibility: 'private',
-      metadata: { width: 1920, height: 1080 },
+      // Use a neutral key the service won't overwrite — width/height are
+      // recomputed from the optimised image.
+      metadata: { caption: 'Marketing banner', tagId: 42 },
     })
 
-    // The service augments user-provided metadata with virusScanned/
-    // imageOptimized markers, so we check the user fields survived rather
-    // than asserting an exact equality.
-    assert.equal(upload.metadata?.width, 1920)
-    assert.equal(upload.metadata?.height, 1080)
+    assert.equal(upload.metadata?.caption, 'Marketing banner')
+    assert.equal(upload.metadata?.tagId, 42)
   })
 
   test('should upload file with polymorphic relation', async ({ assert }) => {

@@ -42,6 +42,14 @@ export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
  * Learn more - https://japa.dev/docs/test-suites#lifecycle-hooks
  */
 export const configureSuite: Config['configureSuite'] = (suite) => {
+  // Flush Redis at suite start so rate-limit counters, repository caches and
+  // sessions from a previous run don't bleed in. Per-test isolation is the
+  // responsibility of the individual specs (most use withGlobalTransaction).
+  suite.setup(async () => {
+    const redis = await import('@adonisjs/redis/services/main').then((m) => m.default)
+    await redis.flushdb()
+  })
+
   if (['browser', 'functional', 'e2e'].includes(suite.name)) {
     return suite.setup(() => testUtils.httpServer().start())
   }
