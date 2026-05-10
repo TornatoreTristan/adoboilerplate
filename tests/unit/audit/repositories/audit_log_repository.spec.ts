@@ -186,8 +186,11 @@ test.group('AuditLogRepository', (group) => {
       [log.id]
     )
 
-    // Search for words that exist in the indexed fields
-    const results = await repository.search('updated', 10)
+    // PostgreSQL's lexer keeps dot-separated identifiers like
+    // 'user.profile.updated' as a single token, so we search by a word that
+    // really does end up in the index — `resource_type` ("User") tokenises
+    // cleanly to 'user'.
+    const results = await repository.search('user', 10)
 
     assert.isArray(results)
     assert.isAtLeast(results.length, 1)
