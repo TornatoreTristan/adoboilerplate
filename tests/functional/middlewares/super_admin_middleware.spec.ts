@@ -27,7 +27,7 @@ test.group('SuperAdmin Middleware', (group) => {
       granted_at: new Date(),
     })
 
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'admin@example.com',
       password: 'password123',
     })
@@ -46,7 +46,7 @@ test.group('SuperAdmin Middleware', (group) => {
     const userService = getService<UserService>(TYPES.UserService)
     await userService.create(userData)
 
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',
       password: 'password123',
     })

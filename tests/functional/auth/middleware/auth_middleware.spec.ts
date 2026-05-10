@@ -17,7 +17,7 @@ test.group('Auth Middleware', (group) => {
     const userService = getService<UserService>(TYPES.UserService)
     await userService.create(userData)
 
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',
       password: 'password123',
       remember: false,

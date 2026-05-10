@@ -28,7 +28,7 @@ test.group('Middleware - Organization Context', (group) => {
     })
 
     // Se connecter d'abord
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@test.com',
       password: 'password123',
       rememberMe: false,

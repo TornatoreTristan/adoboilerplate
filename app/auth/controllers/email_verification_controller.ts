@@ -88,6 +88,9 @@ export default class EmailVerificationController {
       })
     }
 
+    // Régénérer l'ID de session pour prévenir la session fixation
+    session.regenerate()
+
     // Connecter automatiquement l'utilisateur après vérification
     session.put('user_id', result.userId)
 

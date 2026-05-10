@@ -29,10 +29,13 @@ test.group('AdminService - Organizations', (group) => {
       isActive: false,
     })
 
-    const organizations = await adminService.getOrganizations()
+    const { data: organizations, meta } = await adminService.getOrganizations(1, 50)
 
     assert.isArray(organizations)
     assert.isAtLeast(organizations.length, 2)
+    assert.property(meta, 'total')
+    assert.property(meta, 'perPage')
+    assert.property(meta, 'currentPage')
 
     const foundOrg1 = organizations.find((org) => org.id === org1.id)
     const foundOrg2 = organizations.find((org) => org.id === org2.id)
@@ -51,7 +54,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should return empty array when no organizations exist', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizations = await adminService.getOrganizations()
+    const { data: organizations } = await adminService.getOrganizations()
     assert.isArray(organizations)
   })
 
@@ -109,7 +112,7 @@ test.group('AdminService - Organizations', (group) => {
       },
     ])
 
-    const organizations = await adminService.getOrganizations()
+    const { data: organizations } = await adminService.getOrganizations(1, 50)
     const foundOrg = organizations.find((o) => o.id === org.id)
 
     assert.exists(foundOrg)
@@ -128,7 +131,7 @@ test.group('AdminService - Organizations', (group) => {
       isActive: true,
     })
 
-    const organizations = await adminService.getOrganizations()
+    const { data: organizations } = await adminService.getOrganizations(1, 50)
     const foundOrg = organizations.find((o) => o.id === org.id)
 
     assert.exists(foundOrg)

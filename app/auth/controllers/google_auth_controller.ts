@@ -45,6 +45,9 @@ export default class GoogleAuthController {
       referrer: request.header('referer'),
     })
 
+    // Régénérer l'ID de session pour prévenir la session fixation
+    session.regenerate()
+
     session.put('user_id', result.user.id)
     session.put('session_id', result.sessionId)
 

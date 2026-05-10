@@ -292,30 +292,27 @@ export default class AdminService {
   }
 
   async getUsersGrowth(days: number = 30): Promise<GrowthData[]> {
-    const startDate = DateTime.now().minus({ days })
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const startDate = DateTime.now().minus({ days }).toSQL()
 
-    const users = await this.userRepository.findAll()
+    const rows = await db
+      .from('users')
+      .select(db.raw(`DATE(created_at) as date`), db.raw('COUNT(*) as count'))
+      .where('created_at', '>=', startDate)
+      .groupByRaw('DATE(created_at)')
+      .orderBy('date', 'asc')
 
     const growthMap = new Map<string, number>()
-
-    users
-      .filter((user) => user.createdAt >= startDate)
-      .forEach((user) => {
-        const date = user.createdAt.toISODate()
-        if (date) {
-          growthMap.set(date, (growthMap.get(date) || 0) + 1)
-        }
-      })
+    rows.forEach((row: any) => {
+      growthMap.set(String(row.date).slice(0, 10), Number(row.count))
+    })
 
     const result: GrowthData[] = []
     for (let i = 0; i < days; i++) {
       const date = DateTime.now().minus({ days: days - i - 1 })
       const dateStr = date.toISODate()
       if (dateStr) {
-        result.push({
-          date: dateStr,
-          count: growthMap.get(dateStr) || 0,
-        })
+        result.push({ date: dateStr, count: growthMap.get(dateStr) || 0 })
       }
     }
 
@@ -323,30 +320,27 @@ export default class AdminService {
   }
 
   async getSessionsGrowth(days: number = 30): Promise<GrowthData[]> {
-    const startDate = DateTime.now().minus({ days })
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const startDate = DateTime.now().minus({ days }).toSQL()
 
-    const sessions = await this.sessionRepository.findAll()
+    const rows = await db
+      .from('user_sessions')
+      .select(db.raw(`DATE(started_at) as date`), db.raw('COUNT(*) as count'))
+      .where('started_at', '>=', startDate)
+      .groupByRaw('DATE(started_at)')
+      .orderBy('date', 'asc')
 
     const growthMap = new Map<string, number>()
-
-    sessions
-      .filter((session) => session.startedAt >= startDate)
-      .forEach((session) => {
-        const date = session.startedAt.toISODate()
-        if (date) {
-          growthMap.set(date, (growthMap.get(date) || 0) + 1)
-        }
-      })
+    rows.forEach((row: any) => {
+      growthMap.set(String(row.date).slice(0, 10), Number(row.count))
+    })
 
     const result: GrowthData[] = []
     for (let i = 0; i < days; i++) {
       const date = DateTime.now().minus({ days: days - i - 1 })
       const dateStr = date.toISODate()
       if (dateStr) {
-        result.push({
-          date: dateStr,
-          count: growthMap.get(dateStr) || 0,
-        })
+        result.push({ date: dateStr, count: growthMap.get(dateStr) || 0 })
       }
     }
 
@@ -354,69 +348,97 @@ export default class AdminService {
   }
 
   async getActiveUsersStats(days: number = 30): Promise<ActiveUsersStats> {
-    const allUsers = await this.userRepository.findAll()
-    const totalUsers = allUsers.length
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+    const thresholdDate = DateTime.now().minus({ days }).toSQL()
 
-    const thresholdDate = DateTime.now().minus({ days })
+    const [totalRow, activeRow] = await Promise.all([
+      db.from('users').count('* as total').first(),
+      db
+        .from('user_sessions')
+        .select('user_id')
+        .where('last_activity', '>=', thresholdDate)
+        .groupBy('user_id')
+        .count('* as sessions_count')
+        .then((rows) => ({ activeUsers: rows.length })),
+    ])
 
-    const allSessions = await this.sessionRepository.findAll()
-
-    const activeUserIds = new Set(
-      allSessions
-        .filter((session) => session.lastActivity >= thresholdDate)
-        .map((session) => session.userId)
-    )
-
-    const activeUsers = activeUserIds.size
+    const totalUsers = Number((totalRow as any)?.total || 0)
+    const activeUsers = activeRow.activeUsers
     const inactiveUsers = totalUsers - activeUsers
     const activePercentage = totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0
 
-    return {
-      activeUsers,
-      inactiveUsers,
-      totalUsers,
-      activePercentage,
-    }
+    return { activeUsers, inactiveUsers, totalUsers, activePercentage }
   }
 
   async getAverageSessionsPerUser(): Promise<number> {
-    const sessions = await this.sessionRepository.findAll()
+    const { default: db } = await import('@adonisjs/lucid/services/db')
 
-    const sessionsPerUser = new Map<string, number>()
-    sessions.forEach((session) => {
-      sessionsPerUser.set(session.userId, (sessionsPerUser.get(session.userId) || 0) + 1)
-    })
+    const rows = await db
+      .from('user_sessions')
+      .select('user_id')
+      .count('* as session_count')
+      .groupBy('user_id')
 
-    if (sessionsPerUser.size === 0) return 0
+    if (rows.length === 0) return 0
 
-    const totalSessions = Array.from(sessionsPerUser.values()).reduce((sum, count) => sum + count, 0)
-    const avgSessions = totalSessions / sessionsPerUser.size
+    const totalSessions = rows.reduce((sum: number, row: any) => sum + Number(row.session_count), 0)
 
-    return Math.round(avgSessions * 100) / 100
+    return Math.round((totalSessions / rows.length) * 100) / 100
   }
 
-  async getUsersWithLastActivity(): Promise<UserWithActivity[]> {
-    const users = await this.userRepository.findAll()
-    const allSessions = await this.sessionRepository.findAll()
+  async getUsersWithLastActivity(
+    page: number = 1,
+    perPage: number = 20
+  ): Promise<{ data: UserWithActivity[]; meta: { total: number; perPage: number; currentPage: number } }> {
+    const { default: db } = await import('@adonisjs/lucid/services/db')
+
+    const offset = (page - 1) * perPage
+
+    const [users, totalRow, lastActivities] = await Promise.all([
+      db
+        .from('users')
+        .select(
+          'id',
+          'full_name as fullName',
+          'email',
+          'avatar_url as avatarUrl',
+          'google_id as googleId',
+          'is_email_verified as isEmailVerified',
+          'created_at as createdAt'
+        )
+        .orderBy('created_at', 'desc')
+        .offset(offset)
+        .limit(perPage),
+      db.from('users').count('* as total').first(),
+      db
+        .from('user_sessions')
+        .select('user_id')
+        .max('last_activity as lastActivity')
+        .groupBy('user_id'),
+    ])
+
+    const total = Number((totalRow as any)?.total || 0)
 
     const lastActivityMap = new Map<string, DateTime>()
-    allSessions.forEach((session) => {
-      const currentLast = lastActivityMap.get(session.userId)
-      if (!currentLast || session.lastActivity > currentLast) {
-        lastActivityMap.set(session.userId, session.lastActivity)
+    lastActivities.forEach((row: any) => {
+      if (row.lastActivity) {
+        lastActivityMap.set(row.user_id, DateTime.fromJSDate(new Date(row.lastActivity)))
       }
     })
 
-    return users.map((user) => ({
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-      googleId: user.googleId,
-      isEmailVerified: user.isEmailVerified,
-      createdAt: user.createdAt.toISO()!,
-      lastActivity: lastActivityMap.get(user.id) || null,
-    }))
+    return {
+      data: users.map((user: any) => ({
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        googleId: user.googleId,
+        isEmailVerified: Boolean(user.isEmailVerified),
+        createdAt: new Date(user.createdAt).toISOString(),
+        lastActivity: lastActivityMap.get(user.id) || null,
+      })),
+      meta: { total, perPage, currentPage: page },
+    }
   }
 
   async getUserSessions(userId: string) {
@@ -482,52 +504,82 @@ export default class AdminService {
   }
 
   async getEmailLogsStats(): Promise<EmailLogsStats> {
-    const allLogs = await this.emailLogRepository.findAll()
+    const { default: db } = await import('@adonisjs/lucid/services/db')
 
-    const total = allLogs.length
-    const sent = allLogs.filter((log) => log.status === 'sent').length
-    const failed = allLogs.filter((log) => log.status === 'failed').length
-    const delivered = allLogs.filter((log) => log.status === 'delivered').length
-    const pending = allLogs.filter((log) => log.status === 'pending').length
+    const stats = await db.from('email_logs').select(
+      db.raw('COUNT(*) as total'),
+      db.raw(`SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent`),
+      db.raw(`SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed`),
+      db.raw(`SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered`),
+      db.raw(`SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending`)
+    )
 
+    const row = stats[0] as any
     const byCategory = await this.emailLogRepository.getStatsByCategory()
 
     return {
-      total,
-      sent,
-      failed,
-      delivered,
-      pending,
+      total: Number(row.total || 0),
+      sent: Number(row.sent || 0),
+      failed: Number(row.failed || 0),
+      delivered: Number(row.delivered || 0),
+      pending: Number(row.pending || 0),
       byCategory,
     }
   }
 
-  async getOrganizations(): Promise<OrganizationWithMembersCount[]> {
+  async getOrganizations(
+    page: number = 1,
+    perPage: number = 20
+  ): Promise<{ data: OrganizationWithMembersCount[]; meta: { total: number; perPage: number; currentPage: number } }> {
     const { default: db } = await import('@adonisjs/lucid/services/db')
-    const organizations = await this.organizationRepository.findAll()
+
+    const offset = (page - 1) * perPage
+
+    const [rows, totalRow, membersCounts] = await Promise.all([
+      db
+        .from('organizations')
+        .select(
+          'id',
+          'name',
+          'slug',
+          'description_i18n as descriptionI18n',
+          'website',
+          'is_active as isActive',
+          'created_at as createdAt'
+        )
+        .orderBy('created_at', 'desc')
+        .offset(offset)
+        .limit(perPage),
+      db.from('organizations').count('* as total').first(),
+      db
+        .from('user_organizations')
+        .select('organization_id')
+        .count('* as members_count')
+        .groupBy('organization_id'),
+    ])
+
+    const total = Number((totalRow as any)?.total || 0)
 
     const membersCountMap = new Map<string, number>()
-
-    const membersCounts = await db
-      .from('user_organizations')
-      .select('organization_id')
-      .count('* as count')
-      .groupBy('organization_id')
-
     membersCounts.forEach((row: any) => {
-      membersCountMap.set(row.organization_id, Number(row.count))
+      membersCountMap.set(row.organization_id, Number(row.members_count))
     })
 
-    return organizations.map((org) => ({
-      id: org.id,
-      name: org.name,
-      slug: org.slug,
-      descriptionI18n: org.descriptionI18n,
-      website: org.website,
-      isActive: org.isActive,
-      createdAt: org.createdAt.toISO()!,
-      membersCount: membersCountMap.get(org.id) || 0,
-    }))
+    return {
+      data: rows.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        slug: row.slug,
+        descriptionI18n: typeof row.descriptionI18n === 'string'
+          ? JSON.parse(row.descriptionI18n)
+          : row.descriptionI18n,
+        website: row.website,
+        isActive: Boolean(row.isActive),
+        createdAt: new Date(row.createdAt).toISOString(),
+        membersCount: membersCountMap.get(row.id) || 0,
+      })),
+      meta: { total, perPage, currentPage: page },
+    }
   }
 
   async getOrganizationDetail(organizationId: string): Promise<OrganizationDetail> {

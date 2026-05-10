@@ -51,11 +51,6 @@ export default class ThrottleMiddleware {
   }
 
   private getIpAddress(ctx: HttpContext): string {
-    return (
-      ctx.request.header('x-forwarded-for')?.split(',')[0]?.trim() ||
-      ctx.request.header('x-real-ip') ||
-      ctx.request.ip() ||
-      'unknown'
-    )
+    return ctx.request.ip() || 'unknown'
   }
 }

@@ -32,37 +32,42 @@ export default class PasswordResetService {
   ) {}
 
   /**
-   * Crée un token de réinitialisation pour un email donné
+   * Crée un token de réinitialisation pour un email donné.
+   * Retourne silencieusement si l'email n'existe pas afin de ne pas révéler
+   * son existence. Le délai artificiel rend le timing indiscernable.
    */
-  async createPasswordResetToken(email: string): Promise<CreateTokenResult> {
-    // Vérifier que l'utilisateur existe
+  async createPasswordResetToken(email: string): Promise<CreateTokenResult | null> {
     const user = await this.userRepository.findByEmail(email)
+
     if (!user) {
-      throw new Error('Aucun compte n\'est associé à cette adresse email')
+      await new Promise((resolve) => setTimeout(resolve, 250))
+      return null
     }
 
-    // Supprimer les anciens tokens expirés pour cet email
     await this.passwordResetRepository.deleteExpiredTokens()
 
-    // Générer un token sécurisé
-    const token = crypto.randomBytes(32).toString('hex')
+    const rawToken = crypto.randomBytes(32).toString('hex')
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex')
     const expiresAt = DateTime.now().plus({ hours: 1 })
 
-    // Créer le token en base de données
     const passwordResetToken = await this.passwordResetRepository.createToken({
       email,
-      token,
-      expiresAt
+      token: tokenHash,
+      expiresAt,
     })
 
-    return passwordResetToken
+    return {
+      ...passwordResetToken,
+      token: rawToken,
+    }
   }
 
   /**
    * Valide un token de réinitialisation
    */
   async validateToken(token: string): Promise<ValidateTokenResult> {
-    const passwordResetToken = await this.passwordResetRepository.findByToken(token)
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+    const passwordResetToken = await this.passwordResetRepository.findByToken(tokenHash)
 
     if (!passwordResetToken) {
       return {
@@ -102,7 +107,8 @@ export default class PasswordResetService {
     }
 
     // Récupérer le token et l'utilisateur
-    const passwordResetToken = await this.passwordResetRepository.findByToken(token)
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+    const passwordResetToken = await this.passwordResetRepository.findByToken(tokenHash)
     if (!passwordResetToken) {
       throw new Error('Token invalide')
     }

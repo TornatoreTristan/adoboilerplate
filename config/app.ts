@@ -9,6 +9,13 @@ export const http = defineConfig({
   allowMethodSpoofing: false,
 
   /**
+   * Trust the X-Forwarded-For header when the app runs behind a reverse proxy
+   * (nginx, Traefik, AWS ALB, etc.). Set to the number of proxies in front,
+   * or to true to trust all proxies in the chain.
+   */
+  trustProxy: true,
+
+  /**
    * Enabling async local storage will let you access HTTP context
    * from anywhere inside your application.
    */

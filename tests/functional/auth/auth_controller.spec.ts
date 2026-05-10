@@ -19,7 +19,7 @@ test.group('AuthController - Login', (group) => {
     await userService.create(userData)
 
     // Act - POST /login
-    const response = await client.post('/auth/login').json({
+    const response = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',
       password: 'password123',
       remember: false,
@@ -41,7 +41,7 @@ test.group('AuthController - Login', (group) => {
     await userService.create(userData)
 
     // Se connecter
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',
       password: 'password123',
       remember: false,
@@ -50,7 +50,7 @@ test.group('AuthController - Login', (group) => {
     loginResponse.assertStatus(200)
 
     // Act - Se déconnecter
-    const logoutResponse = await client.post('/auth/logout').json({})
+    const logoutResponse = await client.post('/auth/logout').withCsrfToken().json({})
 
     // Assert - Vérifier la réponse de déconnexion
     logoutResponse.assertStatus(200)
@@ -82,6 +82,7 @@ test.group('AuthController - Login', (group) => {
     // Act - Se connecter avec des paramètres UTM et referrer
     const response = await client
       .post('/auth/login?utm_source=google&utm_medium=cpc&utm_campaign=winter2024')
+      .withCsrfToken()
       .header('referer', 'https://google.com/search')
       .json({
         email: 'user@example.com',

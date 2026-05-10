@@ -28,7 +28,7 @@ test.group('RequireOrganization Middleware', (group) => {
     )
 
     // Login
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',
       password: 'password123',
       remember: false,
@@ -51,7 +51,7 @@ test.group('RequireOrganization Middleware', (group) => {
     await userService.create(userData)
 
     // Login
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'noorg@example.com',
       password: 'password123',
       remember: false,
@@ -84,7 +84,7 @@ test.group('RequireOrganization Middleware', (group) => {
     await userService.create(userData)
 
     // Login
-    const loginResponse = await client.post('/auth/login').json({
+    const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'createorg@example.com',
       password: 'password123',
       remember: false,
