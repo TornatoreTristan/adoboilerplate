@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Building2 } from 'lucide-react'
 import { useState } from 'react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Organization {
   id: string
@@ -41,6 +42,7 @@ interface OrganizationSettingsPageProps {
 }
 
 const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProps) => {
+  const { t } = useI18n()
   const { data, setData, put, processing, errors } = useForm({
     name: organization.name || '',
     email: organization.email || '',
@@ -75,13 +77,13 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
 
   return (
     <>
-      <Head title="Informations - Paramètres" />
+      <Head title={t('organizations.settings.head_title')} />
       <OrganizationSettingsLayout>
         <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
           <div>
-            <h2 className="text-lg font-semibold">Informations générales</h2>
+            <h2 className="text-lg font-semibold">{t('organizations.settings.section_title')}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Gérez les informations de base de votre organisation
+              {t('organizations.settings.section_description')}
             </p>
           </div>
 
@@ -108,10 +110,12 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
                 onClick={() => document.getElementById('logo-upload')?.click()}
                 disabled={uploadingLogo}
               >
-                {uploadingLogo ? 'Upload en cours...' : 'Changer le logo'}
+                {uploadingLogo
+                  ? t('organizations.settings.uploading_logo')
+                  : t('organizations.settings.change_logo')}
               </Button>
               <p className="text-xs text-muted-foreground mt-1">
-                Format: PNG, JPG, WEBP (max 2MB)
+                {t('organizations.settings.logo_format_hint')}
               </p>
             </div>
           </div>
@@ -119,62 +123,63 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
           <div className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="name">
-                Nom de l'organisation <span className="text-destructive">*</span>
+                {t('organizations.settings.name_label')}{' '}
+                <span className="text-destructive">{t('organizations.settings.required_marker')}</span>
               </Label>
               <Input
                 id="name"
                 value={data.name}
                 onChange={(e) => setData('name', e.target.value)}
-                placeholder="Mon organisation"
+                placeholder={t('organizations.settings.name_placeholder')}
                 required
               />
               {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="email">Email de l'organisation</Label>
+              <Label htmlFor="email">{t('organizations.settings.email_label')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={data.email}
                 onChange={(e) => setData('email', e.target.value)}
-                placeholder="contact@organisation.fr"
+                placeholder={t('organizations.settings.email_placeholder')}
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="phone">Téléphone</Label>
+              <Label htmlFor="phone">{t('organizations.settings.phone_label')}</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={data.phone}
                 onChange={(e) => setData('phone', e.target.value)}
-                placeholder="+33 1 23 45 67 89"
+                placeholder={t('organizations.settings.phone_placeholder')}
               />
               {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="siret">Numéro SIRET</Label>
+                <Label htmlFor="siret">{t('organizations.settings.siret_label')}</Label>
                 <Input
                   id="siret"
                   value={data.siret}
                   onChange={(e) => setData('siret', e.target.value)}
-                  placeholder="123 456 789 00012"
+                  placeholder={t('organizations.settings.siret_placeholder')}
                   maxLength={14}
                 />
                 {errors.siret && <p className="text-xs text-destructive">{errors.siret}</p>}
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="vatNumber">Numéro de TVA</Label>
+                <Label htmlFor="vatNumber">{t('organizations.settings.vat_label')}</Label>
                 <Input
                   id="vatNumber"
                   value={data.vatNumber}
                   onChange={(e) => setData('vatNumber', e.target.value)}
-                  placeholder="FR12345678901"
+                  placeholder={t('organizations.settings.vat_placeholder')}
                 />
                 {errors.vatNumber && (
                   <p className="text-xs text-destructive">{errors.vatNumber}</p>
@@ -183,36 +188,36 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address">Adresse</Label>
+              <Label htmlFor="address">{t('organizations.settings.address_label')}</Label>
               <Textarea
                 id="address"
                 value={data.address}
                 onChange={(e) => setData('address', e.target.value)}
-                placeholder="123 rue de la Paix, 75001 Paris, France"
+                placeholder={t('organizations.settings.address_placeholder')}
                 rows={3}
               />
               {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="website">Site web</Label>
+              <Label htmlFor="website">{t('organizations.settings.website_label')}</Label>
               <Input
                 id="website"
                 type="url"
                 value={data.website}
                 onChange={(e) => setData('website', e.target.value)}
-                placeholder="https://www.organisation.fr"
+                placeholder={t('organizations.settings.website_placeholder')}
               />
               {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('organizations.settings.description_label')}</Label>
               <Textarea
                 id="description"
                 value={data.description}
                 onChange={(e) => setData('description', e.target.value)}
-                placeholder="Décrivez votre organisation..."
+                placeholder={t('organizations.settings.description_placeholder')}
                 rows={4}
               />
               {errors.description && (
@@ -222,7 +227,9 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
           </div>
 
           <Button type="submit" disabled={processing}>
-            {processing ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            {processing
+              ? t('organizations.settings.submitting')
+              : t('organizations.settings.submit')}
           </Button>
         </form>
       </OrganizationSettingsLayout>

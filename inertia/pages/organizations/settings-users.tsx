@@ -42,6 +42,7 @@ import {
 import { MoreHorizontal, UserPlus, Trash2, Shield, Clock, X, Eye } from 'lucide-react'
 import { useState } from 'react'
 import { usePage } from '@inertiajs/react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Member {
   id: string
@@ -73,11 +74,11 @@ interface OrganizationSettingsUsersPageProps {
 }
 
 const OrganizationSettingsUsersPage = ({
-  organization,
   userRole,
   members,
   invitations,
 }: OrganizationSettingsUsersPageProps) => {
+  const { t, locale } = useI18n()
   const { auth } = usePage().props as any
   const currentUserId = auth?.user?.id
 
@@ -132,27 +133,32 @@ const OrganizationSettingsUsersPage = ({
   }
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return 'Propriétaire'
-      case 'admin':
-        return 'Administrateur'
-      case 'member':
-        return 'Membre'
-      default:
-        return role
-    }
+    if (role === 'owner') return t('organizations.users.role.owner')
+    if (role === 'admin') return t('organizations.users.role.admin')
+    if (role === 'moderator') return t('organizations.users.role.moderator')
+    if (role === 'member') return t('organizations.users.role.member')
+    return role
   }
+
+  const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
+  const formatLongDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(dateLocale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+
+  const deleteName = memberToDelete?.fullName || memberToDelete?.email || ''
 
   return (
     <>
-      <Head title="Utilisateurs - Paramètres" />
+      <Head title={t('organizations.users.head_title')} />
       <OrganizationSettingsLayout>
         <div className="max-w-4xl space-y-8">
           <div>
-            <h2 className="text-lg font-semibold">Gestion des utilisateurs</h2>
+            <h2 className="text-lg font-semibold">{t('organizations.users.section_title')}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Invitez et gérez les membres de votre organisation
+              {t('organizations.users.section_description')}
             </p>
           </div>
 
@@ -161,46 +167,48 @@ const OrganizationSettingsUsersPage = ({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <UserPlus className="h-5 w-5" />
-                  Inviter un membre
+                  {t('organizations.users.invite.card_title')}
                 </CardTitle>
                 <CardDescription>
-                  Invitez des utilisateurs par email, même s'ils n'ont pas encore de compte
+                  {t('organizations.users.invite.card_description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleInviteSubmit} className="flex gap-4">
                   <div className="flex-1 grid gap-2">
-                    <Label htmlFor="email">Email de l'utilisateur</Label>
+                    <Label htmlFor="email">{t('organizations.users.invite.email_label')}</Label>
                     <Input
                       id="email"
                       type="email"
                       value={data.email}
                       onChange={(e) => setData('email', e.target.value)}
-                      placeholder="utilisateur@exemple.fr"
+                      placeholder={t('organizations.users.invite.email_placeholder')}
                       required
                     />
                     {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                   </div>
 
                   <div className="w-48 grid gap-2">
-                    <Label htmlFor="role">Rôle</Label>
+                    <Label htmlFor="role">{t('organizations.users.invite.role_label')}</Label>
                     <Select value={data.role} onValueChange={(value) => setData('role', value)}>
                       <SelectTrigger id="role">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="member">Membre</SelectItem>
-                        <SelectItem value="admin">Administrateur</SelectItem>
-                        <SelectItem value="owner">Propriétaire</SelectItem>
+                        <SelectItem value="member">{t('organizations.users.role.member')}</SelectItem>
+                        <SelectItem value="admin">{t('organizations.users.role.admin')}</SelectItem>
+                        <SelectItem value="owner">{t('organizations.users.role.owner')}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
                   </div>
 
                   <div className="grid gap-2">
-                    <Label className="invisible">Action</Label>
+                    <Label className="invisible">.</Label>
                     <Button type="submit" disabled={processing}>
-                      {processing ? 'Invitation...' : 'Inviter'}
+                      {processing
+                        ? t('organizations.users.invite.submitting')
+                        : t('organizations.users.invite.submit')}
                     </Button>
                   </div>
                 </form>
@@ -213,18 +221,22 @@ const OrganizationSettingsUsersPage = ({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  Invitations en attente
+                  {t('organizations.users.invitations.card_title')}
                 </CardTitle>
-                <CardDescription>{invitations.length} invitation(s) en attente</CardDescription>
+                <CardDescription>
+                  {t('organizations.users.invitations.card_description_count', { count: invitations.length })}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Rôle</TableHead>
-                      <TableHead>Expire le</TableHead>
-                      <TableHead className="w-[70px]">Actions</TableHead>
+                      <TableHead>{t('organizations.users.invitations.col_email')}</TableHead>
+                      <TableHead>{t('organizations.users.invitations.col_role')}</TableHead>
+                      <TableHead>{t('organizations.users.invitations.col_expires')}</TableHead>
+                      <TableHead className="w-[70px]">
+                        {t('organizations.users.invitations.col_actions')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -237,11 +249,7 @@ const OrganizationSettingsUsersPage = ({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(invitation.expiresAt).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
+                          {formatLongDate(invitation.expiresAt)}
                         </TableCell>
                         <TableCell>
                           <Button
@@ -250,7 +258,7 @@ const OrganizationSettingsUsersPage = ({
                             onClick={() => {
                               if (
                                 confirm(
-                                  `Êtes-vous sûr de vouloir annuler l'invitation pour ${invitation.email} ?`
+                                  t('organizations.users.invitations.cancel_confirm', { email: invitation.email })
                                 )
                               ) {
                                 router.delete(
@@ -272,17 +280,23 @@ const OrganizationSettingsUsersPage = ({
 
           <Card>
             <CardHeader>
-              <CardTitle>Membres de l'organisation</CardTitle>
-              <CardDescription>{members.length} membre(s) actif(s)</CardDescription>
+              <CardTitle>{t('organizations.users.members.card_title')}</CardTitle>
+              <CardDescription>
+                {t('organizations.users.members.card_description_count', { count: members.length })}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Rôle</TableHead>
-                    <TableHead>Membre depuis</TableHead>
-                    {canManageMembers && <TableHead className="w-[70px]">Actions</TableHead>}
+                    <TableHead>{t('organizations.users.members.col_user')}</TableHead>
+                    <TableHead>{t('organizations.users.members.col_role')}</TableHead>
+                    <TableHead>{t('organizations.users.members.col_joined_at')}</TableHead>
+                    {canManageMembers && (
+                      <TableHead className="w-[70px]">
+                        {t('organizations.users.members.col_actions')}
+                      </TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -304,7 +318,9 @@ const OrganizationSettingsUsersPage = ({
                               <div className="font-medium">
                                 {member.fullName || member.email}
                                 {isCurrentUser && (
-                                  <span className="ml-2 text-xs text-muted-foreground">(vous)</span>
+                                  <span className="ml-2 text-xs text-muted-foreground">
+                                    {t('organizations.users.members.you_label')}
+                                  </span>
                                 )}
                               </div>
                               {member.fullName && (
@@ -319,30 +335,22 @@ const OrganizationSettingsUsersPage = ({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(member.joinedAt).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
+                          {formatLongDate(member.joinedAt)}
                         </TableCell>
                         {canManageMembers && (
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  disabled={isChangingRole}
-                                >
+                                <Button variant="ghost" size="icon" disabled={isChangingRole}>
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>{t('common.actions')}</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setMemberToView(member)}>
                                   <Eye className="mr-2 h-4 w-4" />
-                                  Voir
+                                  {t('organizations.users.members.view')}
                                 </DropdownMenuItem>
                                 {isAdmin && !isCurrentUser && (
                                   <>
@@ -352,7 +360,7 @@ const OrganizationSettingsUsersPage = ({
                                       className="text-destructive focus:text-destructive"
                                     >
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Supprimer
+                                      {t('organizations.users.members.delete')}
                                     </DropdownMenuItem>
                                   </>
                                 )}
@@ -360,28 +368,28 @@ const OrganizationSettingsUsersPage = ({
                                   <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-                                      Modifier le rôle
+                                      {t('organizations.users.members.change_role_label')}
                                     </DropdownMenuLabel>
                                     <DropdownMenuItem
                                       onClick={() => handleRoleChange(member.id, 'member')}
                                       disabled={member.role === 'member'}
                                     >
                                       <Shield className="mr-2 h-4 w-4" />
-                                      Définir comme Membre
+                                      {t('organizations.users.members.set_as_member')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                       onClick={() => handleRoleChange(member.id, 'admin')}
                                       disabled={member.role === 'admin'}
                                     >
                                       <Shield className="mr-2 h-4 w-4" />
-                                      Définir comme Admin
+                                      {t('organizations.users.members.set_as_admin')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                       onClick={() => handleRoleChange(member.id, 'owner')}
                                       disabled={member.role === 'owner'}
                                     >
                                       <Shield className="mr-2 h-4 w-4" />
-                                      Définir comme Propriétaire
+                                      {t('organizations.users.members.set_as_owner')}
                                     </DropdownMenuItem>
                                   </>
                                 )}
@@ -401,7 +409,7 @@ const OrganizationSettingsUsersPage = ({
         <AlertDialog open={!!memberToView} onOpenChange={() => setMemberToView(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Détails de l'utilisateur</AlertDialogTitle>
+              <AlertDialogTitle>{t('organizations.users.view_dialog.title')}</AlertDialogTitle>
             </AlertDialogHeader>
             {memberToView && (
               <div className="space-y-4">
@@ -419,30 +427,26 @@ const OrganizationSettingsUsersPage = ({
                 </div>
                 <div className="grid gap-3">
                   <div className="flex justify-between py-2 border-b">
-                    <span className="text-sm font-medium">Rôle</span>
+                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.role_label')}</span>
                     <Badge variant={getRoleBadgeVariant(memberToView.role)}>
                       {getRoleLabel(memberToView.role)}
                     </Badge>
                   </div>
                   <div className="flex justify-between py-2 border-b">
-                    <span className="text-sm font-medium">Membre depuis</span>
+                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.since_label')}</span>
                     <span className="text-sm text-muted-foreground">
-                      {new Date(memberToView.joinedAt).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {formatLongDate(memberToView.joinedAt)}
                     </span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-sm font-medium">ID utilisateur</span>
+                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.user_id_label')}</span>
                     <span className="text-sm text-muted-foreground font-mono">{memberToView.id}</span>
                   </div>
                 </div>
               </div>
             )}
             <AlertDialogFooter>
-              <AlertDialogCancel>Fermer</AlertDialogCancel>
+              <AlertDialogCancel>{t('organizations.users.view_dialog.close')}</AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -450,17 +454,22 @@ const OrganizationSettingsUsersPage = ({
         <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+              <AlertDialogTitle>{t('organizations.users.delete_dialog.title')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir retirer{' '}
-                <strong>{memberToDelete?.fullName || memberToDelete?.email}</strong> de
-                l'organisation ? Cette action est irréversible.
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: t('organizations.users.delete_dialog.description_with_name', { name: deleteName }),
+                  }}
+                />
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteMember} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Supprimer
+              <AlertDialogCancel>{t('organizations.users.delete_dialog.cancel')}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteMember}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t('organizations.users.delete_dialog.confirm')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

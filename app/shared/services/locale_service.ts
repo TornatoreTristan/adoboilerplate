@@ -55,7 +55,7 @@ export default class LocaleService {
 
     try {
       // Load all JSON files for the locale
-      const namespaces = ['common', 'auth', 'admin', 'account', 'notifications']
+      const namespaces = ['common', 'auth', 'admin', 'account', 'notifications', 'organizations']
 
       for (const namespace of namespaces) {
         try {

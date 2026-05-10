@@ -1,0 +1,173 @@
+{
+  "settings": {
+    "head_title": "Informations - Paramètres",
+    "section_title": "Informations générales",
+    "section_description": "Gérez les informations de base de votre organisation",
+    "uploading_logo": "Upload en cours...",
+    "change_logo": "Changer le logo",
+    "logo_format_hint": "Format: PNG, JPG, WEBP (max 2MB)",
+    "name_label": "Nom de l'organisation",
+    "name_placeholder": "Mon organisation",
+    "email_label": "Email de l'organisation",
+    "email_placeholder": "contact@organisation.fr",
+    "phone_label": "Téléphone",
+    "phone_placeholder": "+33 1 23 45 67 89",
+    "siret_label": "Numéro SIRET",
+    "siret_placeholder": "123 456 789 00012",
+    "vat_label": "Numéro de TVA",
+    "vat_placeholder": "FR12345678901",
+    "address_label": "Adresse",
+    "address_placeholder": "123 rue de la Paix, 75001 Paris, France",
+    "website_label": "Site web",
+    "website_placeholder": "https://www.organisation.fr",
+    "description_label": "Description",
+    "description_placeholder": "Décrivez votre organisation...",
+    "submitting": "Enregistrement...",
+    "submit": "Enregistrer les modifications",
+    "required_marker": "*"
+  },
+  "users": {
+    "head_title": "Utilisateurs - Paramètres",
+    "section_title": "Gestion des utilisateurs",
+    "section_description": "Invitez et gérez les membres de votre organisation",
+    "invite": {
+      "card_title": "Inviter un membre",
+      "card_description": "Invitez des utilisateurs par email, même s'ils n'ont pas encore de compte",
+      "email_label": "Email de l'utilisateur",
+      "email_placeholder": "utilisateur@exemple.fr",
+      "role_label": "Rôle",
+      "submitting": "Invitation...",
+      "submit": "Inviter"
+    },
+    "invitations": {
+      "card_title": "Invitations en attente",
+      "card_description_count": "{count} invitation(s) en attente",
+      "col_email": "Email",
+      "col_role": "Rôle",
+      "col_expires": "Expire le",
+      "col_actions": "Actions",
+      "cancel_confirm": "Êtes-vous sûr de vouloir annuler l'invitation pour {email} ?"
+    },
+    "members": {
+      "card_title": "Membres de l'organisation",
+      "card_description_count": "{count} membre(s) actif(s)",
+      "col_user": "Utilisateur",
+      "col_role": "Rôle",
+      "col_joined_at": "Membre depuis",
+      "col_actions": "Actions",
+      "you_label": "(vous)",
+      "view": "Voir",
+      "delete": "Supprimer",
+      "change_role_label": "Modifier le rôle",
+      "set_as_member": "Définir comme Membre",
+      "set_as_admin": "Définir comme Admin",
+      "set_as_owner": "Définir comme Propriétaire"
+    },
+    "role": {
+      "owner": "Propriétaire",
+      "admin": "Administrateur",
+      "moderator": "Modérateur",
+      "member": "Membre"
+    },
+    "view_dialog": {
+      "title": "Détails de l'utilisateur",
+      "role_label": "Rôle",
+      "since_label": "Membre depuis",
+      "user_id_label": "ID utilisateur",
+      "close": "Fermer"
+    },
+    "delete_dialog": {
+      "title": "Confirmer la suppression",
+      "description_with_name": "Êtes-vous sûr de vouloir retirer <strong>{name}</strong> de l'organisation ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
+    }
+  },
+  "subscriptions_settings": {
+    "head_title": "Abonnements - Paramètres",
+    "status": {
+      "active": "Actif",
+      "trialing": "Période d'essai",
+      "past_due": "En retard",
+      "canceled": "Annulé",
+      "incomplete": "Incomplet",
+      "incomplete_expired": "Expiré"
+    },
+    "invoice_status": {
+      "paid": "Payée",
+      "open": "Ouverte",
+      "void": "Annulée",
+      "uncollectible": "Impayée",
+      "draft": "Brouillon"
+    },
+    "per_month": "par mois",
+    "per_year": "par an",
+    "billing_period_title": "Période de facturation",
+    "billing_period_value": "Du {start} au {end}",
+    "users_title": "Utilisateurs",
+    "users_count": "{count} utilisateur(s)",
+    "trial_until": "Période d'essai jusqu'au {date}",
+    "canceling_title": "Abonnement en cours d'annulation",
+    "canceling_body_with_end": "Votre abonnement a été annulé le {canceledAt}. Vous conservez l'accès à toutes les fonctionnalités jusqu'au {endDate}.",
+    "canceling_body_no_end": "Votre abonnement a été annulé le {canceledAt}.",
+    "canceled_title": "Abonnement expiré",
+    "canceled_body": "Votre abonnement est arrivé à expiration. Souscrivez à nouveau pour retrouver l'accès aux fonctionnalités premium.",
+    "change_plan": "Changer de plan",
+    "cancel_subscription": "Annuler l'abonnement",
+    "reactivate_subscription": "Réactiver l'abonnement",
+    "cancel_dialog_title": "Annuler votre abonnement ?",
+    "cancel_dialog_description_with_end": "Votre abonnement {planName} sera annulé à la fin de la période de facturation. Vous conserverez l'accès jusqu'au {endDate}.",
+    "cancel_dialog_description_no_end": "Votre abonnement {planName} sera annulé à la fin de la période de facturation.",
+    "cancel_dialog_keep": "Non, garder mon abonnement",
+    "cancel_dialog_confirm": "Oui, annuler l'abonnement",
+    "no_plans_action": "Voir les plans disponibles",
+    "invoices_title": "Historique des factures",
+    "invoice_default_number": "Facture {id}",
+    "invoice_due_label": "Échéance : {date}",
+    "invoice_paid_label": "Payée"
+  },
+  "integrations": {
+    "head_title": "Integrations - Paramètres",
+    "section_title": "Intégrations",
+    "coming_soon": "Contenu à venir..."
+  },
+  "create": {
+    "head_title": "Créer une organisation",
+    "title": "Créer votre organisation",
+    "subtitle": "Commencez par créer votre première organisation",
+    "name_label": "Nom de l'organisation",
+    "name_placeholder": "Acme Inc.",
+    "website_label": "Site web (optionnel)",
+    "website_placeholder": "https://exemple.com",
+    "submitting": "Création...",
+    "submit": "Créer l'organisation"
+  },
+  "pricing": {
+    "head_title": "Tarifs - Plans d'abonnement",
+    "back": "Retour",
+    "title": "Plans d'abonnement",
+    "description": "Choisissez le plan qui correspond le mieux à vos besoins",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "save_up_to": "(économisez jusqu'à {percent}%)",
+    "current_badge": "Actuel",
+    "per_month_short": "/mois",
+    "per_year_short": "/an",
+    "monthly_equivalent": "Soit {price} par mois",
+    "save_percent": "Économisez {percent}%",
+    "free_trial_days": "Essai gratuit de {days} jours",
+    "features_title": "Fonctionnalités incluses",
+    "redirecting": "Redirection...",
+    "choose_plan": "Choisir ce plan",
+    "current_plan_button": "Plan actuel",
+    "no_permission_hint": "Vous devez être propriétaire ou administrateur pour changer de plan"
+  },
+  "subscription_success": {
+    "head_title": "Abonnement activé avec succès",
+    "title": "Abonnement activé avec succès !",
+    "description": "Votre paiement a été traité avec succès. Vous avez maintenant accès à toutes les fonctionnalités de votre plan.",
+    "session_id_label": "ID de session :",
+    "view_subscription": "Voir mon abonnement",
+    "back_home": "Retour à l'accueil"
+  }
+}

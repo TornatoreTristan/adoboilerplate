@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { GalleryVerticalEnd } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 export default function CreateOrganization() {
+  const { t } = useI18n()
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     website: '',
@@ -17,7 +19,7 @@ export default function CreateOrganization() {
 
   return (
     <>
-      <Head title="Create Organization" />
+      <Head title={t('organizations.create.head_title')} />
 
       <div className="grid min-h-svh lg:grid-cols-2">
         <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -33,44 +35,40 @@ export default function CreateOrganization() {
             <div className="w-full max-w-md">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Create Your Organization</h1>
+                  <h1 className="text-2xl font-bold">{t('organizations.create.title')}</h1>
                   <p className="text-balance text-muted-foreground text-sm">
-                    Let's start by creating your first organization
+                    {t('organizations.create.subtitle')}
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="grid gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Organization Name</Label>
+                    <Label htmlFor="name">{t('organizations.create.name_label')}</Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Acme Inc."
+                      placeholder={t('organizations.create.name_placeholder')}
                       required
                       value={data.name}
                       onChange={(e) => setData('name', e.target.value)}
                     />
-                    {errors.name && (
-                      <p className="text-destructive text-sm">{errors.name}</p>
-                    )}
+                    {errors.name && <p className="text-destructive text-sm">{errors.name}</p>}
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="website">Website (optional)</Label>
+                    <Label htmlFor="website">{t('organizations.create.website_label')}</Label>
                     <Input
                       id="website"
                       type="url"
-                      placeholder="https://example.com"
+                      placeholder={t('organizations.create.website_placeholder')}
                       value={data.website}
                       onChange={(e) => setData('website', e.target.value)}
                     />
-                    {errors.website && (
-                      <p className="text-destructive text-sm">{errors.website}</p>
-                    )}
+                    {errors.website && <p className="text-destructive text-sm">{errors.website}</p>}
                   </div>
 
                   <Button type="submit" className="w-full" disabled={processing}>
-                    {processing ? 'Creating...' : 'Create Organization'}
+                    {processing ? t('organizations.create.submitting') : t('organizations.create.submit')}
                   </Button>
                 </form>
               </div>

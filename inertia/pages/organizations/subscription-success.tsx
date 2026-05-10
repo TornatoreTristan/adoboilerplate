@@ -3,15 +3,17 @@ import AppLayout from '@/components/layouts/app-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2 } from 'lucide-react'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Props {
   sessionId?: string
 }
 
 const SubscriptionSuccessPage = ({ sessionId }: Props) => {
+  const { t } = useI18n()
   return (
     <>
-      <Head title="Abonnement activé avec succès" />
+      <Head title={t('organizations.subscription_success.head_title')} />
       <AppLayout>
         <div className="flex items-center justify-center min-h-[80vh] p-6">
           <Card className="max-w-lg w-full">
@@ -21,26 +23,24 @@ const SubscriptionSuccessPage = ({ sessionId }: Props) => {
                   <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
                 </div>
               </div>
-              <CardTitle className="text-2xl">Abonnement activé avec succès !</CardTitle>
-              <CardDescription>
-                Votre paiement a été traité avec succès. Vous avez maintenant accès à toutes les
-                fonctionnalités de votre plan.
-              </CardDescription>
+              <CardTitle className="text-2xl">{t('organizations.subscription_success.title')}</CardTitle>
+              <CardDescription>{t('organizations.subscription_success.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {sessionId && (
                 <div className="text-sm text-muted-foreground text-center">
-                  ID de session : <code className="text-xs">{sessionId}</code>
+                  {t('organizations.subscription_success.session_id_label')}{' '}
+                  <code className="text-xs">{sessionId}</code>
                 </div>
               )}
               <div className="flex flex-col gap-2">
                 <Button asChild className="w-full" size="lg">
                   <Link href="/organizations/settings/subscriptions">
-                    Voir mon abonnement
+                    {t('organizations.subscription_success.view_subscription')}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/">Retour à l'accueil</Link>
+                  <Link href="/">{t('organizations.subscription_success.back_home')}</Link>
                 </Button>
               </div>
             </CardContent>

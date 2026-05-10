@@ -8,6 +8,7 @@ import { CheckCircle2, ArrowLeft } from 'lucide-react'
 import { PageHeader } from '@/components/core/page-header'
 import { cn } from '@/lib/utils'
 import { getTranslation, type TranslatableField, type TranslatableFieldNullable } from '@/lib/translatable'
+import { useI18n } from '@/hooks/use-i18n'
 
 interface Plan {
   id: string
@@ -39,25 +40,25 @@ interface Props {
   currentSubscription: CurrentSubscription | null
 }
 
-const formatPrice = (price: number, currency: string) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-  }).format(price)
-}
-
 const OrganizationPricingPage = ({
-  organization,
   userRole,
   availablePlans,
   currentSubscription,
 }: Props) => {
+  const { t, locale } = useI18n()
   const canManageSubscription = ['owner', 'admin'].includes(userRole)
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month')
   const [isProcessing, setIsProcessing] = useState(false)
-  const page = usePage() as any
+  // usePage isn't currently used elsewhere in this component but the import was kept
+  // intentionally to mirror the original; suppress unused warnings.
+  void usePage
 
-  // Calculer l'économie maximale parmi tous les plans
+  const formatPrice = (price: number, currency: string) =>
+    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(price)
+
   const maxSavings = Math.max(
     ...availablePlans.map((plan) => {
       if (plan.priceMonthly > 0 && plan.priceYearly > 0) {
@@ -85,19 +86,19 @@ const OrganizationPricingPage = ({
 
   return (
     <>
-      <Head title="Tarifs - Plans d'abonnement" />
+      <Head title={t('organizations.pricing.head_title')} />
       <AppLayout>
         <div className="flex flex-col gap-6 p-6">
           <div className="flex items-center gap-4">
             <Link href="/organizations/settings/subscriptions">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour
+                {t('organizations.pricing.back')}
               </Button>
             </Link>
             <PageHeader
-              title="Plans d'abonnement"
-              description="Choisissez le plan qui correspond le mieux à vos besoins"
+              title={t('organizations.pricing.title')}
+              description={t('organizations.pricing.description')}
             />
           </div>
 
@@ -112,7 +113,7 @@ const OrganizationPricingPage = ({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                Mensuel
+                {t('organizations.pricing.monthly')}
               </button>
               <button
                 onClick={() => setBillingInterval('year')}
@@ -123,10 +124,10 @@ const OrganizationPricingPage = ({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                Annuel
+                {t('organizations.pricing.yearly')}
                 {maxSavings > 0 && (
                   <span className="ml-1.5 text-xs text-green-600 dark:text-green-400">
-                    (économisez jusqu'à {maxSavings}%)
+                    {t('organizations.pricing.save_up_to', { percent: maxSavings })}
                   </span>
                 )}
               </button>
@@ -148,6 +149,8 @@ const OrganizationPricingPage = ({
                     )
                   : 0
 
+              const featuresText = plan.featuresI18n ? getTranslation(plan.featuresI18n) : ''
+
               return (
                 <Card key={plan.id} className={isCurrentPlan ? 'border-primary border-2' : ''}>
                   <CardHeader>
@@ -156,7 +159,7 @@ const OrganizationPricingPage = ({
                         {getTranslation(plan.nameI18n)}
                         {isCurrentPlan && (
                           <Badge variant="default" className="bg-primary">
-                            Actuel
+                            {t('organizations.pricing.current_badge')}
                           </Badge>
                         )}
                       </CardTitle>
@@ -170,34 +173,42 @@ const OrganizationPricingPage = ({
                           {formatPrice(displayPrice, plan.currency)}
                         </div>
                         {billingInterval === 'year' && (
-                          <span className="text-sm text-muted-foreground">/an</span>
+                          <span className="text-sm text-muted-foreground">
+                            {t('organizations.pricing.per_year_short')}
+                          </span>
                         )}
                         {billingInterval === 'month' && (
-                          <span className="text-sm text-muted-foreground">/mois</span>
+                          <span className="text-sm text-muted-foreground">
+                            {t('organizations.pricing.per_month_short')}
+                          </span>
                         )}
                       </div>
                       {billingInterval === 'year' && pricePerMonth > 0 && (
                         <div className="text-sm text-muted-foreground mt-1">
-                          Soit {formatPrice(pricePerMonth, plan.currency)} par mois
+                          {t('organizations.pricing.monthly_equivalent', {
+                            price: formatPrice(pricePerMonth, plan.currency),
+                          })}
                         </div>
                       )}
                       {savings > 0 && billingInterval === 'year' && (
                         <div className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">
-                          Économisez {savings}%
+                          {t('organizations.pricing.save_percent', { percent: savings })}
                         </div>
                       )}
                       {plan.trialDays && plan.trialDays > 0 && (
                         <div className="text-sm text-blue-600 dark:text-blue-400 mt-2">
-                          Essai gratuit de {plan.trialDays} jours
+                          {t('organizations.pricing.free_trial_days', { days: plan.trialDays })}
                         </div>
                       )}
                     </div>
 
-                    {plan.featuresI18n && getTranslation(plan.featuresI18n) > 0 && (
+                    {featuresText && featuresText.length > 0 && (
                       <div>
-                        <p className="text-sm font-semibold mb-3">Fonctionnalités incluses</p>
+                        <p className="text-sm font-semibold mb-3">
+                          {t('organizations.pricing.features_title')}
+                        </p>
                         <ul className="space-y-2">
-                          {getTranslation(plan.featuresI18n).split(", ").map((feature, index) => (
+                          {featuresText.split(', ').map((feature, index) => (
                             <li key={index} className="flex items-start gap-2 text-sm">
                               <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
                               <span>{feature}</span>
@@ -215,12 +226,14 @@ const OrganizationPricingPage = ({
                         variant={plan.sortOrder === 1 ? 'default' : 'outline'}
                         onClick={() => handleSubscribe(plan.id)}
                       >
-                        {isProcessing ? 'Redirection...' : 'Choisir ce plan'}
+                        {isProcessing
+                          ? t('organizations.pricing.redirecting')
+                          : t('organizations.pricing.choose_plan')}
                       </Button>
                     )}
                     {isCurrentPlan && (
                       <Button className="w-full" variant="secondary" size="lg" disabled>
-                        Plan actuel
+                        {t('organizations.pricing.current_plan_button')}
                       </Button>
                     )}
                   </CardContent>
@@ -231,7 +244,7 @@ const OrganizationPricingPage = ({
 
           {!canManageSubscription && (
             <div className="text-center text-sm text-muted-foreground">
-              Vous devez être propriétaire ou administrateur pour changer de plan
+              {t('organizations.pricing.no_permission_hint')}
             </div>
           )}
         </div>

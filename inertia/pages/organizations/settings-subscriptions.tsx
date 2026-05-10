@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import OrganizationSettingsLayout from '@/components/layouts/organization-settings-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -99,36 +99,12 @@ const statusColors: Record<string, string> = {
   incomplete_expired: 'bg-gray-500',
 }
 
-const statusLabels: Record<string, string> = {
-  active: 'Actif',
-  trialing: "Période d'essai",
-  past_due: 'En retard',
-  canceled: 'Annulé',
-  incomplete: 'Incomplet',
-  incomplete_expired: 'Expiré',
-}
-
 const invoiceStatusColors: Record<string, string> = {
   paid: 'bg-green-500',
   open: 'bg-blue-500',
   void: 'bg-gray-500',
   uncollectible: 'bg-red-500',
   draft: 'bg-yellow-500',
-}
-
-const invoiceStatusLabels: Record<string, string> = {
-  paid: 'Payée',
-  open: 'Ouverte',
-  void: 'Annulée',
-  uncollectible: 'Impayée',
-  draft: 'Brouillon',
-}
-
-const formatPrice = (price: number, currency: string) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: currency.toUpperCase(),
-  }).format(price)
 }
 
 const OrganizationSettingsSubscriptionsPage = ({
@@ -141,6 +117,26 @@ const OrganizationSettingsSubscriptionsPage = ({
   const canManageSubscription = ['owner', 'admin'].includes(userRole)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const formatPrice = (price: number, currency: string) =>
+    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(price)
+
+  const subStatusLabel = (status: string) => {
+    const known = ['active', 'trialing', 'past_due', 'canceled', 'incomplete', 'incomplete_expired']
+    return known.includes(status)
+      ? t(`organizations.subscriptions_settings.status.${status}`)
+      : status
+  }
+
+  const invoiceStatusLabel = (status: string) => {
+    const known = ['paid', 'open', 'void', 'uncollectible', 'draft']
+    return known.includes(status)
+      ? t(`organizations.subscriptions_settings.invoice_status.${status}`)
+      : status
+  }
 
   const handleCancelSubscription = () => {
     if (!currentSubscription) return
@@ -159,24 +155,26 @@ const OrganizationSettingsSubscriptionsPage = ({
     if (!currentSubscription) return
 
     setIsProcessing(true)
-    router.post(`/organizations/subscriptions/${currentSubscription.id}/reactivate`, {}, {
-      preserveScroll: true,
-      onFinish: () => {
-        setIsProcessing(false)
-      },
-    })
+    router.post(
+      `/organizations/subscriptions/${currentSubscription.id}/reactivate`,
+      {},
+      {
+        preserveScroll: true,
+        onFinish: () => {
+          setIsProcessing(false)
+        },
+      }
+    )
   }
 
   return (
     <>
-      <Head title="Abonnements - Paramètres" />
+      <Head title={t('organizations.subscriptions_settings.head_title')} />
       <OrganizationSettingsLayout>
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold">{t('common.subscription_management')}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t('common.manage_subscription')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('common.manage_subscription')}</p>
           </div>
 
           {currentSubscription ? (
@@ -185,12 +183,14 @@ const OrganizationSettingsSubscriptionsPage = ({
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      {getTranslation(currentSubscription.plan.nameI18n, locale as 'fr' | 'en')}
+                      {getTranslation((currentSubscription.plan as any).nameI18n, locale as 'fr' | 'en')}
                       <Badge className={statusColors[currentSubscription.status]}>
-                        {statusLabels[currentSubscription.status] || currentSubscription.status}
+                        {subStatusLabel(currentSubscription.status)}
                       </Badge>
                     </CardTitle>
-                    <CardDescription>{getTranslation(currentSubscription.plan.descriptionI18n, locale as 'fr' | 'en')}</CardDescription>
+                    <CardDescription>
+                      {getTranslation((currentSubscription.plan as any).descriptionI18n, locale as 'fr' | 'en')}
+                    </CardDescription>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold">
@@ -202,7 +202,9 @@ const OrganizationSettingsSubscriptionsPage = ({
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      par {currentSubscription.billingInterval === 'month' ? 'mois' : 'an'}
+                      {currentSubscription.billingInterval === 'month'
+                        ? t('organizations.subscriptions_settings.per_month')
+                        : t('organizations.subscriptions_settings.per_year')}
                     </div>
                   </div>
                 </div>
@@ -214,10 +216,14 @@ const OrganizationSettingsSubscriptionsPage = ({
                       <div className="flex items-start gap-3">
                         <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium">Période de facturation</p>
+                          <p className="text-sm font-medium">
+                            {t('organizations.subscriptions_settings.billing_period_title')}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            Du {formatDate(new Date(currentSubscription.currentPeriodStart))} au{' '}
-                            {formatDate(new Date(currentSubscription.currentPeriodEnd))}
+                            {t('organizations.subscriptions_settings.billing_period_value', {
+                              start: formatDate(new Date(currentSubscription.currentPeriodStart)),
+                              end: formatDate(new Date(currentSubscription.currentPeriodEnd)),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -226,9 +232,13 @@ const OrganizationSettingsSubscriptionsPage = ({
                   <div className="flex items-start gap-3">
                     <CreditCard className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium">Utilisateurs</p>
+                      <p className="text-sm font-medium">
+                        {t('organizations.subscriptions_settings.users_title')}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {currentSubscription.userCount} utilisateur(s)
+                        {t('organizations.subscriptions_settings.users_count', {
+                          count: currentSubscription.userCount,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -238,8 +248,9 @@ const OrganizationSettingsSubscriptionsPage = ({
                   <div className="flex items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-950 p-3">
                     <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <p className="text-sm text-blue-600 dark:text-blue-400">
-                      Période d'essai jusqu'au{' '}
-                      {formatDate(new Date(currentSubscription.trialEndsAt))}
+                      {t('organizations.subscriptions_settings.trial_until', {
+                        date: formatDate(new Date(currentSubscription.trialEndsAt)),
+                      })}
                     </p>
                   </div>
                 )}
@@ -250,19 +261,17 @@ const OrganizationSettingsSubscriptionsPage = ({
                       <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-orange-900 dark:text-orange-100">
-                          Abonnement en cours d'annulation
+                          {t('organizations.subscriptions_settings.canceling_title')}
                         </p>
                         <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                          Votre abonnement a été annulé le {formatDate(new Date(currentSubscription.canceledAt))}.
-                          {currentSubscription.currentPeriodEnd && (
-                            <>
-                              {' '}
-                              Vous conservez l'accès à toutes les fonctionnalités jusqu'au{' '}
-                              <span className="font-semibold">
-                                {formatDate(new Date(currentSubscription.currentPeriodEnd))}
-                              </span>.
-                            </>
-                          )}
+                          {currentSubscription.currentPeriodEnd
+                            ? t('organizations.subscriptions_settings.canceling_body_with_end', {
+                                canceledAt: formatDate(new Date(currentSubscription.canceledAt)),
+                                endDate: formatDate(new Date(currentSubscription.currentPeriodEnd)),
+                              })
+                            : t('organizations.subscriptions_settings.canceling_body_no_end', {
+                                canceledAt: formatDate(new Date(currentSubscription.canceledAt)),
+                              })}
                         </p>
                       </div>
                     </div>
@@ -274,7 +283,7 @@ const OrganizationSettingsSubscriptionsPage = ({
                         disabled={isProcessing}
                         className="bg-white dark:bg-gray-900 border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900"
                       >
-                        Réactiver l'abonnement
+                        {t('organizations.subscriptions_settings.reactivate_subscription')}
                       </Button>
                     )}
                   </div>
@@ -285,10 +294,10 @@ const OrganizationSettingsSubscriptionsPage = ({
                     <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                        Abonnement expiré
+                        {t('organizations.subscriptions_settings.canceled_title')}
                       </p>
                       <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                        Votre abonnement est arrivé à expiration. Souscrivez à nouveau pour retrouver l'accès aux fonctionnalités premium.
+                        {t('organizations.subscriptions_settings.canceled_body')}
                       </p>
                     </div>
                   </div>
@@ -301,41 +310,55 @@ const OrganizationSettingsSubscriptionsPage = ({
                       <Button variant="outline" asChild>
                         <Link href="/organizations/pricing">
                           <ArrowUpCircle className="h-4 w-4 mr-2" />
-                          Changer de plan
+                          {t('organizations.subscriptions_settings.change_plan')}
                         </Link>
                       </Button>
                       <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
                         <AlertDialogTrigger asChild>
                           <Button variant="destructive" size="sm">
-                            Annuler l'abonnement
+                            {t('organizations.subscriptions_settings.cancel_subscription')}
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Annuler votre abonnement ?</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              {t('organizations.subscriptions_settings.cancel_dialog_title')}
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Votre abonnement {getTranslation(currentSubscription.plan.nameI18n, locale as 'fr' | 'en')} sera annulé à la fin de la période de facturation.
-                              {currentSubscription.currentPeriodEnd && (
-                                <>
-                                  {' '}
-                                  Vous conserverez l'accès jusqu'au{' '}
-                                  <span className="font-semibold text-foreground">
-                                    {formatDate(new Date(currentSubscription.currentPeriodEnd))}
-                                  </span>.
-                                </>
-                              )}
+                              {currentSubscription.currentPeriodEnd
+                                ? t(
+                                    'organizations.subscriptions_settings.cancel_dialog_description_with_end',
+                                    {
+                                      planName: getTranslation(
+                                        (currentSubscription.plan as any).nameI18n,
+                                        locale as 'fr' | 'en'
+                                      ),
+                                      endDate: formatDate(
+                                        new Date(currentSubscription.currentPeriodEnd)
+                                      ),
+                                    }
+                                  )
+                                : t(
+                                    'organizations.subscriptions_settings.cancel_dialog_description_no_end',
+                                    {
+                                      planName: getTranslation(
+                                        (currentSubscription.plan as any).nameI18n,
+                                        locale as 'fr' | 'en'
+                                      ),
+                                    }
+                                  )}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel disabled={isProcessing}>
-                              Non, garder mon abonnement
+                              {t('organizations.subscriptions_settings.cancel_dialog_keep')}
                             </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={handleCancelSubscription}
                               disabled={isProcessing}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              Oui, annuler l'abonnement
+                              {t('organizations.subscriptions_settings.cancel_dialog_confirm')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -348,16 +371,14 @@ const OrganizationSettingsSubscriptionsPage = ({
             <Card>
               <CardHeader>
                 <CardTitle>{t('common.no_active_subscription')}</CardTitle>
-                <CardDescription>
-                  {t('common.choose_plan')}
-                </CardDescription>
+                <CardDescription>{t('common.choose_plan')}</CardDescription>
               </CardHeader>
               <CardContent>
                 {canManageSubscription && availablePlans.length > 0 && (
                   <Button asChild>
                     <Link href="/organizations/pricing">
                       <ArrowUpCircle className="h-4 w-4 mr-2" />
-                      Voir les plans disponibles
+                      {t('organizations.subscriptions_settings.no_plans_action')}
                     </Link>
                   </Button>
                 )}
@@ -369,7 +390,9 @@ const OrganizationSettingsSubscriptionsPage = ({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Historique des factures</h3>
+                <h3 className="text-lg font-semibold">
+                  {t('organizations.subscriptions_settings.invoices_title')}
+                </h3>
               </div>
               <Card>
                 <CardContent className="p-0">
@@ -384,20 +407,27 @@ const OrganizationSettingsSubscriptionsPage = ({
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">
-                                {invoice.number || `Facture ${invoice.id.substring(0, 8)}`}
+                                {invoice.number ||
+                                  t('organizations.subscriptions_settings.invoice_default_number', {
+                                    id: invoice.id.substring(0, 8),
+                                  })}
                               </p>
                               {invoice.status && (
-                                <Badge
-                                  className={invoiceStatusColors[invoice.status] || 'bg-gray-500'}
-                                >
-                                  {invoiceStatusLabels[invoice.status] || invoice.status}
+                                <Badge className={invoiceStatusColors[invoice.status] || 'bg-gray-500'}>
+                                  {invoiceStatusLabel(invoice.status)}
                                 </Badge>
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {formatDate(new Date(invoice.created * 1000))}
                               {invoice.dueDate && invoice.status !== 'paid' && (
-                                <> • Échéance : {formatDate(new Date(invoice.dueDate * 1000))}</>
+                                <>
+                                  {' '}
+                                  •{' '}
+                                  {t('organizations.subscriptions_settings.invoice_due_label', {
+                                    date: formatDate(new Date(invoice.dueDate * 1000)),
+                                  })}
+                                </>
                               )}
                             </p>
                           </div>
@@ -408,7 +438,9 @@ const OrganizationSettingsSubscriptionsPage = ({
                               {formatPrice(invoice.amountDue / 100, invoice.currency)}
                             </p>
                             {invoice.status === 'paid' && invoice.amountPaid > 0 && (
-                              <p className="text-sm text-green-600 dark:text-green-400">Payée</p>
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                {t('organizations.subscriptions_settings.invoice_paid_label')}
+                              </p>
                             )}
                           </div>
                           <div className="flex gap-2">

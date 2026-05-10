@@ -1,0 +1,173 @@
+{
+  "settings": {
+    "head_title": "Information - Settings",
+    "section_title": "General Information",
+    "section_description": "Manage your organization's basic information",
+    "uploading_logo": "Uploading...",
+    "change_logo": "Change logo",
+    "logo_format_hint": "Format: PNG, JPG, WEBP (max 2MB)",
+    "name_label": "Organization name",
+    "name_placeholder": "My organization",
+    "email_label": "Organization email",
+    "email_placeholder": "contact@organization.com",
+    "phone_label": "Phone",
+    "phone_placeholder": "+1 555 123 4567",
+    "siret_label": "SIRET number",
+    "siret_placeholder": "123 456 789 00012",
+    "vat_label": "VAT number",
+    "vat_placeholder": "FR12345678901",
+    "address_label": "Address",
+    "address_placeholder": "123 Main St, New York, NY 10001",
+    "website_label": "Website",
+    "website_placeholder": "https://www.organization.com",
+    "description_label": "Description",
+    "description_placeholder": "Describe your organization...",
+    "submitting": "Saving...",
+    "submit": "Save changes",
+    "required_marker": "*"
+  },
+  "users": {
+    "head_title": "Users - Settings",
+    "section_title": "User Management",
+    "section_description": "Invite and manage members of your organization",
+    "invite": {
+      "card_title": "Invite a member",
+      "card_description": "Invite users by email, even if they don't have an account yet",
+      "email_label": "User's email",
+      "email_placeholder": "user@example.com",
+      "role_label": "Role",
+      "submitting": "Inviting...",
+      "submit": "Invite"
+    },
+    "invitations": {
+      "card_title": "Pending invitations",
+      "card_description_count": "{count} pending invitation(s)",
+      "col_email": "Email",
+      "col_role": "Role",
+      "col_expires": "Expires on",
+      "col_actions": "Actions",
+      "cancel_confirm": "Are you sure you want to cancel the invitation for {email}?"
+    },
+    "members": {
+      "card_title": "Organization members",
+      "card_description_count": "{count} active member(s)",
+      "col_user": "User",
+      "col_role": "Role",
+      "col_joined_at": "Member since",
+      "col_actions": "Actions",
+      "you_label": "(you)",
+      "view": "View",
+      "delete": "Remove",
+      "change_role_label": "Change role",
+      "set_as_member": "Set as Member",
+      "set_as_admin": "Set as Admin",
+      "set_as_owner": "Set as Owner"
+    },
+    "role": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "member": "Member"
+    },
+    "view_dialog": {
+      "title": "User details",
+      "role_label": "Role",
+      "since_label": "Member since",
+      "user_id_label": "User ID",
+      "close": "Close"
+    },
+    "delete_dialog": {
+      "title": "Confirm removal",
+      "description_with_name": "Are you sure you want to remove <strong>{name}</strong> from the organization? This action is irreversible.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
+  },
+  "subscriptions_settings": {
+    "head_title": "Subscriptions - Settings",
+    "status": {
+      "active": "Active",
+      "trialing": "Trial",
+      "past_due": "Past due",
+      "canceled": "Canceled",
+      "incomplete": "Incomplete",
+      "incomplete_expired": "Expired"
+    },
+    "invoice_status": {
+      "paid": "Paid",
+      "open": "Open",
+      "void": "Void",
+      "uncollectible": "Uncollectible",
+      "draft": "Draft"
+    },
+    "per_month": "per month",
+    "per_year": "per year",
+    "billing_period_title": "Billing period",
+    "billing_period_value": "From {start} to {end}",
+    "users_title": "Users",
+    "users_count": "{count} user(s)",
+    "trial_until": "Trial until {date}",
+    "canceling_title": "Subscription being canceled",
+    "canceling_body_with_end": "Your subscription was canceled on {canceledAt}. You retain access to all features until {endDate}.",
+    "canceling_body_no_end": "Your subscription was canceled on {canceledAt}.",
+    "canceled_title": "Subscription expired",
+    "canceled_body": "Your subscription has expired. Subscribe again to regain access to premium features.",
+    "change_plan": "Change plan",
+    "cancel_subscription": "Cancel subscription",
+    "reactivate_subscription": "Reactivate subscription",
+    "cancel_dialog_title": "Cancel your subscription?",
+    "cancel_dialog_description_with_end": "Your {planName} subscription will be canceled at the end of the billing period. You will retain access until {endDate}.",
+    "cancel_dialog_description_no_end": "Your {planName} subscription will be canceled at the end of the billing period.",
+    "cancel_dialog_keep": "No, keep my subscription",
+    "cancel_dialog_confirm": "Yes, cancel subscription",
+    "no_plans_action": "View available plans",
+    "invoices_title": "Invoice history",
+    "invoice_default_number": "Invoice {id}",
+    "invoice_due_label": "Due: {date}",
+    "invoice_paid_label": "Paid"
+  },
+  "integrations": {
+    "head_title": "Integrations - Settings",
+    "section_title": "Integrations",
+    "coming_soon": "Coming soon..."
+  },
+  "create": {
+    "head_title": "Create Organization",
+    "title": "Create your organization",
+    "subtitle": "Let's start by creating your first organization",
+    "name_label": "Organization name",
+    "name_placeholder": "Acme Inc.",
+    "website_label": "Website (optional)",
+    "website_placeholder": "https://example.com",
+    "submitting": "Creating...",
+    "submit": "Create organization"
+  },
+  "pricing": {
+    "head_title": "Pricing - Subscription Plans",
+    "back": "Back",
+    "title": "Subscription plans",
+    "description": "Choose the plan that best fits your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save_up_to": "(save up to {percent}%)",
+    "current_badge": "Current",
+    "per_month_short": "/month",
+    "per_year_short": "/year",
+    "monthly_equivalent": "{price} per month",
+    "save_percent": "Save {percent}%",
+    "free_trial_days": "{days}-day free trial",
+    "features_title": "Included features",
+    "redirecting": "Redirecting...",
+    "choose_plan": "Choose this plan",
+    "current_plan_button": "Current plan",
+    "no_permission_hint": "You must be the owner or an administrator to change plans"
+  },
+  "subscription_success": {
+    "head_title": "Subscription successfully activated",
+    "title": "Subscription successfully activated!",
+    "description": "Your payment was processed successfully. You now have access to all the features of your plan.",
+    "session_id_label": "Session ID:",
+    "view_subscription": "View my subscription",
+    "back_home": "Back to homepage"
+  }
+}
