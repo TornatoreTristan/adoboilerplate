@@ -49,6 +49,7 @@ import UserService from '#users/services/user_service'
 import OrganizationService from '#organizations/services/organization_service'
 import SessionService from '#sessions/services/session_service'
 import GoogleAuthService from '#auth/services/google_auth_service'
+import AccountLockoutService from '#auth/services/account_lockout_service'
 import EmailVerificationService from '#auth/services/email_verification_service'
 import NotificationService from '#notifications/services/notification_service'
 import UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
@@ -248,6 +249,10 @@ export function configureContainer(): Container {
   container.bind<OrganizationService>(TYPES.OrganizationService).to(OrganizationService)
   container.bind<SessionService>(TYPES.SessionService).to(SessionService)
   container.bind<GoogleAuthService>(TYPES.GoogleAuthService).to(GoogleAuthService)
+  container
+    .bind<AccountLockoutService>(TYPES.AccountLockoutService)
+    .to(AccountLockoutService)
+    .inSingletonScope()
   container
     .bind<EmailVerificationService>(TYPES.EmailVerificationService)
     .to(EmailVerificationService)

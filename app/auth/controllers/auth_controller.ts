@@ -8,6 +8,7 @@ import { TYPES } from '#shared/container/types'
 import type AuthService from '#auth/services/auth_service'
 import type SessionService from '#sessions/services/session_service'
 import type EmailVerificationService from '#auth/services/email_verification_service'
+import type AccountLockoutService from '#auth/services/account_lockout_service'
 import RateLimitService from '#shared/services/rate_limit_service'
 import logger from '@adonisjs/core/services/logger'
 
@@ -41,6 +42,18 @@ export default class AuthController {
       )
     }
 
+    // Account lockout — separate from rate limit; trips on consecutive
+    // *failed* attempts and persists across rate-limit windows.
+    const accountLockoutService = getService<AccountLockoutService>(TYPES.AccountLockoutService)
+    const lockStatus = await accountLockoutService.getStatus(normalizedEmail)
+    if (lockStatus.locked) {
+      response.header('Retry-After', lockStatus.ttlSeconds.toString())
+      E.tooManyRequests(
+        `Account temporarily locked after too many failed login attempts. Try again in ${lockStatus.ttlSeconds} seconds.`,
+        lockStatus.ttlSeconds
+      )
+    }
+
     // Récupérer les services
     const authService = getService<AuthService>(TYPES.AuthService)
     const sessionService = getService<SessionService>(TYPES.SessionService)
@@ -50,6 +63,14 @@ export default class AuthController {
 
     // Si l'authentification échoue
     if (!result.success) {
+      const failure = await accountLockoutService.recordFailure(normalizedEmail)
+      if (failure.locked) {
+        response.header('Retry-After', failure.ttlSeconds.toString())
+        E.tooManyRequests(
+          `Account locked after ${failure.failedAttempts} failed attempts. Try again in ${failure.ttlSeconds} seconds.`,
+          failure.ttlSeconds
+        )
+      }
       if (this.isApiRequest(request)) {
         return response.status(401).json({
           success: false,
@@ -59,6 +80,9 @@ export default class AuthController {
       session.flashErrors({ email: result.error || '' })
       return response.redirect().back()
     }
+
+    // Successful credentials — reset the lockout counter.
+    await accountLockoutService.reset(normalizedEmail)
 
     // Régénérer l'ID de session pour prévenir la session fixation
     session.regenerate()
