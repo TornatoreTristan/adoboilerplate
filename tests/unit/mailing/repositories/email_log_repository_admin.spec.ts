@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import EmailLogRepository from '#mailing/repositories/email_log_repository'
+import type EmailLogRepository from '#mailing/repositories/email_log_repository'
 
 test.group('EmailLogRepository - admin methods', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -29,7 +29,13 @@ test.group('EmailLogRepository - admin methods', (group) => {
   test('findPaginatedWithFilters filters by status', async ({ assert }) => {
     const repo = getService<EmailLogRepository>(TYPES.EmailLogRepository)
     await repo.create({ recipient: 'a@x.com', subject: 'A', category: 'cat', status: 'sent' })
-    await repo.create({ recipient: 'b@x.com', subject: 'B', category: 'cat', status: 'failed', errorMessage: 'e' })
+    await repo.create({
+      recipient: 'b@x.com',
+      subject: 'B',
+      category: 'cat',
+      status: 'failed',
+      errorMessage: 'e',
+    })
 
     const result = await repo.findPaginatedWithFilters({ status: 'failed' })
 
@@ -60,7 +66,13 @@ test.group('EmailLogRepository - admin methods', (group) => {
     const repo = getService<EmailLogRepository>(TYPES.EmailLogRepository)
     await repo.create({ recipient: 'x@x.com', subject: '1', category: 'cat', status: 'sent' })
     await repo.create({ recipient: 'x@x.com', subject: '2', category: 'cat', status: 'sent' })
-    await repo.create({ recipient: 'x@x.com', subject: '3', category: 'cat', status: 'failed', errorMessage: 'e' })
+    await repo.create({
+      recipient: 'x@x.com',
+      subject: '3',
+      category: 'cat',
+      status: 'failed',
+      errorMessage: 'e',
+    })
     await repo.create({ recipient: 'x@x.com', subject: '4', category: 'cat', status: 'delivered' })
     await repo.create({ recipient: 'x@x.com', subject: '5', category: 'cat', status: 'pending' })
 

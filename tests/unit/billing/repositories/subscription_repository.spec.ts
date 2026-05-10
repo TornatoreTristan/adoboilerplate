@@ -3,9 +3,9 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import SubscriptionRepository from '#billing/repositories/subscription_repository'
-import PlanRepository from '#billing/repositories/plan_repository'
-import OrganizationRepository from '#organizations/repositories/organization_repository'
+import type SubscriptionRepository from '#billing/repositories/subscription_repository'
+import type PlanRepository from '#billing/repositories/plan_repository'
+import type OrganizationRepository from '#organizations/repositories/organization_repository'
 
 async function createPlan(slug: string) {
   const planRepo = getService<PlanRepository>(TYPES.PlanRepository)
@@ -42,7 +42,9 @@ async function createOrg(slug: string) {
 test.group('SubscriptionRepository - admin methods', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('findAllWithOrgAndPlan returns subscriptions with organization and plan preloaded', async ({ assert }) => {
+  test('findAllWithOrgAndPlan returns subscriptions with organization and plan preloaded', async ({
+    assert,
+  }) => {
     const repo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
     const plan = await createPlan('basic-1')
     const org = await createOrg('org-1')
@@ -103,12 +105,24 @@ test.group('SubscriptionRepository - admin methods', (group) => {
     const org = await createOrg('org-3')
 
     await repo.create({
-      organizationId: org.id, planId: planA.id, status: 'active',
-      billingInterval: 'month', price: 10, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: org.id,
+      planId: planA.id,
+      status: 'active',
+      billingInterval: 'month',
+      price: 10,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
     await repo.create({
-      organizationId: org.id, planId: planB.id, status: 'active',
-      billingInterval: 'month', price: 20, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: org.id,
+      planId: planB.id,
+      status: 'active',
+      billingInterval: 'month',
+      price: 20,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
 
     const result = await repo.findAllWithOrgAndPlan({ planId: planA.id })
@@ -125,12 +139,24 @@ test.group('SubscriptionRepository - admin methods', (group) => {
     const globex = await orgRepo.create({ name: 'Globex', slug: 'globex', isActive: true } as any)
 
     await repo.create({
-      organizationId: acme.id, planId: plan.id, status: 'active',
-      billingInterval: 'month', price: 10, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: acme.id,
+      planId: plan.id,
+      status: 'active',
+      billingInterval: 'month',
+      price: 10,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
     await repo.create({
-      organizationId: globex.id, planId: plan.id, status: 'active',
-      billingInterval: 'month', price: 10, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: globex.id,
+      planId: plan.id,
+      status: 'active',
+      billingInterval: 'month',
+      price: 10,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
 
     const result = await repo.findAllWithOrgAndPlan({ search: 'Acme' })
@@ -146,8 +172,14 @@ test.group('SubscriptionRepository - admin methods', (group) => {
     const statuses = ['active', 'active', 'trialing', 'canceled', 'past_due']
     for (const status of statuses) {
       await repo.create({
-        organizationId: org.id, planId: plan.id, status,
-        billingInterval: 'month', price: 10, currency: 'EUR', quantity: 1, userCount: 1,
+        organizationId: org.id,
+        planId: plan.id,
+        status,
+        billingInterval: 'month',
+        price: 10,
+        currency: 'EUR',
+        quantity: 1,
+        userCount: 1,
       } as any)
     }
 
@@ -167,16 +199,34 @@ test.group('SubscriptionRepository - admin methods', (group) => {
     const org = await createOrg('org-7')
 
     await repo.create({
-      organizationId: org.id, planId: plan.id, status: 'active',
-      billingInterval: 'month', price: 30, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: org.id,
+      planId: plan.id,
+      status: 'active',
+      billingInterval: 'month',
+      price: 30,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
     await repo.create({
-      organizationId: org.id, planId: plan.id, status: 'trialing',
-      billingInterval: 'year', price: 300, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: org.id,
+      planId: plan.id,
+      status: 'trialing',
+      billingInterval: 'year',
+      price: 300,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
     await repo.create({
-      organizationId: org.id, planId: plan.id, status: 'canceled',
-      billingInterval: 'month', price: 30, currency: 'EUR', quantity: 1, userCount: 1,
+      organizationId: org.id,
+      planId: plan.id,
+      status: 'canceled',
+      billingInterval: 'month',
+      price: 30,
+      currency: 'EUR',
+      quantity: 1,
+      userCount: 1,
     } as any)
 
     const result = await repo.findActiveAndTrialingForRevenue()

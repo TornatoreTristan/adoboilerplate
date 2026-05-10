@@ -3,15 +3,18 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import SessionRepository from '#sessions/repositories/session_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type SessionRepository from '#sessions/repositories/session_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 async function createUser(email: string) {
   const repo = getService<UserRepository>(TYPES.UserRepository)
   return repo.create({ email, password: 'password123', fullName: email })
 }
 
-async function createSession(userId: string, opts: { startedAt?: DateTime; lastActivity?: DateTime } = {}) {
+async function createSession(
+  userId: string,
+  opts: { startedAt?: DateTime; lastActivity?: DateTime } = {}
+) {
   const repo = getService<SessionRepository>(TYPES.SessionRepository)
   return repo.create({
     userId,
@@ -26,7 +29,9 @@ async function createSession(userId: string, opts: { startedAt?: DateTime; lastA
 test.group('SessionRepository - admin methods', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('countByDayStarted returns rows with date and count for sessions after the given date', async ({ assert }) => {
+  test('countByDayStarted returns rows with date and count for sessions after the given date', async ({
+    assert,
+  }) => {
     const repo = getService<SessionRepository>(TYPES.SessionRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
     const user = await createUser('s1@x.com')
@@ -55,7 +60,9 @@ test.group('SessionRepository - admin methods', (group) => {
     assert.notExists(oldRow)
   })
 
-  test('countDistinctActiveUserIds counts unique users with sessions after threshold', async ({ assert }) => {
+  test('countDistinctActiveUserIds counts unique users with sessions after threshold', async ({
+    assert,
+  }) => {
     const repo = getService<SessionRepository>(TYPES.SessionRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
     const u1 = await createUser('s2@x.com')
@@ -68,7 +75,10 @@ test.group('SessionRepository - admin methods', (group) => {
     // u1: 2 recent sessions -> counts as 1
     const a = await createSession(u1.id)
     const b = await createSession(u1.id)
-    await db.from('user_sessions').whereIn('id', [a.id, b.id]).update({ last_activity: recent.toJSDate() })
+    await db
+      .from('user_sessions')
+      .whereIn('id', [a.id, b.id])
+      .update({ last_activity: recent.toJSDate() })
 
     // u2: 1 recent session -> counts as 1
     const c = await createSession(u2.id)
@@ -98,7 +108,9 @@ test.group('SessionRepository - admin methods', (group) => {
     assert.isAbove(avg, 0)
   })
 
-  test('getLastActivityByUser returns a map of user_id to most recent last_activity', async ({ assert }) => {
+  test('getLastActivityByUser returns a map of user_id to most recent last_activity', async ({
+    assert,
+  }) => {
     const repo = getService<SessionRepository>(TYPES.SessionRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
     const u1 = await createUser('s7@x.com')

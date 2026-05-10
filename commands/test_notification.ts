@@ -1,9 +1,9 @@
 import { BaseCommand } from '@adonisjs/core/ace'
-import { CommandOptions } from '@adonisjs/core/types/ace'
+import { type CommandOptions } from '@adonisjs/core/types/ace'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import NotificationService from '#notifications/services/notification_service'
-import UserRepository from '#users/repositories/user_repository'
+import type NotificationService from '#notifications/services/notification_service'
+import type UserRepository from '#users/repositories/user_repository'
 
 export default class TestNotification extends BaseCommand {
   static commandName = 'test:notification'

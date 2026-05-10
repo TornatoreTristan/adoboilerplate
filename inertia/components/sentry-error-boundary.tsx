@@ -1,7 +1,14 @@
 import * as Sentry from '@sentry/react'
 import { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { AlertTriangle } from 'lucide-react'
 
 interface FallbackProps {
@@ -36,10 +43,10 @@ function ErrorFallback({ error, eventId, resetError }: FallbackProps) {
             )}
             {eventId && (
               <div className="text-sm text-muted-foreground">
-                <p>Error ID: <code className="bg-muted px-1 py-0.5 rounded">{eventId}</code></p>
-                <p className="mt-1 text-xs">
-                  You can use this ID when contacting support.
+                <p>
+                  Error ID: <code className="bg-muted px-1 py-0.5 rounded">{eventId}</code>
                 </p>
+                <p className="mt-1 text-xs">You can use this ID when contacting support.</p>
               </div>
             )}
           </div>
@@ -48,7 +55,7 @@ function ErrorFallback({ error, eventId, resetError }: FallbackProps) {
           <Button onClick={resetError} variant="default">
             Try again
           </Button>
-          <Button onClick={() => window.location.href = '/'} variant="outline">
+          <Button onClick={() => (window.location.href = '/')} variant="outline">
             Go to homepage
           </Button>
         </CardFooter>

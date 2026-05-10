@@ -1,4 +1,4 @@
-import { HttpContext } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 import i18nManager from '@adonisjs/i18n/services/main'
 
 export default class LocaleController {

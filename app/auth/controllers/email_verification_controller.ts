@@ -1,12 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import EmailVerificationService from '#auth/services/email_verification_service'
+import type EmailVerificationService from '#auth/services/email_verification_service'
 import type UserRepository from '#users/repositories/user_repository'
 import { requestEmailChangeValidator } from '#auth/validators/email_verification_validator'
 import { errors } from '@vinejs/vine'
 import { AppException } from '#shared/exceptions/index'
-import SessionService from '#sessions/services/session_service'
+import type SessionService from '#sessions/services/session_service'
 
 export default class EmailVerificationController {
   /**

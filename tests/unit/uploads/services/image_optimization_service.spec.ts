@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import ImageOptimizationService from '#uploads/services/image_optimization_service'
+import type ImageOptimizationService from '#uploads/services/image_optimization_service'
 import sharp from 'sharp'
 
 test.group('ImageOptimizationService', () => {

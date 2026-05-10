@@ -7,6 +7,7 @@
 Le système d'authentification Google OAuth permet aux utilisateurs de se connecter avec leur compte Google, créant automatiquement un compte ou liant un compte existant.
 
 **Caractéristiques principales :**
+
 - 🔐 **OAuth 2.0** - Protocole standard et sécurisé
 - 👤 **Auto-création** - Création automatique du compte utilisateur
 - 🔗 **Liaison de compte** - Lie automatiquement les comptes existants par email
@@ -166,6 +167,7 @@ export default function Login() {
 ```
 
 **Action** : Création d'un nouveau compte avec :
+
 - ✅ Email vérifié (Google)
 - ✅ Pas de password (OAuth only)
 - ✅ Google ID stocké
@@ -193,6 +195,7 @@ export default function Login() {
 ```
 
 **Action** : Connexion + mise à jour du profil
+
 - ✅ Nom mis à jour
 - ✅ Avatar mis à jour
 - ✅ Session créée
@@ -224,6 +227,7 @@ export default function Login() {
 ```
 
 **Action** : Liaison du compte Google
+
 - ✅ Google ID ajouté au compte existant
 - ✅ Password conservé (double auth possible)
 - ✅ Session créée
@@ -236,7 +240,7 @@ Les champs OAuth ont été ajoutés à la table `users` :
 
 ```typescript
 // database/migrations/..._create_users_table.ts
-table.string('password').nullable()      // nullable pour OAuth
+table.string('password').nullable() // nullable pour OAuth
 table.string('google_id').nullable().unique()
 table.string('avatar_url').nullable()
 ```
@@ -253,7 +257,7 @@ export default class User extends BaseModel {
   declare avatarUrl: string | null
 
   @column({ serializeAs: null })
-  declare password: string | null  // nullable
+  declare password: string | null // nullable
 }
 ```
 
@@ -354,6 +358,7 @@ router
 ### CSRF Protection
 
 AdonisJS Ally gère automatiquement :
+
 - State parameter pour CSRF
 - Validation du state au callback
 - Expiration du state (10 minutes)
@@ -376,6 +381,7 @@ npm run test -- tests/unit/auth/services/google_auth_service.spec.ts
 ```
 
 **Tests couverts** :
+
 - ✅ Création nouveau user OAuth
 - ✅ Login user existant (Google ID)
 - ✅ Liaison compte existant (email)
@@ -492,15 +498,18 @@ console.log('OAuth result:', result)
 ### Erreurs courantes
 
 **"redirect_uri_mismatch"**
+
 - Vérifiez que l'URL de callback est identique dans :
   - Google Cloud Console
   - Votre `.env` (APP_URL)
   - `config/ally.ts`
 
 **"invalid_client"**
+
 - Vérifiez GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET
 
 **"access_denied"**
+
 - L'utilisateur a refusé l'autorisation (normal)
 
 ## Limitations

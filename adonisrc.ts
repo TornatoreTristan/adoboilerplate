@@ -44,7 +44,7 @@ export default defineConfig({
     () => import('@adonisjs/transmit/transmit_provider'),
     () => import('#providers/sentry_provider'),
     () => import('#providers/notification_listeners_provider'),
-    () => import('#providers/audit_log_listeners_provider')
+    () => import('#providers/audit_log_listeners_provider'),
   ],
 
   /*
@@ -83,7 +83,7 @@ export default defineConfig({
         timeout: 30000,
       },
     ],
-    forceExit: true,  // Force exit after tests to prevent hanging
+    forceExit: true, // Force exit after tests to prevent hanging
   },
 
   /*
@@ -107,7 +107,7 @@ export default defineConfig({
     {
       pattern: 'resources/lang/**/*.{json,yaml,yml}',
       reloadServer: false,
-    }
+    },
   ],
 
   hooks: {

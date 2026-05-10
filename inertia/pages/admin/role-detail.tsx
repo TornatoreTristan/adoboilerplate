@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head } from '@inertiajs/react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -119,19 +120,25 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.role_detail.field_slug')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.role_detail.field_slug')}
+                    </span>
                     <span className="font-mono">{role.slug}</span>
                   </div>
 
                   {role.description && (
                     <div className="flex flex-col gap-2 text-sm">
-                      <span className="text-muted-foreground">{t('admin.role_detail.field_description')}</span>
+                      <span className="text-muted-foreground">
+                        {t('admin.role_detail.field_description')}
+                      </span>
                       <p className="text-sm">{role.description}</p>
                     </div>
                   )}
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.role_detail.field_type')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.role_detail.field_type')}
+                    </span>
                     {role.isSystem ? (
                       <span className="flex items-center gap-1">
                         <Lock className="h-3 w-3" />
@@ -146,12 +153,16 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.role_detail.field_created_at')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.role_detail.field_created_at')}
+                    </span>
                     <span>{formatDateTime(role.createdAt)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.role_detail.field_updated_at')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.role_detail.field_updated_at')}
+                    </span>
                     <span>{formatDateTime(role.updatedAt)}</span>
                   </div>
                 </div>
@@ -170,7 +181,9 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                   <span className="font-semibold">{permissions.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">{t('admin.role_detail.stats_resources')}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.role_detail.stats_resources')}
+                  </span>
                   <span className="font-semibold">{Object.keys(permissionsByResource).length}</span>
                 </div>
               </CardContent>
@@ -179,7 +192,9 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('admin.role_detail.permissions_title', { count: permissions.length })}</CardTitle>
+              <CardTitle>
+                {t('admin.role_detail.permissions_title', { count: permissions.length })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {permissions.length === 0 ? (
@@ -209,7 +224,9 @@ const RoleDetailPage = ({ role, permissions }: RoleDetailPageProps) => {
                                 <span className="font-medium text-sm">{permission.name}</span>
                                 {getActionBadge(permission.action)}
                               </div>
-                              <p className="text-xs text-muted-foreground pl-6">{permission.slug}</p>
+                              <p className="text-xs text-muted-foreground pl-6">
+                                {permission.slug}
+                              </p>
                               {permission.description && (
                                 <p className="text-xs text-muted-foreground pl-6">
                                   {permission.description}

@@ -13,7 +13,7 @@ export default class AdminSubscriptionsController {
 
     try {
       await subscriptionService.pauseSubscription(subscriptionId)
-      session.flash('success', 'L\'abonnement a été mis en pause avec succès.')
+      session.flash('success', "L'abonnement a été mis en pause avec succès.")
     } catch (error) {
       session.flash('error', error.message)
     }
@@ -30,7 +30,7 @@ export default class AdminSubscriptionsController {
 
     try {
       await subscriptionService.resumeSubscription(subscriptionId)
-      session.flash('success', 'L\'abonnement a été repris avec succès.')
+      session.flash('success', "L'abonnement a été repris avec succès.")
     } catch (error) {
       session.flash('error', error.message)
     }
@@ -47,10 +47,7 @@ export default class AdminSubscriptionsController {
 
     try {
       await subscriptionService.cancelSubscription(subscriptionId)
-      session.flash(
-        'success',
-        'L\'abonnement sera annulé à la fin de la période en cours.'
-      )
+      session.flash('success', "L'abonnement sera annulé à la fin de la période en cours.")
     } catch (error) {
       session.flash('error', error.message)
     }
@@ -67,7 +64,7 @@ export default class AdminSubscriptionsController {
 
     try {
       await subscriptionService.reactivateSubscription(subscriptionId)
-      session.flash('success', 'L\'abonnement a été réactivé avec succès.')
+      session.flash('success', "L'abonnement a été réactivé avec succès.")
     } catch (error) {
       session.flash('error', error.message)
     }

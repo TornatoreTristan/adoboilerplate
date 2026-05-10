@@ -1,7 +1,7 @@
 import type { Job } from 'bull'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import EmailService from '#mailing/services/email_service'
+import type EmailService from '#mailing/services/email_service'
 import type { SendEmailData } from '#mailing/types/email'
 import logger from '@adonisjs/core/services/logger'
 

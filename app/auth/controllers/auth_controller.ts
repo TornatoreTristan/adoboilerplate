@@ -34,7 +34,10 @@ export default class AuthController {
     if (!emailRateLimit.allowed) {
       const retryAfter = Math.ceil((emailRateLimit.resetAt.getTime() - Date.now()) / 1000)
       response.header('Retry-After', retryAfter.toString())
-      E.tooManyRequests(`Too many login attempts. Please try again in ${retryAfter} seconds.`, retryAfter)
+      E.tooManyRequests(
+        `Too many login attempts. Please try again in ${retryAfter} seconds.`,
+        retryAfter
+      )
     }
 
     // Récupérer les services
@@ -49,7 +52,7 @@ export default class AuthController {
       if (this.isApiRequest(request)) {
         return response.status(401).json({
           success: false,
-          error: { message: result.error }
+          error: { message: result.error },
         })
       }
       session.flashErrors({ email: result.error || '' })
@@ -118,7 +121,7 @@ export default class AuthController {
     if (this.isApiRequest(request)) {
       return response.json({
         success: true,
-        data: { message: 'Déconnecté avec succès' }
+        data: { message: 'Déconnecté avec succès' },
       })
     }
 
@@ -192,7 +195,7 @@ export default class AuthController {
       )
       await emailVerificationService.sendVerificationEmail(result.user!.id)
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email de vérification:', error)
+      console.error("Erreur lors de l'envoi de l'email de vérification:", error)
     }
 
     // Rediriger vers la page de confirmation

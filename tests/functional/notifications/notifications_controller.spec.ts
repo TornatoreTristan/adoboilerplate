@@ -185,10 +185,7 @@ test.group('NotificationsController', (group) => {
     assert.equal(count, 0)
   })
 
-  test('DELETE /api/notifications/:id - should delete notification', async ({
-    client,
-    assert,
-  }) => {
+  test('DELETE /api/notifications/:id - should delete notification', async ({ client, assert }) => {
     const notification = await repository.create({
       userId: user.id,
       type: 'user.mentioned',

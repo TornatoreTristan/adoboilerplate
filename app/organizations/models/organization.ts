@@ -17,8 +17,7 @@ export default class Organization extends BaseModel {
 
   @column({
     columnName: 'description_i18n',
-    prepare: (value: TranslatableFieldNullable | null) =>
-      value ? JSON.stringify(value) : null,
+    prepare: (value: TranslatableFieldNullable | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | TranslatableFieldNullable | null) => {
       if (value === null) return null
       return typeof value === 'string' ? JSON.parse(value) : value

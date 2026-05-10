@@ -26,8 +26,8 @@ export function useI18n() {
 
     // Simple replacement for ICU format like {name}
     if (replacements) {
-      return value.replace(/\{(\w+)\}/g, (match, key) => {
-        return replacements[key] !== undefined ? String(replacements[key]) : match
+      return value.replace(/\{(\w+)\}/g, (match, placeholder) => {
+        return replacements[placeholder] !== undefined ? String(replacements[placeholder]) : match
       })
     }
 

@@ -7,7 +7,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should allow requests within rate limit', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     const result = await service.checkLimit('test-ip-1', {
@@ -21,7 +21,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should block requests exceeding rate limit', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     await service.checkLimit('test-ip-2', { maxRequests: 3, windowMs: 60000 })
@@ -35,7 +35,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should use IP address as default identifier', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     const result1 = await service.checkLimit('192.168.1.1', {
@@ -61,7 +61,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should use authenticated user ID when strategy is user', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     const userId = 'user-123'
@@ -89,7 +89,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should apply global rate limit', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     await service.checkLimit('global', { maxRequests: 3, windowMs: 60000, strategy: 'global' })
@@ -105,7 +105,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should provide correct rate limit info', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     const result = await service.checkLimit('test-ip-3', {
@@ -122,7 +122,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should include retry info when blocked', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     await service.checkLimit('test-ip-4', { maxRequests: 1, windowMs: 60000 })
@@ -137,7 +137,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should handle different routes independently', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     await service.checkLimit('test-ip-5', { maxRequests: 2, windowMs: 60000, keyPrefix: 'route1' })
@@ -159,7 +159,7 @@ test.group('ThrottleMiddleware', (group) => {
   })
 
   test('should reset after window expires', async ({ assert }) => {
-    const RateLimitService = (await import('#shared/services/rate_limit_service')).default
+    const { default: RateLimitService } = await import('#shared/services/rate_limit_service')
     const service = new RateLimitService()
 
     const result1 = await service.checkLimit('test-ip-6', { maxRequests: 1, windowMs: 500 })

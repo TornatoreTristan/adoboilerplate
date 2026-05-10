@@ -105,13 +105,14 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
   }
 
   async getStatusCounts(): Promise<EmailLogStatusCounts> {
-    const rows = await this.buildBaseQuery()
-      .select('status')
-      .count('* as count')
-      .groupBy('status')
+    const rows = await this.buildBaseQuery().select('status').count('* as count').groupBy('status')
 
     const counts: EmailLogStatusCounts = {
-      total: 0, sent: 0, failed: 0, delivered: 0, pending: 0,
+      total: 0,
+      sent: 0,
+      failed: 0,
+      delivered: 0,
+      pending: 0,
     }
 
     for (const row of rows) {

@@ -104,9 +104,7 @@ export class ExceptionHelpers {
 
   static userNotMember(organizationName?: string, details?: ErrorDetails): never {
     throw new UserNotMemberException(
-      organizationName
-        ? `Vous n'êtes pas membre de l'organisation ${organizationName}`
-        : undefined,
+      organizationName ? `Vous n'êtes pas membre de l'organisation ${organizationName}` : undefined,
       details
     )
   }
@@ -228,7 +226,7 @@ export class ExceptionHelpers {
     resource: string,
     id?: string | number
   ): asserts value is T {
-    if (value == null) {
+    if (value === null || value === undefined) {
       this.notFound(resource, id)
     }
   }
@@ -237,7 +235,7 @@ export class ExceptionHelpers {
     user: T | null | undefined,
     id?: string | number
   ): asserts user is T {
-    if (user == null) {
+    if (user === null || user === undefined) {
       this.userNotFound(id)
     }
   }
@@ -246,7 +244,7 @@ export class ExceptionHelpers {
     org: T | null | undefined,
     id?: string | number
   ): asserts org is T {
-    if (org == null) {
+    if (org === null || org === undefined) {
       this.organizationNotFound(id)
     }
   }
@@ -255,7 +253,7 @@ export class ExceptionHelpers {
     session: T | null | undefined,
     id?: string | number
   ): asserts session is T {
-    if (session == null) {
+    if (session === null || session === undefined) {
       this.sessionNotFound(id)
     }
   }

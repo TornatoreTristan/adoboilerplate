@@ -30,6 +30,7 @@ inertia 4.2.0, vite 5.1.1 (et toutes les autres deps majeures à v7).
 ### PR #1 — Migration runtime AdonisJS 6 → 7 (mergée → `f5584292`)
 
 13 commits, scope : faire booter et passer les tests sous v7.
+
 - Bump Node 24, TS 5.9, ESLint 10, Vite 7, tous les `@adonisjs/*` v7
 - `ts-node-maintained` → `@poppinss/ts-exec` dans `ace.js`
 - `adonisrc.ts` : hooks renommés, `experimental` flags retirés, glob `{ts,js}`
@@ -49,6 +50,7 @@ inertia 4.2.0, vite 5.1.1 (et toutes les autres deps majeures à v7).
 ### PR #2 — Cleanup dette TypeScript (mergée → `21f51791`)
 
 8 commits, scope : `tsc --noEmit` plus propre.
+
 - `types/inertia_pages.d.ts` : registry des 38 pages Inertia
 - `inertia.render('foo')` 1-arg → `('foo', {})` (12 sites)
 - `export const E: typeof ExceptionHelpers` (TS 5.9 assertion-function rule, **-64 erreurs d'un coup**)
@@ -113,15 +115,15 @@ Effort : **1h** si on garde le statu quo (on a déjà mis les `.as()`).
 
 Distribution :
 
-| Code | Count | Type de fix |
-|---|---|---|
-| TS2339 | 35 | Property does not exist |
-| TS2345 | 18 | Argument incompatible |
-| TS2322 | 11 | Type mismatch |
-| TS7006 | 9 | Implicit any |
-| TS2551 | 9 | Méthodes renommées |
-| TS2353 | 6 | Unknown property |
-| Autres | 35 | Variés |
+| Code   | Count | Type de fix             |
+| ------ | ----- | ----------------------- |
+| TS2339 | 35    | Property does not exist |
+| TS2345 | 18    | Argument incompatible   |
+| TS2322 | 11    | Type mismatch           |
+| TS7006 | 9     | Implicit any            |
+| TS2551 | 9     | Méthodes renommées      |
+| TS2353 | 6     | Unknown property        |
+| Autres | 35    | Variés                  |
 
 Suggestion d'ordre des PR :
 
@@ -151,6 +153,7 @@ Annoter chaque param. Rapide, mécanique. Effort : **1h**.
 `Plan.baseUsers`, `Plan.price`, `Plan.pricePerUser` qui n'existent pas
 sur le modèle. Le service est registered dans le container mais
 **jamais consommé**. Décision :
+
 - **Suppression** du service + son binding dans `container.ts` (le plus simple)
 - OU compléter le modèle avec les 3 champs + une migration
 
@@ -159,10 +162,12 @@ Effort : **30 min** pour suppression, **2h** pour compléter le modèle.
 #### D. Stripe SDK v19 audit (~12 erreurs)
 
 Le code a des `// TODO Stripe SDK v19 type drift` à plusieurs endroits :
+
 - `app/billing/controllers/stripe_webhook_controller.ts`
 - `app/admin/controllers/admin_controller.ts:175` (`Invoice.paid`)
 
 Lire le [Stripe v19 changelog](https://github.com/stripe/stripe-node/releases) pour confirmer la nouvelle shape de :
+
 - `Subscription.current_period_start` / `current_period_end` (probablement déplacés vers `subscription.items.data[0]`)
 - `Invoice.subscription` (déplacé ou renommé)
 - `Invoice.paid` (probablement remplacé par `status === 'paid'`)
@@ -243,14 +248,14 @@ npx tsc --noEmit 2>&1 | grep -cE "error TS"
 
 ## Fichiers de référence
 
-| Fichier | Quoi |
-|---|---|
-| `docs/migrations/adonisjs-7.md` | Plan complet de la migration v6→v7 (avec récap des résultats) |
-| `docs/migrations/adonisjs-7-handoff.md` | Ce doc (handoff) |
-| `types/inertia_pages.d.ts` | Registry des pages Inertia (ajout PR #2) |
-| `app/middleware/inertia_middleware.ts` | InertiaMiddleware avec sharedData (ajout PR #1) |
-| `config/encryption.ts` | Encryption v7 driver legacy (ajout PR #1) |
-| `.nvmrc` | Pin Node 24 (ajout PR #1) |
+| Fichier                                 | Quoi                                                          |
+| --------------------------------------- | ------------------------------------------------------------- |
+| `docs/migrations/adonisjs-7.md`         | Plan complet de la migration v6→v7 (avec récap des résultats) |
+| `docs/migrations/adonisjs-7-handoff.md` | Ce doc (handoff)                                              |
+| `types/inertia_pages.d.ts`              | Registry des pages Inertia (ajout PR #2)                      |
+| `app/middleware/inertia_middleware.ts`  | InertiaMiddleware avec sharedData (ajout PR #1)               |
+| `config/encryption.ts`                  | Encryption v7 driver legacy (ajout PR #1)                     |
+| `.nvmrc`                                | Pin Node 24 (ajout PR #1)                                     |
 
 ---
 

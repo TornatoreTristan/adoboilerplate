@@ -168,7 +168,11 @@ const UsersPage = ({ users }: UsersPageProps) => {
         cell: ({ row }) => {
           const dateString = row.getValue('lastActivity') as string | null
           if (!dateString) {
-            return <span className="text-sm text-muted-foreground">{t('admin.users.never_logged_in')}</span>
+            return (
+              <span className="text-sm text-muted-foreground">
+                {t('admin.users.never_logged_in')}
+              </span>
+            )
           }
           const date = new Date(dateString)
           return (
@@ -213,9 +217,10 @@ const UsersPage = ({ users }: UsersPageProps) => {
     [t]
   )
 
-  const countLabel = filteredUsers.length > 1
-    ? t('admin.users.count_plural', { count: filteredUsers.length })
-    : t('admin.users.count_singular', { count: filteredUsers.length })
+  const countLabel =
+    filteredUsers.length > 1
+      ? t('admin.users.count_plural', { count: filteredUsers.length })
+      : t('admin.users.count_singular', { count: filteredUsers.length })
 
   return (
     <>

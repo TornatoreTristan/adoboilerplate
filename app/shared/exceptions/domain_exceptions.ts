@@ -89,7 +89,7 @@ export class UserNotMemberException extends AppException {
   readonly code = ERROR_CODES.ORG_USER_NOT_MEMBER
   readonly status = 403
 
-  constructor(message = 'Vous n\'êtes pas membre de cette organisation', details?: ErrorDetails) {
+  constructor(message = "Vous n'êtes pas membre de cette organisation", details?: ErrorDetails) {
     super(message, details)
   }
 }
@@ -211,7 +211,7 @@ export class SubscriptionNotSyncedException extends AppException {
   readonly code = ERROR_CODES.INTERNAL_ERROR
   readonly status = 500
 
-  constructor(message = 'L\'abonnement n\'est pas synchronisé avec Stripe', details?: ErrorDetails) {
+  constructor(message = "L'abonnement n'est pas synchronisé avec Stripe", details?: ErrorDetails) {
     super(message, details)
   }
 }
@@ -260,7 +260,7 @@ export class UploadFailedException extends AppException {
   readonly code = ERROR_CODES.UPLOAD_FAILED
   readonly status = 500
 
-  constructor(message = 'Échec de l\'upload du fichier', details?: ErrorDetails) {
+  constructor(message = "Échec de l'upload du fichier", details?: ErrorDetails) {
     super(message, details)
   }
 }

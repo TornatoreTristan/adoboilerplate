@@ -105,7 +105,9 @@ export default class OrganizationSettingsController {
     E.assertOrganizationExists(organization)
 
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
-    const invitationRepo = getService<OrganizationInvitationRepository>(TYPES.OrganizationInvitationRepository)
+    const invitationRepo = getService<OrganizationInvitationRepository>(
+      TYPES.OrganizationInvitationRepository
+    )
 
     const userRole = await orgRepo.getUserRole(organization.id, user.id)
 
@@ -308,12 +310,17 @@ export default class OrganizationSettingsController {
 
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
-    const invitationRepo = getService<OrganizationInvitationRepository>(TYPES.OrganizationInvitationRepository)
+    const invitationRepo = getService<OrganizationInvitationRepository>(
+      TYPES.OrganizationInvitationRepository
+    )
 
     const currentUserRole = await orgRepo.getUserRole(organization.id, user.id)
 
     if (!currentUserRole || !['owner', 'admin'].includes(currentUserRole)) {
-      session.flash('error', 'Vous devez être propriétaire ou administrateur pour inviter des membres')
+      session.flash(
+        'error',
+        'Vous devez être propriétaire ou administrateur pour inviter des membres'
+      )
       return response.redirect('/organizations/settings/users')
     }
 
@@ -323,7 +330,7 @@ export default class OrganizationSettingsController {
       const isAlreadyMember = await orgRepo.isUserMember(organization.id, existingUser.id)
 
       if (isAlreadyMember) {
-        session.flash('error', 'Cet utilisateur est déjà membre de l\'organisation')
+        session.flash('error', "Cet utilisateur est déjà membre de l'organisation")
         return response.redirect('/organizations/settings/users')
       }
     }
@@ -363,7 +370,10 @@ export default class OrganizationSettingsController {
     const currentUserRole = await orgRepo.getUserRole(organization.id, user.id)
 
     if (!currentUserRole || !['owner', 'admin'].includes(currentUserRole)) {
-      session.flash('error', 'Vous devez être propriétaire ou administrateur pour modifier les rôles')
+      session.flash(
+        'error',
+        'Vous devez être propriétaire ou administrateur pour modifier les rôles'
+      )
       return response.redirect('/organizations/settings/users')
     }
 
@@ -397,12 +407,15 @@ export default class OrganizationSettingsController {
     const currentUserRole = await orgRepo.getUserRole(organization.id, user.id)
 
     if (!currentUserRole || !['owner', 'admin'].includes(currentUserRole)) {
-      session.flash('error', 'Vous devez être propriétaire ou administrateur pour supprimer des membres')
+      session.flash(
+        'error',
+        'Vous devez être propriétaire ou administrateur pour supprimer des membres'
+      )
       return response.redirect('/organizations/settings/users')
     }
 
     if (data.userId === user.id) {
-      session.flash('error', 'Vous ne pouvez pas vous retirer vous-même de l\'organisation')
+      session.flash('error', "Vous ne pouvez pas vous retirer vous-même de l'organisation")
       return response.redirect('/organizations/settings/users')
     }
 
@@ -427,12 +440,17 @@ export default class OrganizationSettingsController {
     const { invitationId } = params
 
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
-    const invitationRepo = getService<OrganizationInvitationRepository>(TYPES.OrganizationInvitationRepository)
+    const invitationRepo = getService<OrganizationInvitationRepository>(
+      TYPES.OrganizationInvitationRepository
+    )
 
     const currentUserRole = await orgRepo.getUserRole(organization.id, user.id)
 
     if (!currentUserRole || !['owner', 'admin'].includes(currentUserRole)) {
-      session.flash('error', 'Vous devez être propriétaire ou administrateur pour annuler des invitations')
+      session.flash(
+        'error',
+        'Vous devez être propriétaire ou administrateur pour annuler des invitations'
+      )
       return response.redirect('/organizations/settings/users')
     }
 
@@ -444,7 +462,7 @@ export default class OrganizationSettingsController {
     }
 
     if (invitation.organizationId !== organization.id) {
-      session.flash('error', 'Cette invitation n\'appartient pas à votre organisation')
+      session.flash('error', "Cette invitation n'appartient pas à votre organisation")
       return response.redirect('/organizations/settings/users')
     }
 

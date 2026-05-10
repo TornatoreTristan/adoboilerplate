@@ -20,7 +20,9 @@ export default class extends BaseSchema {
 
     // Add CHECK constraint for role values after table creation
     this.defer(async (db) => {
-      await db.raw(`ALTER TABLE ${this.tableName} ADD CONSTRAINT user_organizations_role_check CHECK (role IN ('owner', 'admin', 'member', 'viewer'))`)
+      await db.raw(
+        `ALTER TABLE ${this.tableName} ADD CONSTRAINT user_organizations_role_check CHECK (role IN ('owner', 'admin', 'member', 'viewer'))`
+      )
     })
   }
 

@@ -5,11 +5,7 @@ import vine from '@vinejs/vine'
  */
 export const forgotPasswordValidator = vine.compile(
   vine.object({
-    email: vine
-      .string()
-      .email()
-      .normalizeEmail()
-      .trim()
+    email: vine.string().email().normalizeEmail().trim(),
   })
 )
 
@@ -18,16 +14,8 @@ export const forgotPasswordValidator = vine.compile(
  */
 export const resetPasswordValidator = vine.compile(
   vine.object({
-    token: vine
-      .string()
-      .minLength(64)
-      .maxLength(64),
-    password: vine
-      .string()
-      .minLength(8)
-      .maxLength(255),
-    passwordConfirmation: vine
-      .string()
-      .sameAs('password')
+    token: vine.string().minLength(64).maxLength(64),
+    password: vine.string().minLength(8).maxLength(255),
+    passwordConfirmation: vine.string().sameAs('password'),
   })
 )

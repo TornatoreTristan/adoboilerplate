@@ -180,13 +180,14 @@ export default class AdminService {
   }
 
   async getDashboardStats(days: number = 30): Promise<DashboardStats> {
-    const [usersGrowth, sessionsGrowth, activeUsersStats, avgSessionsPerUser, revenueStats] = await Promise.all([
-      this.getUsersGrowth(days),
-      this.getSessionsGrowth(days),
-      this.getActiveUsersStats(days),
-      this.getAverageSessionsPerUser(),
-      this.getRevenueStats(),
-    ])
+    const [usersGrowth, sessionsGrowth, activeUsersStats, avgSessionsPerUser, revenueStats] =
+      await Promise.all([
+        this.getUsersGrowth(days),
+        this.getSessionsGrowth(days),
+        this.getActiveUsersStats(days),
+        this.getAverageSessionsPerUser(),
+        this.getRevenueStats(),
+      ])
 
     return {
       usersGrowth,
@@ -275,7 +276,10 @@ export default class AdminService {
   async getUsersWithLastActivity(
     page: number = 1,
     perPage: number = 20
-  ): Promise<{ data: UserWithActivity[]; meta: { total: number; perPage: number; currentPage: number } }> {
+  ): Promise<{
+    data: UserWithActivity[]
+    meta: { total: number; perPage: number; currentPage: number }
+  }> {
     const [paginated, lastActivityMap] = await Promise.all([
       this.userRepository.paginate(page, perPage),
       this.sessionRepository.getLastActivityByUser(),
@@ -343,7 +347,10 @@ export default class AdminService {
   async getOrganizations(
     page: number = 1,
     perPage: number = 20
-  ): Promise<{ data: OrganizationWithMemberCount[]; meta: { total: number; perPage: number; currentPage: number } }> {
+  ): Promise<{
+    data: OrganizationWithMemberCount[]
+    meta: { total: number; perPage: number; currentPage: number }
+  }> {
     return this.organizationRepository.findPaginatedWithMemberCounts(page, perPage)
   }
 

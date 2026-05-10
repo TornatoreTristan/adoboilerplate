@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, useForm } from '@inertiajs/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -96,7 +97,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
   const dateLocale = locale === 'en' ? 'en-US' : 'fr-FR'
   const distanceLocale = locale === 'en' ? undefined : fr
   const formatDateTime = (iso: string) =>
-    new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso))
+    new Intl.DateTimeFormat(dateLocale, { dateStyle: 'medium', timeStyle: 'short' }).format(
+      new Date(iso)
+    )
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -165,7 +168,11 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                     <AvatarImage src={user.avatarUrl || ''} alt={user.fullName || ''} />
                     <AvatarFallback>
                       {user.fullName
-                        ? user.fullName.split(' ').map((n) => n[0]).join('').toUpperCase()
+                        ? user.fullName
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')
+                            .toUpperCase()
                         : user.email[0].toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -182,7 +189,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                         )}
                       </div>
                     ) : (
-                      <p className="font-medium">{user.fullName || t('admin.user_detail.no_name')}</p>
+                      <p className="font-medium">
+                        {user.fullName || t('admin.user_detail.no_name')}
+                      </p>
                     )}
                     {isEditing ? (
                       <div className="space-y-2 mt-2">
@@ -207,7 +216,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.user_detail.field_account_type')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.user_detail.field_account_type')}
+                    </span>
                     {user.googleId ? (
                       <Badge variant="secondary">Google</Badge>
                     ) : (
@@ -216,7 +227,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.user_detail.field_email_verified')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.user_detail.field_email_verified')}
+                    </span>
                     {user.isEmailVerified ? (
                       <div className="flex items-center gap-1 text-green-600">
                         <CheckCircle2 className="h-4 w-4" />
@@ -231,12 +244,16 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.user_detail.field_signup')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.user_detail.field_signup')}
+                    </span>
                     <span>{formatDateTime(user.createdAt)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.user_detail.field_updated_at')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.user_detail.field_updated_at')}
+                    </span>
                     <span>{formatDateTime(user.updatedAt)}</span>
                   </div>
                 </div>
@@ -267,7 +284,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                     </span>
                     <span className="text-sm">
                       {t('admin.user_detail.stats_time_ago', {
-                        time: formatDistanceToNow(new Date(sessions[0].lastActivity), { locale: distanceLocale }),
+                        time: formatDistanceToNow(new Date(sessions[0].lastActivity), {
+                          locale: distanceLocale,
+                        }),
                       })}
                     </span>
                   </div>
@@ -278,7 +297,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('admin.user_detail.sessions_title', { count: sessions.length })}</CardTitle>
+              <CardTitle>
+                {t('admin.user_detail.sessions_title', { count: sessions.length })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {sessions.length === 0 ? (
@@ -300,7 +321,8 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">
                               {t('admin.user_detail.session_browser_label', {
-                                browser: session.browser || t('admin.user_detail.session_browser_unknown'),
+                                browser:
+                                  session.browser || t('admin.user_detail.session_browser_unknown'),
                                 os: session.os || t('admin.user_detail.session_os_unknown'),
                               })}
                             </span>
@@ -321,7 +343,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {t('admin.user_detail.session_last_activity', {
-                              time: formatDistanceToNow(new Date(session.lastActivity), { locale: distanceLocale }),
+                              time: formatDistanceToNow(new Date(session.lastActivity), {
+                                locale: distanceLocale,
+                              }),
                             })}
                           </p>
                         </div>
@@ -367,7 +391,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                             {formatAction(log.action)}
                           </Badge>
                           {log.resourceType && (
-                            <span className="text-xs text-muted-foreground">{log.resourceType}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {log.resourceType}
+                            </span>
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -375,7 +401,9 @@ const UserDetailPage = ({ user, sessions, auditLogs }: UserDetailPageProps) => {
                           <span>·</span>
                           <span>
                             {t('admin.user_detail.audit_log_time_ago', {
-                              time: formatDistanceToNow(new Date(log.createdAt), { locale: distanceLocale }),
+                              time: formatDistanceToNow(new Date(log.createdAt), {
+                                locale: distanceLocale,
+                              }),
                             })}
                           </span>
                         </div>

@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head } from '@inertiajs/react'
 import AppLayout from '@/components/layouts/app-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,8 +24,12 @@ const SubscriptionSuccessPage = ({ sessionId }: Props) => {
                   <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
                 </div>
               </div>
-              <CardTitle className="text-2xl">{t('organizations.subscription_success.title')}</CardTitle>
-              <CardDescription>{t('organizations.subscription_success.description')}</CardDescription>
+              <CardTitle className="text-2xl">
+                {t('organizations.subscription_success.title')}
+              </CardTitle>
+              <CardDescription>
+                {t('organizations.subscription_success.description')}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {sessionId && (

@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AuthorizationService from '#roles/services/authorization_service'
+import type AuthorizationService from '#roles/services/authorization_service'
 import { E } from '#shared/exceptions/index'
 
 export default class PermissionMiddleware {
@@ -24,7 +24,7 @@ export default class PermissionMiddleware {
     }
 
     if (!organizationId) {
-      E.forbidden('accéder à cette ressource sans contexte d\'organisation')
+      E.forbidden("accéder à cette ressource sans contexte d'organisation")
     }
 
     const authService = getService<AuthorizationService>(TYPES.AuthorizationService)
@@ -34,9 +34,7 @@ export default class PermissionMiddleware {
       : await authService.canAny(userId, organizationId, this.permissions)
 
     if (!hasAccess) {
-      E.forbidden(
-        `Permission requise: ${this.permissions.join(this.requireAll ? ' et ' : ' ou ')}`
-      )
+      E.forbidden(`Permission requise: ${this.permissions.join(this.requireAll ? ' et ' : ' ou ')}`)
     }
 
     return next()

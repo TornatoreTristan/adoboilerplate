@@ -18,13 +18,15 @@ router
     // Mes sessions
     router.get('/sessions', [SessionController, 'page']).as('account.sessions.page')
     router.delete('/sessions/:id', [SessionController, 'destroy']).as('account.sessions.destroy')
-    router.delete('/sessions/others', [SessionController, 'destroyOthers']).as('account.sessions.destroyOthers')
+    router
+      .delete('/sessions/others', [SessionController, 'destroyOthers'])
+      .as('account.sessions.destroyOthers')
 
     // Mes préférences
     router.get('/preferences', async ({ inertia, session }) => {
       const { getService } = await import('#shared/container/container')
       const { TYPES } = await import('#shared/container/types')
-      const UserRepository = (await import('#users/repositories/user_repository')).default
+      const { default: UserRepository } = await import('#users/repositories/user_repository')
 
       const userId = session.get('user_id')
       const userRepo = getService<typeof UserRepository.prototype>(TYPES.UserRepository)
@@ -35,7 +37,7 @@ router
           newsletter_enabled: user?.newsletterEnabled ?? true,
           tips_enabled: user?.tipsEnabled ?? false,
           promotional_offers_enabled: user?.promotionalOffersEnabled ?? false,
-        }
+        },
       })
     })
     router.put('/communication-preferences', [UsersController, 'updateCommunicationPreferences'])

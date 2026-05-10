@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, Link, router } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, router } from '@inertiajs/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +15,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useI18n } from '@/hooks/use-i18n'
-import { getTranslation, type TranslatableField, type TranslatableFieldNullable } from '@/lib/translatable'
+import {
+  getTranslation,
+  type TranslatableField,
+  type TranslatableFieldNullable,
+} from '@/lib/translatable'
 
 interface Plan {
   id: string
@@ -63,7 +68,7 @@ const PlansIndexPage = ({ plans }: PlansIndexProps) => {
   return (
     <>
       <Head title={t('admin.plans_list.head_title')} />
-      <AdminLayout breadcrumbs={[{ label: t('admin.plans')  }]}>
+      <AdminLayout breadcrumbs={[{ label: t('admin.plans') }]}>
         <div className="flex flex-col gap-6 p-6">
           <PageHeader
             title={t('admin.plans_list.title')}
@@ -108,7 +113,9 @@ const PlansIndexPage = ({ plans }: PlansIndexProps) => {
                       <TableHead>{t('admin.plans_list.col_subscribers')}</TableHead>
                       <TableHead>{t('admin.plans_list.col_status')}</TableHead>
                       <TableHead>{t('admin.plans_list.col_stripe')}</TableHead>
-                      <TableHead className="text-right">{t('admin.plans_list.col_actions')}</TableHead>
+                      <TableHead className="text-right">
+                        {t('admin.plans_list.col_actions')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

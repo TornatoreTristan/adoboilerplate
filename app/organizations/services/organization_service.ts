@@ -55,8 +55,7 @@ export default class OrganizationService {
       id: organization.id,
       name: organization.name,
       slug: organization.slug,
-      description:
-        organization.descriptionI18n?.fr || organization.descriptionI18n?.en || null,
+      description: organization.descriptionI18n?.fr || organization.descriptionI18n?.en || null,
       website: organization.website,
       isActive: organization.isActive,
       createdAt: organization.createdAt,
@@ -64,11 +63,7 @@ export default class OrganizationService {
     }
   }
 
-  async addUser(
-    organizationId: string,
-    userId: string,
-    role: OrganizationRole
-  ): Promise<void> {
+  async addUser(organizationId: string, userId: string, role: OrganizationRole): Promise<void> {
     await this.organizationRepo.addUser(organizationId, userId, role)
   }
 

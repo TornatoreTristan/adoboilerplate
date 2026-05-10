@@ -13,6 +13,7 @@
 ### 1. Ouvrir la console navigateur (F12)
 
 Vous devriez voir au chargement de la page :
+
 ```
 ✅ Connected to notifications stream
 📬 Initial unread count: X
@@ -28,6 +29,7 @@ node ace test:notification
 ### 3. Regarder la console navigateur
 
 **Vous devriez voir :**
+
 ```
 📨 Received notification event: {
   type: "notification:new",
@@ -44,6 +46,7 @@ node ace test:notification
 ### Cause 1 : Transmit SSE bloqué par l'auth
 
 **Diagnostic :**
+
 ```bash
 # Tester l'endpoint SSE sans auth
 curl -N http://localhost:3333/__transmit/events
@@ -56,6 +59,7 @@ Si vous voyez du HTML (page d'erreur), c'est que l'endpoint nécessite une authe
 ### Cause 2 : Canal mal nommé
 
 **Vérification :**
+
 - Backend broadcast vers : `user/28270ec8-c8b7-41ee-8613-dc82d25192d5/notifications`
 - Frontend écoute : `user/28270ec8-c8b7-41ee-8613-dc82d25192d5/notifications`
 
@@ -101,6 +105,7 @@ Le badge affichera le bon nombre au chargement de la page grâce au `fetch('/api
 #### Étape 1 : Vérifier le userId
 
 **Console navigateur :**
+
 ```javascript
 // Copier-coller dans la console
 const props = window.InertiaProps || {}
@@ -108,6 +113,7 @@ console.log('User ID:', props.auth?.user?.id)
 ```
 
 **Terminal :**
+
 ```bash
 node ace test:notification
 # Vérifier que le userId dans le log correspond
@@ -128,16 +134,13 @@ console.log('🔍 Payload:', JSON.stringify(payload))
 **Ajouter des logs dans `start/transmit.ts` :**
 
 ```typescript
-transmit.authorize<{ userId: string }>(
-  'user/:userId/notifications',
-  (ctx, { userId }) => {
-    console.log('🔍 Authorization check:')
-    console.log('  - Requested userId:', userId)
-    console.log('  - Authenticated userId:', ctx.auth.user?.id)
-    console.log('  - Authorized:', ctx.auth.user?.id === userId)
-    return ctx.auth.user?.id === userId
-  }
-)
+transmit.authorize<{ userId: string }>('user/:userId/notifications', (ctx, { userId }) => {
+  console.log('🔍 Authorization check:')
+  console.log('  - Requested userId:', userId)
+  console.log('  - Authenticated userId:', ctx.auth.user?.id)
+  console.log('  - Authorized:', ctx.auth.user?.id === userId)
+  return ctx.auth.user?.id === userId
+})
 ```
 
 ---

@@ -2,18 +2,16 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AdminService from '#admin/services/admin_service'
-import OrganizationRepository from '#organizations/repositories/organization_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type AdminService from '#admin/services/admin_service'
+import type OrganizationRepository from '#organizations/repositories/organization_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 test.group('AdminService - Organizations', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('should get all organizations with member count', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
 
     const org1 = await organizationRepository.create({
       name: 'Organization 1',
@@ -45,7 +43,10 @@ test.group('AdminService - Organizations', (group) => {
 
     assert.equal(foundOrg1!.name, 'Organization 1')
     assert.equal(foundOrg1!.slug, 'org-1')
-    assert.deepEqual(foundOrg1!.descriptionI18n, { fr: 'Première organisation', en: 'First organization' })
+    assert.deepEqual(foundOrg1!.descriptionI18n, {
+      fr: 'Première organisation',
+      en: 'First organization',
+    })
     assert.equal(foundOrg1!.isActive, true)
     assert.exists(foundOrg1!.createdAt)
     assert.property(foundOrg1!, 'membersCount')
@@ -60,9 +61,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should include member count for organizations', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
 
     const org = await organizationRepository.create({
@@ -121,9 +120,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should return 0 member count for organization without members', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
 
     const org = await organizationRepository.create({
       name: 'Empty Org',
@@ -140,9 +137,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should get organization detail with members', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
 
     const org = await organizationRepository.create({
@@ -201,7 +196,10 @@ test.group('AdminService - Organizations', (group) => {
     assert.equal(detail.organization.id, org.id)
     assert.equal(detail.organization.name, 'Test Organization')
     assert.equal(detail.organization.slug, 'test-org')
-    assert.deepEqual(detail.organization.descriptionI18n, { fr: 'Une organisation de test', en: 'A test organization' })
+    assert.deepEqual(detail.organization.descriptionI18n, {
+      fr: 'Une organisation de test',
+      en: 'A test organization',
+    })
     assert.equal(detail.organization.website, 'https://test.com')
     assert.equal(detail.organization.isActive, true)
     assert.exists(detail.organization.createdAt)
@@ -224,9 +222,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should get organization detail with no members', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
 
     const org = await organizationRepository.create({
       name: 'Empty Organization',
@@ -250,9 +246,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should add existing user to organization', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const userRepository = getService<UserRepository>(TYPES.UserRepository)
 
     const org = await organizationRepository.create({
@@ -278,9 +272,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should throw error when adding non-existent user to organization', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
 
     const org = await organizationRepository.create({
       name: 'Test Org',
@@ -296,9 +288,7 @@ test.group('AdminService - Organizations', (group) => {
 
   test('should throw error when adding user already in organization', async ({ assert }) => {
     const adminService = getService<AdminService>(TYPES.AdminService)
-    const organizationRepository = getService<OrganizationRepository>(
-      TYPES.OrganizationRepository
-    )
+    const organizationRepository = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const userRepository = getService<UserRepository>(TYPES.UserRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
 

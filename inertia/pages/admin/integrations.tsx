@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, router, Link } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, router } from '@inertiajs/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -167,8 +168,12 @@ const IntegrationsPage = ({ stripe }: IntegrationsPageProps) => {
 
           <Card className="border-dashed">
             <CardHeader>
-              <CardTitle className="text-base">{t('admin.integrations_list.missing_card_title')}</CardTitle>
-              <CardDescription>{t('admin.integrations_list.missing_card_description')}</CardDescription>
+              <CardTitle className="text-base">
+                {t('admin.integrations_list.missing_card_title')}
+              </CardTitle>
+              <CardDescription>
+                {t('admin.integrations_list.missing_card_description')}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">

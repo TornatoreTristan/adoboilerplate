@@ -34,7 +34,7 @@ export default class OrganizationInvitationsController {
 
     if (!user) {
       session.put('invitation_token', token)
-      session.flash('info', 'Veuillez vous connecter ou créer un compte pour accepter l\'invitation')
+      session.flash('info', "Veuillez vous connecter ou créer un compte pour accepter l'invitation")
       return response.redirect(`/auth/login?email=${encodeURIComponent(invitation.email)}`)
     }
 

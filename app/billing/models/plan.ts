@@ -31,8 +31,7 @@ export default class Plan extends BaseModel {
 
   @column({
     columnName: 'description_i18n',
-    prepare: (value: TranslatableFieldNullable | null) =>
-      value ? JSON.stringify(value) : null,
+    prepare: (value: TranslatableFieldNullable | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | TranslatableFieldNullable | null) => {
       if (value === null) return null
       return typeof value === 'string' ? JSON.parse(value) : value
@@ -78,8 +77,7 @@ export default class Plan extends BaseModel {
 
   @column({
     columnName: 'features_i18n',
-    prepare: (value: TranslatableFieldNullable | null) =>
-      value ? JSON.stringify(value) : null,
+    prepare: (value: TranslatableFieldNullable | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | TranslatableFieldNullable | null) => {
       if (value === null) return null
       return typeof value === 'string' ? JSON.parse(value) : value
@@ -88,8 +86,7 @@ export default class Plan extends BaseModel {
   declare featuresI18n: TranslatableFieldNullable | null
 
   @column({
-    prepare: (value: Record<string, any> | null) =>
-      value ? JSON.stringify(value) : null,
+    prepare: (value: Record<string, any> | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | Record<string, any> | null) => {
       if (value === null) return null
       if (typeof value === 'string') {

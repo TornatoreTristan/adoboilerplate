@@ -25,7 +25,10 @@ export function Cacheable(options: CacheableOptions = {}) {
       const cache: CacheService = getService(TYPES.CacheService)
 
       // Construire la clé de cache
-      const cacheKey = buildCacheKey(options.key || `${target.constructor.name}:${propertyKey}`, args)
+      const cacheKey = buildCacheKey(
+        options.key || `${target.constructor.name}:${propertyKey}`,
+        args
+      )
 
       // Essayer de récupérer depuis le cache
       const cached = await cache.get(cacheKey)
@@ -82,7 +85,10 @@ export function CacheEvict(options: CacheEvictOptions = {}) {
 /**
  * Décorateur combiné : met en cache ET invalide d'autres caches
  */
-export function CachePut(cacheOptions: CacheableOptions = {}, evictOptions: CacheEvictOptions = {}) {
+export function CachePut(
+  cacheOptions: CacheableOptions = {},
+  evictOptions: CacheEvictOptions = {}
+) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
@@ -134,10 +140,7 @@ function buildCacheKey(template: string, args: any[]): string {
   if (args.length > 0 && typeof args[0] === 'object') {
     const firstArg = args[0]
     Object.keys(firstArg).forEach((paramName) => {
-      key = key.replace(
-        new RegExp(`\\{\\{${paramName}\\}\\}`, 'g'),
-        String(firstArg[paramName])
-      )
+      key = key.replace(new RegExp(`\\{\\{${paramName}\\}\\}`, 'g'), String(firstArg[paramName]))
     })
   }
 

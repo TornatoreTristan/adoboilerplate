@@ -11,7 +11,7 @@ const i18nConfig = defineConfig({
 
   loaders: [
     loaders.fs({
-      location: app.languageFilesPath()
+      location: app.languageFilesPath(),
     }),
   ],
 })

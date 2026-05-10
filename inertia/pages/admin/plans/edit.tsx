@@ -1,4 +1,8 @@
-import { getTranslation, type TranslatableField, type TranslatableFieldNullable } from '@/lib/translatable'
+import {
+  getTranslation,
+  type TranslatableField,
+  type TranslatableFieldNullable,
+} from '@/lib/translatable'
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
 import { Head, router, useForm } from '@inertiajs/react'
@@ -165,7 +169,9 @@ const EditPlanPage = ({ plan }: Props) => {
                       placeholder="pro"
                       disabled
                     />
-                    <p className="text-xs text-muted-foreground">Le slug ne peut pas être modifié</p>
+                    <p className="text-xs text-muted-foreground">
+                      Le slug ne peut pas être modifié
+                    </p>
                     {errors.slug && <p className="text-sm text-destructive">{errors.slug}</p>}
                   </div>
                 </div>
@@ -221,7 +227,10 @@ const EditPlanPage = ({ plan }: Props) => {
                 {/* Devise */}
                 <div className="space-y-2">
                   <Label htmlFor="currency">Devise *</Label>
-                  <Select value={data.currency} onValueChange={(value) => setData('currency', value)}>
+                  <Select
+                    value={data.currency}
+                    onValueChange={(value) => setData('currency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -285,9 +294,7 @@ const EditPlanPage = ({ plan }: Props) => {
                         {errors.priceMonthly && (
                           <p className="text-sm text-destructive">{errors.priceMonthly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">
-                          Prix par utilisateur/mois
-                        </p>
+                        <p className="text-xs text-muted-foreground">Prix par utilisateur/mois</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="priceYearly">Prix par siège (annuel) *</Label>
@@ -301,16 +308,16 @@ const EditPlanPage = ({ plan }: Props) => {
                         {errors.priceYearly && (
                           <p className="text-sm text-destructive">{errors.priceYearly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">
-                          Prix par utilisateur/an
-                        </p>
+                        <p className="text-xs text-muted-foreground">Prix par utilisateur/an</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg bg-muted/50">
                       <p className="text-sm text-muted-foreground">
-                        <strong>Modèle par siège :</strong> Le prix est multiplié par le nombre d'utilisateurs.
+                        <strong>Modèle par siège :</strong> Le prix est multiplié par le nombre
+                        d'utilisateurs.
                         <br />
-                        Exemple : 5 utilisateurs × {data.priceMonthly}€ = {(5 * data.priceMonthly).toFixed(2)}€/mois
+                        Exemple : 5 utilisateurs × {data.priceMonthly}€ ={' '}
+                        {(5 * data.priceMonthly).toFixed(2)}€/mois
                       </p>
                     </div>
                   </div>

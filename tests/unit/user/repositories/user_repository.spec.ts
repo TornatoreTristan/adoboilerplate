@@ -3,12 +3,14 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserRepository from '#users/repositories/user_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 test.group('UserRepository - admin methods', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('countByDay returns rows with date and count for users after the given date', async ({ assert }) => {
+  test('countByDay returns rows with date and count for users after the given date', async ({
+    assert,
+  }) => {
     const repo = getService<UserRepository>(TYPES.UserRepository)
     const { default: db } = await import('@adonisjs/lucid/services/db')
 

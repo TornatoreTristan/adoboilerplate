@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
+import type UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
 import type { NotificationType } from '#notifications/types/notification'
 import type { NotificationChannel } from '#notifications/models/user_notification_preference'
 import vine from '@vinejs/vine'

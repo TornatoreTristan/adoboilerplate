@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
-import Organization from '#organizations/models/organization'
+import type Organization from '#organizations/models/organization'
 import { E } from '#shared/exceptions/index'
 
 export default class OrganizationContextMiddleware {

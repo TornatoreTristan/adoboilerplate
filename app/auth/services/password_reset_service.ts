@@ -72,27 +72,27 @@ export default class PasswordResetService {
     if (!passwordResetToken) {
       return {
         valid: false,
-        error: 'Lien de réinitialisation invalide'
+        error: 'Lien de réinitialisation invalide',
       }
     }
 
     if (passwordResetToken.isExpired && passwordResetToken.isExpired()) {
       return {
         valid: false,
-        error: 'Ce lien de réinitialisation a expiré'
+        error: 'Ce lien de réinitialisation a expiré',
       }
     }
 
     if (passwordResetToken.isUsed && passwordResetToken.isUsed()) {
       return {
         valid: false,
-        error: 'Ce lien de réinitialisation a déjà été utilisé'
+        error: 'Ce lien de réinitialisation a déjà été utilisé',
       }
     }
 
     return {
       valid: true,
-      email: passwordResetToken.email
+      email: passwordResetToken.email,
     }
   }
 
@@ -127,7 +127,7 @@ export default class PasswordResetService {
 
     return {
       success: true,
-      message: 'Votre mot de passe a été réinitialisé avec succès'
+      message: 'Votre mot de passe a été réinitialisé avec succès',
     }
   }
 

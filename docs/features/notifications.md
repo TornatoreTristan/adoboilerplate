@@ -31,12 +31,12 @@ app/notifications/
 
 ```typescript
 type NotificationType =
-  | 'user.mentioned'           // Utilisateur mentionné
-  | 'org.invitation'           // Invitation à une organisation
-  | 'org.member_joined'        // Nouveau membre dans l'org
-  | 'org.member_left'          // Membre a quitté l'org
-  | 'system.announcement'      // Annonce système
-  | 'system.maintenance'       // Maintenance programmée
+  | 'user.mentioned' // Utilisateur mentionné
+  | 'org.invitation' // Invitation à une organisation
+  | 'org.member_joined' // Nouveau membre dans l'org
+  | 'org.member_left' // Membre a quitté l'org
+  | 'system.announcement' // Annonce système
+  | 'system.maintenance' // Maintenance programmée
 ```
 
 ## 🚀 Utilisation
@@ -116,10 +116,12 @@ Toutes les routes nécessitent l'authentification (`auth` middleware).
 Liste les notifications de l'utilisateur connecté.
 
 **Query Parameters:**
+
 - `unread=true` - Uniquement les non lues
 - `type=user.mentioned` - Filtrer par type
 
 **Response:**
+
 ```json
 {
   "notifications": [
@@ -143,6 +145,7 @@ Liste les notifications de l'utilisateur connecté.
 Récupère le nombre de notifications non lues.
 
 **Response:**
+
 ```json
 {
   "count": 5
@@ -154,6 +157,7 @@ Récupère le nombre de notifications non lues.
 Marque une notification comme lue.
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -165,6 +169,7 @@ Marque une notification comme lue.
 Marque toutes les notifications de l'utilisateur comme lues.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -177,6 +182,7 @@ Marque toutes les notifications de l'utilisateur comme lues.
 Supprime une notification (soft delete).
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -261,7 +267,7 @@ export default class Notification extends BaseModel {
 ```typescript
 // Lors de la création
 await notificationRepo.create(data, {
-  cache: { tags: ['notifications', `user_${userId}_notifications`] }
+  cache: { tags: ['notifications', `user_${userId}_notifications`] },
 })
 ```
 
@@ -335,6 +341,7 @@ for (const user of users) {
 ### Autorisation
 
 Le controller vérifie automatiquement que :
+
 - L'utilisateur est authentifié
 - La notification appartient à l'utilisateur connecté
 
@@ -478,10 +485,8 @@ export function useNotifications() {
 
         // Toast notification
         const currentLocale = (localeRef.current || 'fr') as 'fr' | 'en'
-        const title = newNotification.titleI18n[currentLocale] ||
-                     newNotification.titleI18n.fr
-        const message = newNotification.messageI18n[currentLocale] ||
-                       newNotification.messageI18n.fr
+        const title = newNotification.titleI18n[currentLocale] || newNotification.titleI18n.fr
+        const message = newNotification.messageI18n[currentLocale] || newNotification.messageI18n.fr
 
         toast.info(title, {
           description: message,
@@ -492,21 +497,22 @@ export function useNotifications() {
       if (payload.type === 'notification:read' && payload.notificationId) {
         setNotifications((prev) =>
           prev.map((n) =>
-            n.id === payload.notificationId
-              ? { ...n, readAt: new Date().toISOString() }
-              : n
+            n.id === payload.notificationId ? { ...n, readAt: new Date().toISOString() } : n
           )
         )
         setUnreadCount((prev) => Math.max(0, prev - 1))
       }
     })
 
-    subscription.create().then(() => {
-      setIsConnected(true)
-    }).catch((error) => {
-      console.error('Failed to connect to notifications stream:', error)
-      setIsConnected(false)
-    })
+    subscription
+      .create()
+      .then(() => {
+        setIsConnected(true)
+      })
+      .catch((error) => {
+        console.error('Failed to connect to notifications stream:', error)
+        setIsConnected(false)
+      })
 
     return () => {
       stopListening()
@@ -524,6 +530,7 @@ export function useNotifications() {
 **Symptôme**: Après exactement 5 suppressions de notifications, l'application se figeait avec un chargement infini.
 
 **Cause**:
+
 - Chaque suppression déclenchait un reload Inertia de la page
 - Le composant React se démontait et remontait
 - Sans singleton, `new Transmit()` créait une nouvelle instance à chaque fois
@@ -577,6 +584,7 @@ export default class SendNotificationDigestJob {
 ### Queries optimisées
 
 Grâce aux index sur `user_id`, `read_at`, `type` et `deleted_at` :
+
 - Récupération des notifications d'un user : `O(log n)`
 - Count unread : `O(log n)` via index composite
 - Filtrage par type : `O(log n)`
@@ -584,6 +592,7 @@ Grâce aux index sur `user_id`, `read_at`, `type` et `deleted_at` :
 ### Cache Hit Rate
 
 Le cache Redis permet de :
+
 - Éviter les queries répétées pour `unread count`
 - Accélérer l'accès aux notifications récentes
 - Réduire la charge DB jusqu'à 80% sur les endpoints read-heavy

@@ -5,6 +5,7 @@
 ## 🎯 Architecture Obligatoire
 
 ### Repository Pattern
+
 - **TOUJOURS** utiliser `BaseRepository<T>` pour les nouveaux modèles
 - **JAMAIS** faire du Lucid direct dans les services
 - Hériter et étendre : `class FooRepository extends BaseRepository<typeof Foo>`
@@ -25,6 +26,7 @@ const user = await User.findBy('email', email)
 ```
 
 ### Injection de Dépendances (Inversify)
+
 - **TOUJOURS** utiliser `@injectable()` sur les services/repositories
 - **TOUJOURS** injecter avec `@inject(TYPES.ServiceName)`
 - **TOUJOURS** récupérer via `getService<T>(TYPES.ServiceName)`
@@ -44,6 +46,7 @@ const userService = getService<UserService>(TYPES.UserService)
 ```
 
 ### Gestion d'Erreurs
+
 - **TOUJOURS** utiliser les exceptions personnalisées : `E.methodName()`
 - **JAMAIS** throw Error() direct
 - Suivre la hiérarchie : `ValidationException`, `NotFoundException`, etc.
@@ -61,6 +64,7 @@ throw new Error('User not found')
 ## 🗂️ Structure des Modules
 
 ### Organisation par Domaine
+
 ```
 app/domain_name/
 ├── controllers/     # HTTP handlers
@@ -72,6 +76,7 @@ app/domain_name/
 ```
 
 ### Nommage des Fichiers
+
 - Controllers : `domain_controller.ts` (ex: `users_controller.ts`)
 - Services : `domain_service.ts` (ex: `user_service.ts`)
 - Repositories : `domain_repository.ts` (ex: `user_repository.ts`)
@@ -80,11 +85,13 @@ app/domain_name/
 ## 📊 Base de Données
 
 ### Migrations
+
 - **JAMAIS** créer de nouvelles migrations sans demander
 - **TOUJOURS** modifier les migrations existantes si possible
 - **TOUJOURS** rollback avant modification : utilisateur confirme
 
 ### Soft Deletes
+
 - Si le modèle a `deleted_at: DateTime`, le soft delete est automatique
 - **TOUJOURS** utiliser `repository.delete(id, { soft: true })` par défaut
 - Utiliser `{ soft: false }` seulement si explicitement demandé
@@ -98,6 +105,7 @@ await userRepo.delete(userId, { soft: false })
 ```
 
 ### Full-Text Search (PostgreSQL)
+
 - **TOUJOURS** ajouter `search_vector` tsvector lors de la création d'une table
 - **TOUJOURS** créer un index GIN sur `search_vector`
 - **TOUJOURS** créer un trigger auto-update pour maintenir `search_vector`
@@ -151,6 +159,7 @@ async down() {
 ```
 
 #### Utilisation dans les Repositories
+
 ```typescript
 // ✅ Recherche Full-Text dans un repository
 async search(query: string, limit: number = 20): Promise<User[]> {
@@ -171,6 +180,7 @@ async search(query: string, limit: number = 20): Promise<User[]> {
 ## ⚡ Cache & Performance
 
 ### Cache Redis
+
 - **TOUJOURS** utiliser les options cache dans les repositories
 - **TOUJOURS** définir des tags pertinents pour invalidation
 - TTL par défaut : 1800s (30min) pour les entités, 3600s (1h) pour les listes
@@ -178,16 +188,17 @@ async search(query: string, limit: number = 20): Promise<User[]> {
 ```typescript
 // ✅ CORRECT
 const user = await userRepo.findById(id, {
-  cache: { ttl: 1800, tags: [`user_${id}`, 'users'] }
+  cache: { ttl: 1800, tags: [`user_${id}`, 'users'] },
 })
 
 // ✅ Invalidation lors des mutations
 await userRepo.create(data, {
-  cache: { tags: ['users'] }
+  cache: { tags: ['users'] },
 })
 ```
 
 ### Events & Hooks
+
 - Les événements sont automatiques via BaseRepository
 - **Sync** : `eventBus.on('model.before_create', handler)` - Validation, transformation
 - Events disponibles :
@@ -196,11 +207,13 @@ await userRepo.create(data, {
 ## 🧪 Test-Driven Development (TDD)
 
 ### Workflow TDD OBLIGATOIRE
+
 1. **RED** : Écrire le test qui échoue d'abord
 2. **GREEN** : Implémenter le minimum pour que le test passe
 3. **REFACTOR** : Améliorer le code en gardant les tests verts
 
 ### Exemple TDD Complet
+
 ```typescript
 // 1. RED - Test d'abord (doit échouer)
 test('should create user with hashed password', async ({ assert }) => {
@@ -238,6 +251,7 @@ async create(data: CreateUserData): Promise<User> {
 ```
 
 ### Commands de Test
+
 ```bash
 # TOUJOURS utiliser cette commande simple
 npm run test
@@ -250,6 +264,7 @@ npm run test -- --watch
 ```
 
 ### Structure des Tests
+
 - Tests unitaires : `tests/unit/domain/`
 - Tests fonctionnels : `tests/functional/domain/`
 - **TOUJOURS** écrire les tests AVANT l'implémentation (TDD)
@@ -258,6 +273,7 @@ npm run test -- --watch
 - **TOUJOURS** refactorer après (REFACTOR)
 
 ### Mocking pour Tests
+
 ```typescript
 // ✅ Mock des repositories pour tests unitaires
 const mockUserRepo = {
@@ -276,6 +292,7 @@ mockUserRepo.findByEmail.mockResolvedValue(null) // Email unique
 ## 🚀 Development Workflow
 
 ### Commandes Principales
+
 ```bash
 # Développement
 npm run dev
@@ -295,6 +312,7 @@ node ace migration:rollback
 ```
 
 ### Workflow TDD pour Nouvelles Fonctionnalités
+
 1. **RED** : Écrire le test qui échoue
 2. **GREEN** : Implémenter le minimum pour passer
 3. **REFACTOR** : Améliorer le code
@@ -305,6 +323,7 @@ node ace migration:rollback
 ## 📝 Code Patterns
 
 ### Controllers
+
 ```typescript
 export default class UsersController {
   async store({ request }: HttpContext) {
@@ -324,12 +343,11 @@ export default class UsersController {
 ```
 
 ### Services
+
 ```typescript
 @injectable()
 export default class UserService {
-  constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
-  ) {}
+  constructor(@inject(TYPES.UserRepository) private userRepo: UserRepository) {}
 
   async create(data: CreateUserData): Promise<User> {
     // 1. Validation métier
@@ -341,13 +359,14 @@ export default class UserService {
     // 3. Création via repository
     return this.userRepo.create({
       ...data,
-      password: hashedPassword
+      password: hashedPassword,
     })
   }
 }
 ```
 
 ### Repositories
+
 ```typescript
 @injectable()
 export default class UserRepository extends BaseRepository<typeof User> {
@@ -367,11 +386,13 @@ export default class UserRepository extends BaseRepository<typeof User> {
 ## 🔒 Sécurité
 
 ### Authentification
+
 - **TOUJOURS** utiliser le middleware `auth` pour les routes protégées
 - **TOUJOURS** accéder à l'utilisateur via `ctx.user` (injecté par AuthMiddleware)
 - Session tracking automatique avec `UpdateSessionActivityMiddleware`
 
 ### Validation
+
 - **TOUJOURS** utiliser Vine validators
 - **JAMAIS** faire confiance aux données utilisateur
 - **TOUJOURS** valider format email avec `.email().normalizeEmail()`
@@ -381,12 +402,14 @@ export default class UserRepository extends BaseRepository<typeof User> {
 ### Clean Code OBLIGATOIRE
 
 #### Nommage
+
 - **Variables/Méthodes** : `camelCase` explicite (`getUserById` vs `get`)
 - **Classes** : `PascalCase` avec intention claire (`UserService` vs `Service`)
 - **Constantes** : `UPPER_SNAKE_CASE` (`MAX_RETRY_COUNT`)
 - **JAMAIS** d'abréviations (`user` vs `usr`, `calculate` vs `calc`)
 
 #### Fonctions
+
 - **Une responsabilité** par fonction
 - **Maximum 20 lignes** par fonction
 - **Noms explicites** qui décrivent l'action (`validateUserEmail` vs `validate`)
@@ -411,6 +434,7 @@ async create(d: any): Promise<any> {
 ```
 
 #### Principes SOLID
+
 - **S**ingle Responsibility : Une classe = une responsabilité
 - **O**pen/Closed : Extensible sans modification (interfaces)
 - **L**iskov Substitution : Les sous-classes remplacent les classes parentes
@@ -418,6 +442,7 @@ async create(d: any): Promise<any> {
 - **D**ependency Inversion : Dépendre d'abstractions (injection)
 
 #### TypeScript
+
 - **TOUJOURS** typer explicitement les paramètres publics
 - **TOUJOURS** utiliser les interfaces du domaine
 - **JAMAIS** `any` sauf cas exceptionnels avec commentaire
@@ -438,10 +463,12 @@ async createUser(data: any): Promise<any>
 ```
 
 ### Imports
+
 - **TOUJOURS** utiliser les alias : `#shared/`, `#users/`, etc.
 - **JAMAIS** d'imports relatifs profonds : `../../../`
 
 ### Comments
+
 - **JAMAIS** ajouter de commentaires sauf demande explicite
 - Le code doit être self-documenting
 - **Exception** : Logique métier complexe nécessitant explication
@@ -449,6 +476,7 @@ async createUser(data: any): Promise<any>
 ## 🚫 À NE JAMAIS FAIRE
 
 ### Architecture
+
 1. ❌ Bypass du Repository pattern (Lucid direct)
 2. ❌ Créer migrations sans permission
 3. ❌ Ignorer le container IoC
@@ -457,18 +485,21 @@ async createUser(data: any): Promise<any>
 6. ❌ Oublier le cache sur les read operations
 
 ### Base de Données
+
 7. ❌ Créer une table sans `search_vector` tsvector
 8. ❌ Oublier le GIN index sur `search_vector`
 9. ❌ Oublier le trigger auto-update pour `search_vector`
 10. ❌ Utiliser autre chose que 'french' pour la langue
 
 ### TDD & Tests
+
 11. ❌ Implémenter sans écrire le test d'abord
 12. ❌ Tester après implémentation (faire TDD inverse)
 13. ❌ Commit sans que tous les tests passent
 14. ❌ Ignorer un test qui échoue
 
 ### Clean Code
+
 15. ❌ Utiliser `any` sans justification
 16. ❌ Fonctions > 20 lignes sans refactoring
 17. ❌ Noms non explicites (`d`, `u`, `calc`, `mgr`)
@@ -484,10 +515,12 @@ async createUser(data: any): Promise<any>
 **TOUJOURS** utiliser `useI18n()` et les clés de traduction pour TOUT texte affiché.
 
 ### Langues supportées
+
 - Français (défaut)
 - Anglais
 
 ### Deux systèmes complémentaires
+
 1. **AdonisJS I18n** : Textes statiques (labels, messages d'erreur)
 2. **Champs JSON `_i18n`** : Contenu dynamique (créé par utilisateurs)
 
@@ -615,6 +648,7 @@ export function MyComponent() {
 ```
 
 **Checklist nouveau composant React :**
+
 1. ✅ Importer `useI18n` en haut du fichier
 2. ✅ Appeler `const { t } = useI18n()` dans le composant
 3. ✅ Remplacer TOUS les textes par `t('namespace.key')`

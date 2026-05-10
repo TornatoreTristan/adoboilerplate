@@ -76,7 +76,9 @@ export default class PlanService {
       pricingModel: data.pricingModel,
       pricingTiers: data.pricingTiers || null,
       trialDays: data.trialDays || null,
-      featuresI18n: data.features ? { fr: data.features.join(', '), en: data.features.join(', ') } : null,
+      featuresI18n: data.features
+        ? { fr: data.features.join(', '), en: data.features.join(', ') }
+        : null,
       limits: data.limits || null,
       isActive: data.isActive ?? true,
       isVisible: data.isVisible ?? true,
@@ -96,7 +98,12 @@ export default class PlanService {
     // Si le plan est synced avec Stripe
     if (plan.stripeProductId) {
       // 1. Mettre à jour le nom/description/features/limits du produit Stripe
-      if (data.name || data.description !== undefined || data.features !== undefined || data.limits !== undefined) {
+      if (
+        data.name ||
+        data.description !== undefined ||
+        data.features !== undefined ||
+        data.limits !== undefined
+      ) {
         await this.updateStripeProduct(
           plan.stripeProductId,
           data.name || plan.name,
@@ -168,22 +175,24 @@ export default class PlanService {
     // Mettre à jour la base de données
     return this.planRepository.update(planId, {
       nameI18n: data.name ? { fr: data.name, en: data.name } : undefined,
-      descriptionI18n: data.description !== undefined
-        ? data.description
-          ? { fr: data.description, en: data.description }
-          : null
-        : undefined,
+      descriptionI18n:
+        data.description !== undefined
+          ? data.description
+            ? { fr: data.description, en: data.description }
+            : null
+          : undefined,
       priceMonthly: data.priceMonthly,
       priceYearly: data.priceYearly,
       currency: data.currency,
       pricingModel: data.pricingModel,
       pricingTiers: data.pricingTiers,
       trialDays: data.trialDays,
-      featuresI18n: data.features !== undefined
-        ? data.features
-          ? { fr: data.features.join(', '), en: data.features.join(', ') }
-          : null
-        : undefined,
+      featuresI18n:
+        data.features !== undefined
+          ? data.features
+            ? { fr: data.features.join(', '), en: data.features.join(', ') }
+            : null
+          : undefined,
       limits: data.limits,
       isActive: data.isActive,
       isVisible: data.isVisible,

@@ -47,14 +47,7 @@ interface PreferenceRowProps {
   t: (key: string) => string
 }
 
-function PreferenceRow({
-  label,
-  notifType,
-  channels,
-  isEnabled,
-  onToggle,
-  t,
-}: PreferenceRowProps) {
+function PreferenceRow({ label, notifType, channels, isEnabled, onToggle, t }: PreferenceRowProps) {
   return (
     <div className="space-y-2">
       <Label className="text-sm">{label}</Label>
@@ -107,9 +100,7 @@ export default function Preferences({ user }: PreferencesProps) {
 
   const togglePreference = (notifType: NotificationType, channel: NotificationChannel) => {
     setPreferences((prev) => {
-      const existing = prev.find(
-        (p) => p.notification_type === notifType && p.channel === channel
-      )
+      const existing = prev.find((p) => p.notification_type === notifType && p.channel === channel)
       if (existing) {
         return prev.map((p) =>
           p.notification_type === notifType && p.channel === channel
@@ -131,9 +122,7 @@ export default function Preferences({ user }: PreferencesProps) {
   }
 
   const isEnabled = (notifType: NotificationType, channel: NotificationChannel): boolean => {
-    const pref = preferences.find(
-      (p) => p.notification_type === notifType && p.channel === channel
-    )
+    const pref = preferences.find((p) => p.notification_type === notifType && p.channel === channel)
     return pref ? pref.enabled : true // Défaut: activé
   }
 
@@ -443,7 +432,9 @@ export default function Preferences({ user }: PreferencesProps) {
           <div className="space-y-4">
             <div>
               <h3 className="text-base font-medium">{t('account.preferences.language_region')}</h3>
-              <p className="text-muted-foreground mt-1 text-sm">{t('account.preferences.language_region_description')}</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {t('account.preferences.language_region_description')}
+              </p>
             </div>
 
             <div className="grid gap-2">

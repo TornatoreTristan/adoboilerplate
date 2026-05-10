@@ -32,11 +32,7 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
 
   return (
     <>
-      <form
-        className={cn('flex flex-col gap-6', className)}
-        onSubmit={handleSubmit}
-        {...props}
-      >
+      <form className={cn('flex flex-col gap-6', className)} onSubmit={handleSubmit} {...props}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
             <h1 className="text-2xl font-bold">{t('auth.login_form.title')}</h1>
@@ -111,7 +107,8 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
               </a>
             </Button>
             <FieldDescription className="text-center">
-              {t('auth.login_form.no_account')}<br />
+              {t('auth.login_form.no_account')}
+              <br />
               <a href="/register" className="underline underline-offset-4">
                 {t('auth.login_form.register_now')}
               </a>

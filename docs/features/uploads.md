@@ -5,6 +5,7 @@ Le système d'upload de ce boilerplate offre une solution complète et flexible 
 ## 🎯 Vue d'Ensemble
 
 ### Fonctionnalités
+
 - ✅ **Multi-storage** (Local filesystem et AWS S3)
 - ✅ **Antivirus Protection** (ClamAV integration avec dégradation gracieuse)
 - ✅ **Image Optimization** (compression, redimensionnement, conversion WebP)
@@ -16,6 +17,7 @@ Le système d'upload de ce boilerplate offre une solution complète et flexible 
 - ✅ **Cache & Events** intégrés
 
 ### Architecture
+
 ```
 Controllers ← Services ← Repositories ← Models
      ↕            ↕           ↕          ↕
@@ -50,6 +52,7 @@ app/uploads/
 ## 🚀 UploadsController
 
 ### Upload File
+
 ```typescript
 // POST /api/uploads
 export default class UploadsController {
@@ -80,6 +83,7 @@ export default class UploadsController {
 ```
 
 ### List User Uploads
+
 ```typescript
 // GET /api/uploads
 async index({ request, user }: HttpContext) {
@@ -98,6 +102,7 @@ async index({ request, user }: HttpContext) {
 ```
 
 ### Get Upload by ID
+
 ```typescript
 // GET /api/uploads/:id
 async show({ params, user, response }: HttpContext) {
@@ -119,6 +124,7 @@ async show({ params, user, response }: HttpContext) {
 ```
 
 ### Generate Signed URL
+
 ```typescript
 // GET /api/uploads/:id/signed-url
 async signedUrl({ params, user, response }: HttpContext) {
@@ -142,6 +148,7 @@ async signedUrl({ params, user, response }: HttpContext) {
 ```
 
 ### Delete Upload
+
 ```typescript
 // DELETE /api/uploads/:id
 async destroy({ params, user, response }: HttpContext) {
@@ -182,7 +189,8 @@ export default class UploadService {
     @inject(TYPES.UploadRepository) private uploadRepo: UploadRepository,
     @inject(TYPES.StorageService) private storageService: StorageService,
     @inject(TYPES.AntivirusService) private antivirusService: AntivirusService,
-    @inject(TYPES.ImageOptimizationService) private imageOptimizationService: ImageOptimizationService
+    @inject(TYPES.ImageOptimizationService)
+    private imageOptimizationService: ImageOptimizationService
   ) {}
 
   async uploadFile(options: UploadFileOptions): Promise<Upload> {
@@ -207,10 +215,7 @@ export default class UploadService {
     }
 
     // 🖼️ ÉTAPE 2: Optimisation d'image
-    if (
-      !options.skipImageOptimization &&
-      this.imageOptimizationService.isImage(options.mimeType)
-    ) {
+    if (!options.skipImageOptimization && this.imageOptimizationService.isImage(options.mimeType)) {
       logger.info(`🖼️  Optimizing image: ${options.filename}`)
 
       try {
@@ -297,6 +302,7 @@ export interface UploadFileOptions {
 ## 💾 StorageService
 
 ### Abstraction Multi-Storage
+
 ```typescript
 @injectable()
 export default class StorageService {
@@ -354,6 +360,7 @@ export default class StorageService {
 ## 🗄️ Storage Drivers
 
 ### LocalStorageDriver
+
 ```typescript
 @injectable()
 export default class LocalStorageDriver implements StorageDriver {
@@ -404,6 +411,7 @@ export default class LocalStorageDriver implements StorageDriver {
 ```
 
 ### S3StorageDriver
+
 ```typescript
 @injectable()
 export default class S3StorageDriver implements StorageDriver {
@@ -514,12 +522,14 @@ export default class AntivirusService {
 ### Configuration ClamAV
 
 **Installation (macOS)**:
+
 ```bash
 brew install clamav
 brew services start clamav
 ```
 
 **Installation (Ubuntu/Debian)**:
+
 ```bash
 sudo apt-get update
 sudo apt-get install clamav clamav-daemon
@@ -527,6 +537,7 @@ sudo systemctl start clamav-daemon
 ```
 
 **Variables d'environnement**:
+
 ```env
 CLAMAV_ENABLED=true
 CLAMAV_SOCKET=/var/run/clamav/clamd.ctl
@@ -537,6 +548,7 @@ CLAMAV_PORT=3310
 ### Dégradation Gracieuse
 
 Si ClamAV n'est pas disponible, le service :
+
 - ✅ **Log un warning** mais ne bloque pas l'upload
 - ✅ **Marque les fichiers comme non scannés** dans les métadonnées
 - ✅ **Permet le développement local** sans installer ClamAV
@@ -619,7 +631,11 @@ export default class ImageOptimizationService {
     }
   }
 
-  async generateThumbnail(buffer: Buffer, width: number = 200, height: number = 200): Promise<Buffer> {
+  async generateThumbnail(
+    buffer: Buffer,
+    width: number = 200,
+    height: number = 200
+  ): Promise<Buffer> {
     return await sharp(buffer)
       .resize(width, height, { fit: 'cover', position: 'center' })
       .jpeg({ quality: 80 })
@@ -665,25 +681,28 @@ metadata: {
 ### Exemples d'Optimisation
 
 **JPEG → Optimisé + Redimensionné**:
+
 ```typescript
 const result = await imageOptimizationService.optimizeImage(imageBuffer, 'photo.jpg', {
   maxWidth: 1920,
   maxHeight: 1080,
-  quality: 85
+  quality: 85,
 })
 // Original: 3.2 MB → Optimisé: 450 KB (~86% réduction)
 ```
 
 **PNG → WebP**:
+
 ```typescript
 const result = await imageOptimizationService.optimizeImage(pngBuffer, 'logo.png', {
   convertToWebP: true,
-  quality: 90
+  quality: 90,
 })
 // Original PNG: 1.5 MB → WebP: 180 KB (~88% réduction)
 ```
 
 **Thumbnail**:
+
 ```typescript
 const thumbnail = await imageOptimizationService.generateThumbnail(imageBuffer, 200, 200)
 // Thumbnail carré 200x200 px, qualité 80, format JPEG
@@ -692,6 +711,7 @@ const thumbnail = await imageOptimizationService.generateThumbnail(imageBuffer, 
 ## 📊 Upload Model
 
 ### Modèle Lucid
+
 ```typescript
 export default class Upload extends BaseModel {
   @column({ isPrimary: true })
@@ -766,6 +786,7 @@ export default class Upload extends BaseModel {
 ## 🔗 Polymorphic Attachments
 
 ### Attacher à un Post
+
 ```typescript
 // Créer un upload attaché à un post
 const upload = await uploadService.uploadFile({
@@ -778,17 +799,18 @@ const upload = await uploadService.uploadFile({
   visibility: 'public',
   uploadableType: 'Post',
   uploadableId: post.id,
-  metadata: { width: 1920, height: 1080 }
+  metadata: { width: 1920, height: 1080 },
 })
 
 // Récupérer tous les uploads d'un post
 const postUploads = await uploadService.getUploads({
   uploadableType: 'Post',
-  uploadableId: post.id
+  uploadableId: post.id,
 })
 ```
 
 ### Exemple avec Organization
+
 ```typescript
 const logo = await uploadService.uploadFile({
   userId: user.id,
@@ -800,13 +822,14 @@ const logo = await uploadService.uploadFile({
   visibility: 'public',
   uploadableType: 'Organization',
   uploadableId: organization.id,
-  metadata: { width: 512, height: 512 }
+  metadata: { width: 512, height: 512 },
 })
 ```
 
 ## 🔒 Sécurité
 
 ### Validation des Uploads
+
 ```typescript
 export const uploadFileValidator = vine.compile(
   vine.object({
@@ -829,6 +852,7 @@ export const getUploadsValidator = vine.compile(
 ```
 
 ### Authorization
+
 ```typescript
 // Vérification propriétaire dans le controller
 if (upload.userId !== user.id) {
@@ -837,6 +861,7 @@ if (upload.userId !== user.id) {
 ```
 
 ### Signed URLs Temporaires
+
 ```typescript
 // Générer URL valide 1 heure
 const signedUrl = await uploadService.getSignedUrl(uploadId, 3600)
@@ -848,6 +873,7 @@ const signedUrl = await uploadService.getSignedUrl(uploadId, 3600)
 ## 📱 API Usage Examples
 
 ### Upload File (Local)
+
 ```bash
 curl -X POST http://localhost:3333/api/uploads \
   -H "Cookie: adonis-session=..." \
@@ -860,6 +886,7 @@ curl -X POST http://localhost:3333/api/uploads \
 ```
 
 ### Upload File to S3
+
 ```bash
 curl -X POST http://localhost:3333/api/uploads \
   -H "Cookie: adonis-session=..." \
@@ -874,6 +901,7 @@ curl -X POST http://localhost:3333/api/uploads \
 ```
 
 ### List User Uploads
+
 ```bash
 curl -X GET http://localhost:3333/api/uploads \
   -H "Cookie: adonis-session=..."
@@ -884,18 +912,21 @@ curl -X GET "http://localhost:3333/api/uploads?visibility=public&disk=s3" \
 ```
 
 ### Get Upload Details
+
 ```bash
 curl -X GET http://localhost:3333/api/uploads/upload-uuid \
   -H "Cookie: adonis-session=..."
 ```
 
 ### Get Signed URL
+
 ```bash
 curl -X GET http://localhost:3333/api/uploads/upload-uuid/signed-url \
   -H "Cookie: adonis-session=..."
 ```
 
 ### Delete Upload
+
 ```bash
 curl -X DELETE http://localhost:3333/api/uploads/upload-uuid \
   -H "Cookie: adonis-session=..."
@@ -904,6 +935,7 @@ curl -X DELETE http://localhost:3333/api/uploads/upload-uuid \
 ## ⚙️ Configuration
 
 ### Environment Variables
+
 ```env
 # Upload Configuration
 UPLOADS_DISK=local
@@ -932,6 +964,7 @@ AWS_ENDPOINT=                          # Optional: for S3-compatible services
 ```
 
 ### start/env.ts
+
 ```typescript
 export default await Env.create(new URL('../', import.meta.url), {
   // ... autres variables
@@ -949,6 +982,7 @@ export default await Env.create(new URL('../', import.meta.url), {
 ## 🧪 Testing
 
 ### Test Upload Fonctionnel
+
 ```typescript
 test('should upload a file via POST /api/uploads', async ({ client, assert }) => {
   const userRepo = getService<UserRepository>(TYPES.UserRepository)
@@ -959,17 +993,14 @@ test('should upload a file via POST /api/uploads', async ({ client, assert }) =>
     fullName: 'Test Uploader',
   })
 
-  const response = await client
-    .post('/api/uploads')
-    .withSession({ user_id: user.id })
-    .form({
-      file: 'test file content',
-      filename: 'document.pdf',
-      mimeType: 'application/pdf',
-      size: 17,
-      disk: 'local',
-      visibility: 'private',
-    })
+  const response = await client.post('/api/uploads').withSession({ user_id: user.id }).form({
+    file: 'test file content',
+    filename: 'document.pdf',
+    mimeType: 'application/pdf',
+    size: 17,
+    disk: 'local',
+    visibility: 'private',
+  })
 
   response.assertStatus(201)
   response.assertBodyContains({
@@ -984,6 +1015,7 @@ test('should upload a file via POST /api/uploads', async ({ client, assert }) =>
 ```
 
 ### Test Polymorphic Upload
+
 ```typescript
 test('should upload file with polymorphic relation', async ({ assert }) => {
   const uploadService = getService<UploadService>(TYPES.UploadService)
@@ -1014,6 +1046,7 @@ test('should upload file with polymorphic relation', async ({ assert }) => {
 ```
 
 ### Test Virus Scanning
+
 ```typescript
 test('should scan file for viruses when uploading', async ({ assert }) => {
   const uploadService = getService<UploadService>(TYPES.UploadService)
@@ -1041,6 +1074,7 @@ test('should scan file for viruses when uploading', async ({ assert }) => {
 ```
 
 ### Test Image Optimization
+
 ```typescript
 test('should optimize image when uploading', async ({ assert }) => {
   const uploadService = getService<UploadService>(TYPES.UploadService)
@@ -1089,12 +1123,14 @@ test('should optimize image when uploading', async ({ assert }) => {
 ## 🎯 Avantages du Système
 
 ### Flexibilité
+
 - **Multi-storage** : Basculer entre local et S3 sans changer le code
 - **Polymorphic** : Attacher fichiers à n'importe quel modèle
 - **Extensible** : Ajouter facilement d'autres drivers (Google Cloud, Azure, etc.)
 - **Optionnel** : Skip antivirus ou optimisation selon les besoins
 
 ### Sécurité
+
 - **Protection antivirus** : ClamAV integration avec dégradation gracieuse
 - **Validation stricte** : Taille, type MIME, ownership
 - **Signed URLs** : Accès temporaire sécurisé aux fichiers privés
@@ -1102,6 +1138,7 @@ test('should optimize image when uploading', async ({ assert }) => {
 - **Privacy** : Suppression automatique métadonnées EXIF
 
 ### Performance
+
 - **Image optimization** : Économie de 30-90% sur la taille des images
 - **WebP support** : Format moderne ultra-compressé
 - **Cache intégré** : Via BaseRepository
@@ -1109,6 +1146,7 @@ test('should optimize image when uploading', async ({ assert }) => {
 - **Lazy loading** : Récupération fichiers à la demande
 
 ### Maintenabilité
+
 - **Architecture modulaire** : Services, Repositories, Drivers séparés
 - **Tests complets** : 45+ tests (unitaires + fonctionnels + nouveaux services)
 - **Type-safe** : TypeScript avec interfaces strictes
@@ -1118,6 +1156,7 @@ test('should optimize image when uploading', async ({ assert }) => {
 ## 📋 Best Practices
 
 ### 1. Toujours valider les fichiers
+
 ```typescript
 // Valider taille
 if (fileSize > MAX_SIZE) {
@@ -1132,15 +1171,17 @@ if (!allowedMimes.includes(mimeType)) {
 ```
 
 ### 2. Utiliser les bons paramètres de visibilité
+
 ```typescript
 // Public: accessible sans authentification
-visibility: 'public'  // Logos, avatars, images publiques
+visibility: 'public' // Logos, avatars, images publiques
 
 // Private: nécessite signed URL
 visibility: 'private' // Documents confidentiels, factures
 ```
 
 ### 3. Nettoyer les fichiers orphelins
+
 ```typescript
 // Cron job pour supprimer les uploads sans référence
 async cleanupOrphans() {
@@ -1152,6 +1193,7 @@ async cleanupOrphans() {
 ```
 
 ### 4. Utiliser les métadonnées
+
 ```typescript
 // Pour les images
 metadata: {
@@ -1171,6 +1213,7 @@ metadata: {
 ```
 
 ### 5. Activer ClamAV en production
+
 ```bash
 # Production: Toujours activer le scan antivirus
 CLAMAV_ENABLED=true
@@ -1180,6 +1223,7 @@ CLAMAV_ENABLED=false
 ```
 
 ### 6. Optimiser les images pour la performance
+
 ```typescript
 // Pour les images publiques (logos, avatars)
 const upload = await uploadService.uploadFile({
@@ -1197,9 +1241,12 @@ const upload = await uploadService.uploadFile({
 ```
 
 ### 7. Monitorer les statistiques d'optimisation
+
 ```typescript
 // Logger les économies de stockage
-const uploads = await uploadService.getUploads({ /* filters */ })
+const uploads = await uploadService.getUploads({
+  /* filters */
+})
 
 const totalOriginal = uploads.reduce((sum, u) => sum + (u.metadata?.originalSize || 0), 0)
 const totalOptimized = uploads.reduce((sum, u) => sum + (u.metadata?.optimizedSize || u.size), 0)
@@ -1209,6 +1256,7 @@ logger.info(`Storage savings: ${savings.toFixed(2)}%`)
 ```
 
 ### 8. Gérer les erreurs de scan/optimisation
+
 ```typescript
 // Le système est conçu pour être résilient
 try {
@@ -1231,12 +1279,14 @@ try {
 ## 📊 Statistiques du Système
 
 ### Tests Coverage
+
 - **AntivirusService**: 7 tests unitaires
 - **ImageOptimizationService**: 11 tests unitaires
 - **UploadService**: 19 tests (incluant les nouvelles fonctionnalités)
 - **Tests fonctionnels**: 9 tests end-to-end
 
 ### Performance
+
 - **Scan antivirus**: ~50-200ms par fichier (selon taille)
 - **Optimisation JPEG**: ~100-500ms par image (réduction 30-60%)
 - **Optimisation PNG→WebP**: ~150-600ms par image (réduction 60-90%)

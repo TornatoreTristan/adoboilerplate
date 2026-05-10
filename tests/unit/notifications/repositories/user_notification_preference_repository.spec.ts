@@ -1,8 +1,8 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserNotificationPreferenceRepository from '#notifications/repositories/user_notification_preference_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type UserNotificationPreferenceRepository from '#notifications/repositories/user_notification_preference_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import type { NotificationType } from '#notifications/types/notification'
 import type { NotificationChannel } from '#notifications/models/user_notification_preference'
 
@@ -41,7 +41,7 @@ test.group('UserNotificationPreferenceRepository', (group) => {
     assert.isTrue(preference.enabled)
   })
 
-  test('devrait récupérer toutes les préférences d\'un utilisateur', async ({ assert }) => {
+  test("devrait récupérer toutes les préférences d'un utilisateur", async ({ assert }) => {
     // Créer plusieurs préférences
     await repository.create({
       userId: testUserId,
@@ -206,14 +206,16 @@ test.group('UserNotificationPreferenceRepository', (group) => {
     }
   })
 
-  test('ne devrait pas créer de doublons lors de l\'initialisation', async ({ assert }) => {
+  test("ne devrait pas créer de doublons lors de l'initialisation", async ({ assert }) => {
     // Première initialisation
     await repository.initializeDefaultPreferences(testUserId)
-    const firstCount = (await repository.findByUserId(testUserId)).length
+    const firstResult = await repository.findByUserId(testUserId)
+    const firstCount = firstResult.length
 
     // Deuxième initialisation
     await repository.initializeDefaultPreferences(testUserId)
-    const secondCount = (await repository.findByUserId(testUserId)).length
+    const secondResult = await repository.findByUserId(testUserId)
+    const secondCount = secondResult.length
 
     assert.equal(firstCount, secondCount)
     assert.equal(firstCount, 18)

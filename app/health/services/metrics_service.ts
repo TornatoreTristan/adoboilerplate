@@ -77,8 +77,8 @@ export default class MetricsService {
 
       const hitsMatch = info.match(/keyspace_hits:(\d+)/)
       const missesMatch = info.match(/keyspace_misses:(\d+)/)
-      const hits = hitsMatch ? parseInt(hitsMatch[1]) : 0
-      const misses = missesMatch ? parseInt(missesMatch[1]) : 0
+      const hits = hitsMatch ? Number.parseInt(hitsMatch[1]) : 0
+      const misses = missesMatch ? Number.parseInt(missesMatch[1]) : 0
       const total = hits + misses
       const hitRate = total > 0 ? Math.round((hits / total) * 100) : 0
 

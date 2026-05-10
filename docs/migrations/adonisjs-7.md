@@ -7,6 +7,7 @@
 ## Contexte projet
 
 État actuel :
+
 - `@adonisjs/core@^6.18.0`
 - Node.js v22.22.2 (CI + dev)
 - 19 modèles Lucid, 24 migrations, 21 repositories étendant `BaseRepository<T>`
@@ -43,16 +44,16 @@ Travail par phases avec un commit par phase pour faciliter le rollback granulair
 
 **334 / 346 passed, 12 failed** — ces 12 échecs sont **préexistants** et non liés à la migration v7. Documentés ici pour comparaison post-migration : si on retrouve les **mêmes** 12 après upgrade → pas de régression ; si plus ou moins → signal.
 
-| # | Test | Cause probable |
-|---|---|---|
-| 1 | `AuditLogRepository / should search audit logs with full-text search` | Touche `audit-logs` (commit `a39c481`), FTS ne trouve rien (timing trigger ?) |
-| 2 | `Notification Listeners / should unregister all listeners properly` | Bug dé-enregistrement listeners EventBus |
-| 3 | `UploadService / should upload file with metadata` | Sharp retourne 2 champs en plus (commit `01d4ed2`) |
-| 4-7 | `NotificationsController` GET / PATCH ../read / PATCH ../mark-all-read / DELETE | Pattern : controller renvoie `{}` au lieu du JSON |
-| 8-9 | `SessionController` DELETE /:id, DELETE /others | Idem pattern `{}` |
-| 10 | `Auth Middleware / should allow access to protected route when authenticated` | Idem pattern |
-| 11 | `UpdateSessionActivity Middleware / should update last_activity` | Idem pattern |
-| 12 | (12e à identifier précisément) | — |
+| #   | Test                                                                            | Cause probable                                                                |
+| --- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1   | `AuditLogRepository / should search audit logs with full-text search`           | Touche `audit-logs` (commit `a39c481`), FTS ne trouve rien (timing trigger ?) |
+| 2   | `Notification Listeners / should unregister all listeners properly`             | Bug dé-enregistrement listeners EventBus                                      |
+| 3   | `UploadService / should upload file with metadata`                              | Sharp retourne 2 champs en plus (commit `01d4ed2`)                            |
+| 4-7 | `NotificationsController` GET / PATCH ../read / PATCH ../mark-all-read / DELETE | Pattern : controller renvoie `{}` au lieu du JSON                             |
+| 8-9 | `SessionController` DELETE /:id, DELETE /others                                 | Idem pattern `{}`                                                             |
+| 10  | `Auth Middleware / should allow access to protected route when authenticated`   | Idem pattern                                                                  |
+| 11  | `UpdateSessionActivity Middleware / should update last_activity`                | Idem pattern                                                                  |
+| 12  | (12e à identifier précisément)                                                  | —                                                                             |
 
 Le pattern dominant (controllers retournant `{}` au lieu de `{ success: true, ... }`) suggère un bug introduit par un refactor récent (probablement `app_settings_middleware` du commit `dcbf8db` qui pourrait court-circuiter des responses). À investiguer **hors migration v7**.
 
@@ -64,18 +65,19 @@ Le pattern dominant (controllers retournant `{}` au lieu de `{ success: true, ..
 
 ### 1.1 Node + tooling de base
 
-| Outil | Avant | Après |
-|---|---|---|
-| Node.js | v22 | **v24+ (LTS)** |
-| TypeScript | `~5.8.3` | `~5.9.x` |
-| ESLint | `^9.26.0` | `^10.x` |
-| Vite | `^6.3.5` | `^7.x` (cohérent avec `@adonisjs/vite` v7) |
+| Outil      | Avant     | Après                                      |
+| ---------- | --------- | ------------------------------------------ |
+| Node.js    | v22       | **v24+ (LTS)**                             |
+| TypeScript | `~5.8.3`  | `~5.9.x`                                   |
+| ESLint     | `^9.26.0` | `^10.x`                                    |
+| Vite       | `^6.3.5`  | `^7.x` (cohérent avec `@adonisjs/vite` v7) |
 
 ```bash
 nvm install 24 && nvm use 24
 ```
 
 `package.json` :
+
 ```json
 "engines": { "node": ">=24.0.0" }
 ```
@@ -83,6 +85,7 @@ nvm install 24 && nvm use 24
 ### 1.2 Bump des packages `@adonisjs/*`
 
 À mettre à jour ensemble (interdépendances) :
+
 - `@adonisjs/core@^7.x`
 - `@adonisjs/lucid@^22.x`
 - `@adonisjs/auth@^10.x`
@@ -99,6 +102,7 @@ nvm install 24 && nvm use 24
 - `@adonisjs/assembler@^8.x`
 
 > ⚠️ Les majors ci-dessus sont **indicatifs**. Vérifier la dernière version compatible v7 avec :
+>
 > ```bash
 > npm view @adonisjs/<pkg> versions --json | tail -20
 > ```
@@ -111,6 +115,7 @@ npm install -D @poppinss/ts-exec
 ```
 
 `ace.js` (racine) :
+
 ```js
 // Avant
 import 'ts-node-maintained/register/esm'
@@ -121,14 +126,15 @@ import '@poppinss/ts-exec'
 
 ### 1.4 `adonisrc.ts` — hooks renommés
 
-| Avant | Après |
-|---|---|
-| `onSourceFileChanged` | `fileChanged` |
-| `onDevServerStarted` | `devServerStarted` |
-| `onBuildCompleted` | `buildFinished` |
-| `onBuildStarting` | `buildStarting` |
+| Avant                 | Après              |
+| --------------------- | ------------------ |
+| `onSourceFileChanged` | `fileChanged`      |
+| `onDevServerStarted`  | `devServerStarted` |
+| `onBuildCompleted`    | `buildFinished`    |
+| `onBuildStarting`     | `buildStarting`    |
 
 Code actuel ligne ~67 :
+
 ```ts
 // Avant
 hooks: {
@@ -147,6 +153,7 @@ hooks: {
 ### 1.5 `adonisrc.ts` — supprimer les flags experimental
 
 Les deux flags sont devenus le **comportement par défaut** en v7 :
+
 ```ts
 // ❌ À supprimer
 experimental: {
@@ -172,6 +179,7 @@ experimental: {
 ### 1.7 `package.json` imports — nouveaux alias
 
 Ajouter aux 17 alias existants :
+
 ```json
 "#generated/*": "./.adonisjs/generated/*.js",
 "#transformers/*": "./app/transformers/*.js",
@@ -185,6 +193,7 @@ Ajouter aux 17 alias existants :
 ### 2.1 `Request`/`Response` → `HttpRequest`/`HttpResponse`
 
 Recherche :
+
 ```bash
 grep -rn "from '@adonisjs/core/http'" app/ start/ providers/
 ```
@@ -192,11 +201,15 @@ grep -rn "from '@adonisjs/core/http'" app/ start/ providers/
 ```ts
 // Avant
 import { Request, Response } from '@adonisjs/core/http'
-Request.macro('myHelper', function () { /* ... */ })
+Request.macro('myHelper', function () {
+  /* ... */
+})
 
 // Après
 import { HttpRequest, HttpResponse } from '@adonisjs/core/http'
-HttpRequest.macro('myHelper', function () { /* ... */ })
+HttpRequest.macro('myHelper', function () {
+  /* ... */
+})
 ```
 
 `HttpContext` reste inchangé. Concerne les **types** `Request`/`Response` et les **macros**, pas l'objet `ctx.request`/`ctx.response` qui garde son API.
@@ -214,6 +227,7 @@ const url = urlFor('users.show', { id: 1 })
 ```
 
 Edge templates :
+
 ```edge
 {# Avant #}
 {{ route('users.show', { id: 1 }) }}
@@ -223,17 +237,18 @@ Edge templates :
 ```
 
 À chercher :
+
 ```bash
 grep -rn "router.makeUrl\|@adonisjs/core/services/router" app/ inertia/ resources/
 ```
 
 ### 2.3 Helpers natifs / supprimés
 
-| Avant | Après |
-|---|---|
-| `getDirname()` | `import.meta.dirname` |
-| `getFilename()` | `import.meta.filename` |
-| `slash()` | `stringHelpers.toUnixSlash()` |
+| Avant                 | Après                         |
+| --------------------- | ----------------------------- |
+| `getDirname()`        | `import.meta.dirname`         |
+| `getFilename()`       | `import.meta.filename`        |
+| `slash()`             | `stringHelpers.toUnixSlash()` |
 | `cuid()` / `isCuid()` | `uuid` (déjà utilisé partout) |
 
 ```bash
@@ -251,6 +266,7 @@ session.flashMessages.get('inputErrorsBag.email')
 ```
 
 **Frontend Inertia** — concerne tous les composants de formulaire :
+
 ```tsx
 // Avant
 const errors = usePage().props.flash?.errors
@@ -262,6 +278,7 @@ errors?.email
 ```
 
 Fichiers prévisibles à scanner :
+
 - `inertia/pages/auth/login.tsx`
 - `inertia/pages/auth/register.tsx`
 - `inertia/pages/auth/forgot-password.tsx`
@@ -283,6 +300,7 @@ Très peu probable d'avoir un usage ; aucun action requise sinon.
 En v7 les routes liées à un controller sont **auto-nommées** (`controller.method`). Si le code appelle `.as('foo')` avec un nom qui collide avec l'auto-name, erreur au boot.
 
 Audit :
+
 ```bash
 grep -rn "\.as(" start/routes/
 ```
@@ -356,6 +374,7 @@ Mettre à jour les imports relatifs dans ces deux fichiers.
 ```
 
 Ajouter dans `tsconfig.json` racine :
+
 ```json
 "references": [{ "path": "./tsconfig.inertia.json" }]
 ```
@@ -369,12 +388,20 @@ export default defineConfig({
   entrypoint: 'inertia/app/ssr.tsx',
   history: { encrypt: true },
   sharedData: {
-    auth: (ctx) => { /* ... */ },
-    organizations: (ctx) => { /* ... */ },
+    auth: (ctx) => {
+      /* ... */
+    },
+    organizations: (ctx) => {
+      /* ... */
+    },
     flash: (ctx) => ctx.session.flashMessages.all(),
     csrfToken: (ctx) => ctx.request.csrfToken,
-    i18n: (ctx) => { /* ... */ },
-    appSettings: () => { /* ... */ },
+    i18n: (ctx) => {
+      /* ... */
+    },
+    appSettings: () => {
+      /* ... */
+    },
   },
 })
 
@@ -444,6 +471,7 @@ export default class InertiaSharedDataMiddleware {
 ```
 
 Enregistrer dans `start/kernel.ts` (router middleware), **après** `inertia_middleware` :
+
 ```ts
 router.use([
   () => import('@adonisjs/core/bodyparser_middleware'),
@@ -493,6 +521,7 @@ V7 introduit des **schema classes auto-générées** depuis les migrations. Les 
 ### 6.3 BaseRepository — vérifications
 
 `app/shared/repositories/base_repository.ts` (475 lignes) utilise les APIs Lucid stables :
+
 - query builder (`from`, `select`, `where`, `whereRaw`, `orderBy`, `paginate`)
 - `find`, `findBy`, `create`, `merge`, `save`, `delete`
 - relations (`preload`, `related`)
@@ -504,18 +533,22 @@ Aucune réécriture attendue. Validation par les tests.
 ## Phase 7 — Validation & QA
 
 ### 7.1 Type-check & build
+
 ```bash
 npx tsc --noEmit
 npm run build
 ```
 
 ### 7.2 Tests
+
 ```bash
 npm run test
 ```
+
 Cible : 46/46 pass.
 
 ### 7.3 Golden paths manuels
+
 - [ ] Login (form + Google OAuth)
 - [ ] Register + email verification
 - [ ] Password reset
@@ -529,11 +562,13 @@ Cible : 46/46 pass.
 - [ ] GDPR export
 
 ### 7.4 Smoke staging
+
 - Déployer sur staging
 - Surveiller Sentry 24h
 - Vérifier logs (audit, email, sessions)
 
 ### 7.5 Rollback plan
+
 - Tag `pre-adonisjs7-baseline` posé en Phase 0
 - En cas de régression bloquante : `git revert <merge-commit>` + redeploy
 
@@ -542,27 +577,32 @@ Cible : 46/46 pass.
 ## Composants custom — vérifications spécifiques
 
 ### Inversify container
+
 - **Risque : 🟢 BAS** — pattern indépendant d'AdonisJS
 - `@injectable()` + `@inject()` + `serviceContainer.get()` ne dépendent pas du container Adonis
 - Les ~60 bindings restent valides
 - ✅ Aucune modif attendue
 
 ### Custom providers (Sentry, NotificationListeners, AuditLogListeners)
+
 - **Risque : 🟡 MOYEN**
 - Vérifier que la lifecycle `register / boot / start / ready / shutdown` est inchangée en v7
 - `app/providers/sentry_provider.ts` : conserver la logique `boot → init`, `start → enable`, `shutdown → flush`
 
 ### AuthMiddleware custom
+
 - **Risque : 🟡 MOYEN**
 - Pattern actuel : charge user depuis session ID, cache via `CacheService` (TTL 300s)
 - Distingue Inertia (redirect) vs API (401)
 - À tester : que `ctx.user` reste correctement populé après le bump `@adonisjs/auth`
 
 ### BaseRepository
+
 - **Risque : 🟡 MOYEN**
 - Couvert par 21 tests (1 par repository) qui doivent rester verts
 
 ### Bull queue + Sentry SDK
+
 - Indépendants d'AdonisJS, mises à jour optionnelles
 - Bull v4 → v6 possible mais hors scope migration v7
 
@@ -570,39 +610,39 @@ Cible : 46/46 pass.
 
 ## Récapitulatif des risques
 
-| Composant | Risque | Action |
-|---|---|---|
-| Inertia `sharedData` → middleware | 🔴 HAUT | Réécriture middleware (Phase 4.4) |
-| Renames `Request`/`Response` | 🟡 MOYEN | Find & replace dans 25 controllers |
-| URL Builder | 🟡 MOYEN | Grep + remplacement |
-| Flash messages frontend | 🟡 MOYEN | Scan tous les forms Inertia |
-| Lucid v22 / `BaseRepository` | 🟡 MOYEN | Tests de régression |
-| Routes auto-naming | 🟡 MOYEN | Audit `.as()` |
-| Custom providers (Sentry…) | 🟡 MOYEN | Tester lifecycle |
-| Encryption config | 🟢 BAS | Pas d'usage direct |
-| Inversify | 🟢 BAS | Indépendant |
-| Hooks `adonisrc.ts` | 🟢 BAS | Renames mécaniques |
-| Test glob | 🟢 BAS | 1 ligne |
-| `ts-node` → `ts-exec` | 🟢 BAS | 1 import |
-| Helpers (`getDirname`…) | 🟢 BAS | Grep + remplacement |
-| File upload UUID | 🟢 BAS | Probablement déjà conforme |
-| Mass assignment `$` | 🟢 BAS | Aucun champ concerné |
+| Composant                         | Risque   | Action                             |
+| --------------------------------- | -------- | ---------------------------------- |
+| Inertia `sharedData` → middleware | 🔴 HAUT  | Réécriture middleware (Phase 4.4)  |
+| Renames `Request`/`Response`      | 🟡 MOYEN | Find & replace dans 25 controllers |
+| URL Builder                       | 🟡 MOYEN | Grep + remplacement                |
+| Flash messages frontend           | 🟡 MOYEN | Scan tous les forms Inertia        |
+| Lucid v22 / `BaseRepository`      | 🟡 MOYEN | Tests de régression                |
+| Routes auto-naming                | 🟡 MOYEN | Audit `.as()`                      |
+| Custom providers (Sentry…)        | 🟡 MOYEN | Tester lifecycle                   |
+| Encryption config                 | 🟢 BAS   | Pas d'usage direct                 |
+| Inversify                         | 🟢 BAS   | Indépendant                        |
+| Hooks `adonisrc.ts`               | 🟢 BAS   | Renames mécaniques                 |
+| Test glob                         | 🟢 BAS   | 1 ligne                            |
+| `ts-node` → `ts-exec`             | 🟢 BAS   | 1 import                           |
+| Helpers (`getDirname`…)           | 🟢 BAS   | Grep + remplacement                |
+| File upload UUID                  | 🟢 BAS   | Probablement déjà conforme         |
+| Mass assignment `$`               | 🟢 BAS   | Aucun champ concerné               |
 
 ---
 
 ## Estimation détaillée
 
-| Phase | Estimation |
-|---|---|
-| Phase 0 — Baseline | 1h |
-| Phase 1 — Mécaniques | 2-3h |
-| Phase 2 — Renames | 2-3h |
-| Phase 3 — Encryption | 30min |
-| Phase 4 — Inertia | **4-6h** ⚠️ |
-| Phase 5 — Sécurité | 1h |
-| Phase 6 — Lucid validation | 1-2h |
-| Phase 7 — QA + staging | 4-8h |
-| **Total réaliste** | **2-3 jours** |
+| Phase                      | Estimation    |
+| -------------------------- | ------------- |
+| Phase 0 — Baseline         | 1h            |
+| Phase 1 — Mécaniques       | 2-3h          |
+| Phase 2 — Renames          | 2-3h          |
+| Phase 3 — Encryption       | 30min         |
+| Phase 4 — Inertia          | **4-6h** ⚠️   |
+| Phase 5 — Sécurité         | 1h            |
+| Phase 6 — Lucid validation | 1-2h          |
+| Phase 7 — QA + staging     | 4-8h          |
+| **Total réaliste**         | **2-3 jours** |
 
 ---
 
@@ -643,14 +683,16 @@ Cible : 46/46 pass.
 ## Résultats finaux de la migration (2026-05-09)
 
 ### Tests
-| Métrique | Baseline v6 | v7 final |
-|---|---|---|
-| Tests passed | 334 | **334** ✅ |
+
+| Métrique     | Baseline v6       | v7 final        |
+| ------------ | ----------------- | --------------- |
+| Tests passed | 334               | **334** ✅      |
 | Tests failed | 12 (préexistants) | **12 mêmes** ✅ |
-| Total | 346 | **346** ✅ |
-| Régression | — | **AUCUNE** ✅ |
+| Total        | 346               | **346** ✅      |
+| Régression   | —                 | **AUCUNE** ✅   |
 
 ### Build
+
 - `npm run test` : 334/346 (même delta que v6) ✅
 - `npm run build -- --ignore-ts-errors` : succeeds ✅
 - `node ace --help` : succeeds ✅
@@ -683,16 +725,17 @@ d06bdf7 refactor(adonisjs7): rename adonisrc hooks, drop experimental flags, fix
 
 **359 erreurs TypeScript** détectées, principalement dues à la nouvelle feature de **type-safety end-to-end de v7** :
 
-| Code TS | Nb | Cause |
-|---|---|---|
-| TS2345 | 57 | `inertia.render('foo')` → `'foo'` not assignable to `never` (Inertia infère désormais les pages valides depuis `inertia/pages/`) |
-| TS2339 | 53 | Property does not exist (Stripe `Invoice.paid`, etc.) |
-| TS18047 | 53 | `'X' is possibly null` (TS 5.9 strict null checks plus stricts) |
-| TS2775 | 43 | "Assertions require explicit type annotation" (TS 5.9) |
-| TS6133 | 31 | Variable declared but never read (warnings) |
-| TS2554 | 14 | `inertia.render(...)` exige désormais 2-3 args (props typées) |
+| Code TS | Nb  | Cause                                                                                                                            |
+| ------- | --- | -------------------------------------------------------------------------------------------------------------------------------- |
+| TS2345  | 57  | `inertia.render('foo')` → `'foo'` not assignable to `never` (Inertia infère désormais les pages valides depuis `inertia/pages/`) |
+| TS2339  | 53  | Property does not exist (Stripe `Invoice.paid`, etc.)                                                                            |
+| TS18047 | 53  | `'X' is possibly null` (TS 5.9 strict null checks plus stricts)                                                                  |
+| TS2775  | 43  | "Assertions require explicit type annotation" (TS 5.9)                                                                           |
+| TS6133  | 31  | Variable declared but never read (warnings)                                                                                      |
+| TS2554  | 14  | `inertia.render(...)` exige désormais 2-3 args (props typées)                                                                    |
 
 **Plan de remédiation TS** (PR séparé après la migration) :
+
 1. **Activer le générateur de types Inertia v7** : `node ace inertia:generate-types` pour produire `.adonisjs/generated/*.d.ts` avec les noms de pages valides → résout TS2345 et TS2554
 2. **Ajouter `as const` ou explicit types** sur les `inertia.render()` → résout TS2775
 3. **Null-safety guards** sur les tests (`result!` ou `if (!result) throw`) → résout TS18047
@@ -704,6 +747,7 @@ d06bdf7 refactor(adonisjs7): rename adonisrc hooks, drop experimental flags, fix
 Le restructure Inertia (move `inertia/app/{app,ssr}.tsx` → `inertia/{app,ssr}.tsx`, créer `tsconfig.inertia.json`) est **cosmétique** et **ne bloque rien**. Les paths actuels marchent en v7. À planifier comme PR séparé pour aligner sur la convention v7.
 
 ### Prochaines étapes
+
 1. ✅ Migration runtime fonctionnelle
 2. ⏳ QA manuelle dev (`npm run dev` + golden path : login, org, upload, notifications, Stripe webhook)
 3. ⏳ Push branche + ouvrir PR

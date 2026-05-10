@@ -309,12 +309,20 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                     <SelectValue placeholder={t('admin.subscriptions.filter_status_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">{t('admin.subscriptions.filter_status_all')}</SelectItem>
+                    <SelectItem value="all">
+                      {t('admin.subscriptions.filter_status_all')}
+                    </SelectItem>
                     <SelectItem value="active">{t('admin.subscriptions.status.active')}</SelectItem>
-                    <SelectItem value="trialing">{t('admin.subscriptions.status.trialing')}</SelectItem>
+                    <SelectItem value="trialing">
+                      {t('admin.subscriptions.status.trialing')}
+                    </SelectItem>
                     <SelectItem value="paused">{t('admin.subscriptions.status.paused')}</SelectItem>
-                    <SelectItem value="canceled">{t('admin.subscriptions.status.canceled')}</SelectItem>
-                    <SelectItem value="past_due">{t('admin.subscriptions.status.past_due')}</SelectItem>
+                    <SelectItem value="canceled">
+                      {t('admin.subscriptions.status.canceled')}
+                    </SelectItem>
+                    <SelectItem value="past_due">
+                      {t('admin.subscriptions.status.past_due')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -339,7 +347,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
           {/* Table des abonnements */}
           <Card>
             <CardHeader>
-              <CardTitle>{t('admin.subscriptions.list_title', { count: subscriptions.length })}</CardTitle>
+              <CardTitle>
+                {t('admin.subscriptions.list_title', { count: subscriptions.length })}
+              </CardTitle>
               <CardDescription>{t('admin.subscriptions.list_description')}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -361,7 +371,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                       <TableHead>{t('admin.subscriptions.col.total_revenue')}</TableHead>
                       <TableHead>{t('admin.subscriptions.col.period')}</TableHead>
                       <TableHead>{t('admin.subscriptions.col.since')}</TableHead>
-                      <TableHead className="text-right">{t('admin.subscriptions.col.actions')}</TableHead>
+                      <TableHead className="text-right">
+                        {t('admin.subscriptions.col.actions')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -371,9 +383,10 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                           ? subscription.stripePriceIdMonthly
                           : subscription.stripePriceIdYearly
                       const isOutdated = subscription.stripePriceId !== expectedPriceId
-                      const planPrice = subscription.billingInterval === 'month'
-                        ? subscription.priceMonthly
-                        : subscription.priceYearly
+                      const planPrice =
+                        subscription.billingInterval === 'month'
+                          ? subscription.priceMonthly
+                          : subscription.priceYearly
                       const totalRevenue = calculateTotalRevenue(subscription)
 
                       return (
@@ -394,12 +407,20 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                           <TableCell>
                             <div className="flex flex-col gap-1">
                               <span className="font-medium">
-                                {formatPrice(subscription.subscriptionPrice, subscription.subscriptionCurrency)}
+                                {formatPrice(
+                                  subscription.subscriptionPrice,
+                                  subscription.subscriptionCurrency
+                                )}
                               </span>
                               {isOutdated && (
                                 <div className="flex items-center gap-1">
-                                  <Badge variant="outline" className="w-fit text-orange-600 text-xs">
-                                    {t('admin.subscriptions.new_price_label', { price: formatPrice(planPrice, subscription.planCurrency) })}
+                                  <Badge
+                                    variant="outline"
+                                    className="w-fit text-orange-600 text-xs"
+                                  >
+                                    {t('admin.subscriptions.new_price_label', {
+                                      price: formatPrice(planPrice, subscription.planCurrency),
+                                    })}
                                   </Badge>
                                 </div>
                               )}
@@ -428,7 +449,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                 <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
-                                  onClick={() => handleViewOrganization(subscription.organizationId)}
+                                  onClick={() =>
+                                    handleViewOrganization(subscription.organizationId)
+                                  }
                                 >
                                   <Eye className="mr-2 h-4 w-4" />
                                   {t('admin.subscriptions.actions.view_organization')}
@@ -439,7 +462,10 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                     subscription.status === 'trialing') && (
                                     <DropdownMenuItem
                                       onClick={() =>
-                                        handleMigrateSubscription(subscription.id, subscription.planId)
+                                        handleMigrateSubscription(
+                                          subscription.id,
+                                          subscription.planId
+                                        )
                                       }
                                     >
                                       <ArrowRight className="mr-2 h-4 w-4" />
@@ -485,7 +511,9 @@ const SubscriptionsPage = ({ subscriptions, stats, plans, filters }: Props) => {
                                     <>
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem
-                                        onClick={() => handleReactivateSubscription(subscription.id)}
+                                        onClick={() =>
+                                          handleReactivateSubscription(subscription.id)
+                                        }
                                       >
                                         <Check className="mr-2 h-4 w-4" />
                                         {t('admin.subscriptions.actions.reactivate')}

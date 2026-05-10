@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import NotificationService from '#notifications/services/notification_service'
+import type NotificationService from '#notifications/services/notification_service'
 
 /**
  * TestNotificationController

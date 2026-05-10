@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import PasswordResetService from '#auth/services/password_reset_service'
+import type PasswordResetService from '#auth/services/password_reset_service'
 import type EmailService from '#mailing/services/email_service'
 import {
   forgotPasswordValidator,
@@ -11,7 +11,6 @@ import { errors } from '@vinejs/vine'
 import env from '#start/env'
 
 export default class PasswordResetController {
-
   /**
    * Handle forgot password request
    * POST /password/forgot
@@ -48,8 +47,8 @@ export default class PasswordResetController {
         return response.unprocessableEntity({
           errors: error.messages.map((msg: { field: string; message: string }) => ({
             field: msg.field,
-            message: msg.message
-          }))
+            message: msg.message,
+          })),
         })
       }
 
@@ -70,13 +69,13 @@ export default class PasswordResetController {
     if (!validation.valid) {
       return response.badRequest({
         valid: false,
-        error: validation.error
+        error: validation.error,
       })
     }
 
     return response.ok({
       valid: true,
-      email: validation.email
+      email: validation.email,
     })
   }
 
@@ -96,7 +95,7 @@ export default class PasswordResetController {
       if (!validation.valid) {
         return response.badRequest({
           success: false,
-          error: validation.error
+          error: validation.error,
         })
       }
 
@@ -110,8 +109,8 @@ export default class PasswordResetController {
         return response.unprocessableEntity({
           errors: error.messages.map((msg: { field: string; message: string }) => ({
             field: msg.field,
-            message: msg.message
-          }))
+            message: msg.message,
+          })),
         })
       }
 
@@ -119,7 +118,7 @@ export default class PasswordResetController {
       if (error instanceof Error) {
         return response.badRequest({
           success: false,
-          error: error.message
+          error: error.message,
         })
       }
 

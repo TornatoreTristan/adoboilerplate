@@ -2,8 +2,8 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserRepository from '#users/repositories/user_repository'
-import UploadService from '#uploads/services/upload_service'
+import type UserRepository from '#users/repositories/user_repository'
+import type UploadService from '#uploads/services/upload_service'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
@@ -28,17 +28,14 @@ test.group('UploadsController', (group) => {
       fullName: 'Test Uploader',
     })
 
-    const response = await client
-      .post('/api/uploads')
-      .withSession({ user_id: user.id })
-      .form({
-        file: 'test file content',
-        filename: 'document.pdf',
-        mimeType: 'application/pdf',
-        size: 17,
-        disk: 'local',
-        visibility: 'private',
-      })
+    const response = await client.post('/api/uploads').withSession({ user_id: user.id }).form({
+      file: 'test file content',
+      filename: 'document.pdf',
+      mimeType: 'application/pdf',
+      size: 17,
+      disk: 'local',
+      visibility: 'private',
+    })
 
     response.assertStatus(201)
     response.assertBodyContains({
@@ -121,7 +118,9 @@ test.group('UploadsController', (group) => {
       visibility: 'public',
     })
 
-    const response = await client.get('/api/uploads?visibility=public').withSession({ user_id: user.id })
+    const response = await client
+      .get('/api/uploads?visibility=public')
+      .withSession({ user_id: user.id })
 
     response.assertStatus(200)
     assert.lengthOf(response.body().uploads, 1)
@@ -175,7 +174,10 @@ test.group('UploadsController', (group) => {
     response.assertStatus(404)
   })
 
-  test('should generate signed URL via GET /api/uploads/:id/signed-url', async ({ client, assert }) => {
+  test('should generate signed URL via GET /api/uploads/:id/signed-url', async ({
+    client,
+    assert,
+  }) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const uploadService = getService<UploadService>(TYPES.UploadService)
 
@@ -195,7 +197,9 @@ test.group('UploadsController', (group) => {
       visibility: 'private',
     })
 
-    const response = await client.get(`/api/uploads/${upload.id}/signed-url`).withSession({ user_id: user.id })
+    const response = await client
+      .get(`/api/uploads/${upload.id}/signed-url`)
+      .withSession({ user_id: user.id })
 
     response.assertStatus(200)
     assert.property(response.body(), 'signedUrl')
@@ -222,7 +226,9 @@ test.group('UploadsController', (group) => {
       visibility: 'private',
     })
 
-    const response = await client.delete(`/api/uploads/${upload.id}`).withSession({ user_id: user.id })
+    const response = await client
+      .delete(`/api/uploads/${upload.id}`)
+      .withSession({ user_id: user.id })
 
     response.assertStatus(200)
     response.assertBodyContains({ success: true })
@@ -257,7 +263,9 @@ test.group('UploadsController', (group) => {
       visibility: 'private',
     })
 
-    const response = await client.get(`/api/uploads/${upload.id}`).withSession({ user_id: other.id })
+    const response = await client
+      .get(`/api/uploads/${upload.id}`)
+      .withSession({ user_id: other.id })
 
     response.assertStatus(403)
   })

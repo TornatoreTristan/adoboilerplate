@@ -24,7 +24,9 @@ export default class extends BaseSchema {
     })
 
     this.defer(async (db) => {
-      await db.raw(`ALTER TABLE ${this.tableName} ADD CONSTRAINT organization_invitations_role_check CHECK (role IN ('owner', 'admin', 'member', 'viewer'))`)
+      await db.raw(
+        `ALTER TABLE ${this.tableName} ADD CONSTRAINT organization_invitations_role_check CHECK (role IN ('owner', 'admin', 'member', 'viewer'))`
+      )
     })
   }
 

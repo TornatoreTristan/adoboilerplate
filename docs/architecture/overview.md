@@ -5,7 +5,9 @@ Ce boilerplate utilise une architecture moderne inspirée du **Domain-Driven Des
 ## 🏗️ Principes Architecturaux
 
 ### 1. Domain-Driven Design (DDD)
+
 L'application est organisée par domaines métier :
+
 - `auth/` - Authentification et autorisation
 - `users/` - Gestion des utilisateurs
 - `organizations/` - Multi-tenancy et organisations
@@ -13,13 +15,17 @@ L'application est organisée par domaines métier :
 - `shared/` - Code partagé entre domaines
 
 ### 2. Inversion of Control (IoC)
+
 Utilisation d'**Inversify** pour l'injection de dépendances :
+
 - Découplage des composants
 - Tests plus faciles avec mocking
 - Configuration centralisée dans `shared/container/`
 
 ### 3. Repository Pattern
+
 Abstraction de la couche données avec **BaseRepository** :
+
 - CRUD standardisé pour tous les modèles
 - Cache automatique avec Redis
 - Soft deletes intégrés
@@ -40,21 +46,25 @@ Abstraction de la couche données avec **BaseRepository** :
 ```
 
 ### Presentation Layer
+
 - **Controllers** : Gestion des requêtes HTTP
 - **Middleware** : Auth, validation, contexte organisation
 - **Validators** : Validation des données entrantes
 
 ### Application Layer
+
 - **Services** : Logique métier et use cases
 - **Events** : Événements domaine avec Bull queues
 - **DTOs** : Objets de transfert de données
 
 ### Domain Layer
+
 - **Models** : Entités Lucid avec relations
 - **Exceptions** : Erreurs métier personnalisées
 - **Types** : Interfaces et types TypeScript
 
 ### Infrastructure Layer
+
 - **Repositories** : Accès données avec BaseRepository
 - **Cache** : Redis avec invalidation par tags
 - **Queue** : Bull pour événements asynchrones
@@ -63,6 +73,7 @@ Abstraction de la couche données avec **BaseRepository** :
 ## 🔧 Container IoC avec Inversify
 
 ### Configuration
+
 ```typescript
 // shared/container/container.ts
 const container = new Container()
@@ -76,6 +87,7 @@ container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository)
 ```
 
 ### Injection dans les Services
+
 ```typescript
 @injectable()
 export class UserService {
@@ -88,6 +100,7 @@ export class UserService {
 ```
 
 ### Utilisation dans les Controllers
+
 ```typescript
 export default class UsersController {
   async store({ request }: HttpContext) {
@@ -100,6 +113,7 @@ export default class UsersController {
 ## 🗄️ Repository Pattern
 
 ### BaseRepository Générique
+
 Tous les repositories héritent du `BaseRepository<T>` qui fournit :
 
 ```typescript
@@ -118,6 +132,7 @@ class UserRepository extends BaseRepository<typeof User> {
 ```
 
 ### Fonctionnalités Intégrées
+
 - **CRUD complet** avec validation
 - **Soft deletes** automatiques si `deleted_at` existe
 - **Cache Redis** avec invalidation intelligente
@@ -127,11 +142,12 @@ class UserRepository extends BaseRepository<typeof User> {
 ## ⚡ Système de Cache
 
 ### Cache avec Tags Redis
+
 ```typescript
 // Cache avec tags pour invalidation groupée
 await cache.set('user:123', user, {
   ttl: 3600,
-  tags: ['users', 'user_123']
+  tags: ['users', 'user_123'],
 })
 
 // Invalidation par tag
@@ -139,6 +155,7 @@ await cache.invalidateTags(['users']) // Invalide tous les utilisateurs
 ```
 
 ### Stratégie de Cache
+
 - **Entités** : `model:id` (ex: `user:123`)
 - **Listes** : `model_list` avec critères (ex: `users_active`)
 - **Invalidation** : Par tags lors des mutations
@@ -146,6 +163,7 @@ await cache.invalidateTags(['users']) // Invalide tous les utilisateurs
 ## 🎪 Système d'Événements
 
 ### Event Bus avec Bull Queues
+
 ```typescript
 // Émission d'événement
 await eventBus.emit('user.created', { user })
@@ -158,12 +176,14 @@ eventBus.on('user.created', async ({ user }) => {
 ```
 
 ### Types d'Événements
+
 - **Synchrones** : Validation, transformation
 - **Asynchrones** : Emails, notifications, analytics
 
 ## 🔐 Gestion des Erreurs
 
 ### Hiérarchie d'Exceptions
+
 ```typescript
 AppException (base)
 ├── ValidationException (400)
@@ -174,6 +194,7 @@ AppException (base)
 ```
 
 ### Utilisation
+
 ```typescript
 // Dans un service
 if (!user) {
@@ -187,6 +208,7 @@ E.validateEmail(email) // Throw ValidationException si invalide
 ## 🧪 Testing Strategy
 
 ### Organisation des Tests
+
 ```
 tests/
 ├── unit/              # Tests unitaires
@@ -199,6 +221,7 @@ tests/
 ```
 
 ### Mocking avec Container
+
 ```typescript
 // Test avec mock services
 const mockCache = createMockCache()
@@ -208,21 +231,25 @@ container.rebind(TYPES.CacheService).toConstantValue(mockCache)
 ## 🚀 Avantages de cette Architecture
 
 ### Maintenabilité
+
 - **Séparation des responsabilités** claire
 - **Code réutilisable** avec BaseRepository
 - **Testing** facilité par l'injection de dépendances
 
 ### Performance
+
 - **Cache intelligent** avec invalidation par tags
 - **Événements asynchrones** pour les tâches lourdes
 - **Soft deletes** pour préserver les performances
 
 ### Scalabilité
+
 - **Architecture modulaire** par domaine
 - **Services découplés** via IoC
 - **Queue system** pour la charge
 
 ### Developer Experience
+
 - **TypeScript** pour la sécurité des types
 - **Patterns cohérents** dans tout le projet
 - **Documentation** intégrée

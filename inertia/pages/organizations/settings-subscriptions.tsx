@@ -1,4 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, router } from '@inertiajs/react'
 import OrganizationSettingsLayout from '@/components/layouts/organization-settings-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -183,13 +184,19 @@ const OrganizationSettingsSubscriptionsPage = ({
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      {getTranslation((currentSubscription.plan as any).nameI18n, locale as 'fr' | 'en')}
+                      {getTranslation(
+                        (currentSubscription.plan as any).nameI18n,
+                        locale as 'fr' | 'en'
+                      )}
                       <Badge className={statusColors[currentSubscription.status]}>
                         {subStatusLabel(currentSubscription.status)}
                       </Badge>
                     </CardTitle>
                     <CardDescription>
-                      {getTranslation((currentSubscription.plan as any).descriptionI18n, locale as 'fr' | 'en')}
+                      {getTranslation(
+                        (currentSubscription.plan as any).descriptionI18n,
+                        locale as 'fr' | 'en'
+                      )}
                     </CardDescription>
                   </div>
                   <div className="text-right">
@@ -413,7 +420,9 @@ const OrganizationSettingsSubscriptionsPage = ({
                                   })}
                               </p>
                               {invoice.status && (
-                                <Badge className={invoiceStatusColors[invoice.status] || 'bg-gray-500'}>
+                                <Badge
+                                  className={invoiceStatusColors[invoice.status] || 'bg-gray-500'}
+                                >
                                   {invoiceStatusLabel(invoice.status)}
                                 </Badge>
                               )}

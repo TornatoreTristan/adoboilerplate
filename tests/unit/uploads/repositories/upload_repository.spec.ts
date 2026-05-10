@@ -1,8 +1,8 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UploadRepository from '#uploads/repositories/upload_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type UploadRepository from '#uploads/repositories/upload_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import testUtils from '@adonisjs/core/services/test_utils'
 import type { CreateUploadData } from '#uploads/types/upload'
 

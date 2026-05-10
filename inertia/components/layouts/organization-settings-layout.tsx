@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
-import { Link, usePage } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { usePage } from '@inertiajs/react'
 import AppLayout from '@/components/layouts/app-layout'
 import { PageHeader } from '@/components/core/page-header'
 import { Info, Plug, Users, CreditCard } from 'lucide-react'

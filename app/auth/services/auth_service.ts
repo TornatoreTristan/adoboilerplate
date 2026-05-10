@@ -9,9 +9,7 @@ import { TYPES } from '#shared/container/types'
 
 @injectable()
 export default class AuthService {
-  constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
-  ) {}
+  constructor(@inject(TYPES.UserRepository) private userRepo: UserRepository) {}
 
   async login(loginData: LoginData): Promise<LoginResult> {
     try {
@@ -106,7 +104,7 @@ export default class AuthService {
     }
 
     if (!this.isValidEmail(registerData.email)) {
-      throw new ValidationException('Format d\'email invalide')
+      throw new ValidationException("Format d'email invalide")
     }
 
     if (registerData.password.length < 8) {
@@ -118,10 +116,7 @@ export default class AuthService {
     return await this.userRepo.findByEmail(email.toLowerCase().trim())
   }
 
-  private async verifyPassword(
-    hashedPassword: string,
-    plainPassword: string
-  ): Promise<boolean> {
+  private async verifyPassword(hashedPassword: string, plainPassword: string): Promise<boolean> {
     return await hash.verify(hashedPassword, plainPassword)
   }
 

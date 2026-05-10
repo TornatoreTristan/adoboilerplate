@@ -73,7 +73,10 @@ export default class SubscriptionsController {
 
     await subscriptionService.cancelSubscription(subscriptionId, organization.id)
 
-    session.flash('success', 'Votre abonnement sera annulé à la fin de la période de facturation. Vous conservez l\'accès jusqu\'à cette date.')
+    session.flash(
+      'success',
+      "Votre abonnement sera annulé à la fin de la période de facturation. Vous conservez l'accès jusqu'à cette date."
+    )
 
     return response.redirect().back()
   }
@@ -107,7 +110,10 @@ export default class SubscriptionsController {
 
     await subscriptionService.pauseSubscription(subscriptionId, organization.id)
 
-    session.flash('success', 'L\'abonnement a été mis en pause. Les factures ne seront plus générées.')
+    session.flash(
+      'success',
+      "L'abonnement a été mis en pause. Les factures ne seront plus générées."
+    )
 
     return response.redirect().back()
   }
@@ -124,7 +130,7 @@ export default class SubscriptionsController {
 
     await subscriptionService.resumeSubscription(subscriptionId, organization.id)
 
-    session.flash('success', 'L\'abonnement a été repris. Les factures seront à nouveau générées.')
+    session.flash('success', "L'abonnement a été repris. Les factures seront à nouveau générées.")
 
     return response.redirect().back()
   }

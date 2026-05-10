@@ -15,9 +15,7 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
     const result = await db
       .from('audit_logs')
       .select('*')
-      .select(
-        db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query])
-      )
+      .select(db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query]))
       .whereRaw(`search_vector @@ plainto_tsquery('french', ?)`, [query])
       .orderBy('rank', 'desc')
       .orderBy('created_at', 'desc')
@@ -30,7 +28,8 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
    * Find audit logs by user ID
    */
   async findByUser(userId: string, limit: number = 100): Promise<AuditLog[]> {
-    const logs = await this.model.query()
+    const logs = await this.model
+      .query()
       .where('user_id', userId)
       .orderBy('created_at', 'desc')
       .limit(limit)
@@ -42,7 +41,8 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
    * Find audit logs by organization ID
    */
   async findByOrganization(organizationId: string, limit: number = 100): Promise<AuditLog[]> {
-    const logs = await this.model.query()
+    const logs = await this.model
+      .query()
       .where('organization_id', organizationId)
       .orderBy('created_at', 'desc')
       .limit(limit)
@@ -54,7 +54,8 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
    * Find audit logs by action
    */
   async findByAction(action: string, limit: number = 100): Promise<AuditLog[]> {
-    const logs = await this.model.query()
+    const logs = await this.model
+      .query()
       .where('action', action)
       .orderBy('created_at', 'desc')
       .limit(limit)
@@ -70,7 +71,8 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
     resourceId: string,
     limit: number = 100
   ): Promise<AuditLog[]> {
-    const logs = await this.model.query()
+    const logs = await this.model
+      .query()
       .where('resource_type', resourceType)
       .where('resource_id', resourceId)
       .orderBy('created_at', 'desc')
@@ -224,7 +226,8 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
 
-    const logs = await this.model.query()
+    const logs = await this.model
+      .query()
       .where('created_at', '>=', startDate)
       .orderBy('created_at', 'desc')
       .limit(limit)

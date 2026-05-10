@@ -236,9 +236,7 @@ export default function AuditLogs({ logs, total, hasMore, filters, stats }: Prop
                     : t('common.none')}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.topActions[0]
-                    ? `${stats.topActions[0].count} ${t('common.times')}`
-                    : '-'}
+                  {stats.topActions[0] ? `${stats.topActions[0].count} ${t('common.times')}` : '-'}
                 </p>
               </CardContent>
             </Card>

@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
-import { Link, usePage } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { usePage } from '@inertiajs/react'
 import AppLayout from '@/components/layouts/app-layout'
 import { PageHeader } from '@/components/core/page-header'
 import { User, Monitor, Settings, Shield } from 'lucide-react'
@@ -41,7 +42,10 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
   return (
     <AppLayout>
       <div className="flex flex-col gap-6 p-6">
-        <PageHeader title={t('account.layout.title')} description={t('account.layout.description')} />
+        <PageHeader
+          title={t('account.layout.title')}
+          description={t('account.layout.description')}
+        />
 
         <div className="flex gap-6">
           {/* Menu de navigation */}

@@ -162,9 +162,8 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
     return rows.map((row: any) => {
       const extras = row.$extras || {}
       const rawDate = extras.date ?? row.date
-      const date = rawDate instanceof Date
-        ? rawDate.toISOString().slice(0, 10)
-        : String(rawDate).slice(0, 10)
+      const date =
+        rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : String(rawDate).slice(0, 10)
       return {
         date,
         count: Number(extras.count ?? row.count),
@@ -207,12 +206,14 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
     const map = new Map<string, DateTime>()
     for (const row of rows) {
       const extras = (row as any).$extras || {}
-      const rawValue = extras.last_activity ?? (row as any).lastActivity ?? (row as any).last_activity
+      const rawValue =
+        extras.last_activity ?? (row as any).lastActivity ?? (row as any).last_activity
       const userId = (row as any).userId ?? (row as any).user_id
       if (rawValue && userId) {
-        const dt = rawValue instanceof Date
-          ? DateTime.fromJSDate(rawValue)
-          : DateTime.fromISO(String(rawValue))
+        const dt =
+          rawValue instanceof Date
+            ? DateTime.fromJSDate(rawValue)
+            : DateTime.fromISO(String(rawValue))
         if (dt.isValid) {
           map.set(userId, dt)
         }

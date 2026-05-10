@@ -334,7 +334,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     // is a `{ $extras: { total } }` aggregate. Reach into $extras directly.
     const row = result[0] as { $extras?: { total?: string | number } } | undefined
     const total = row?.$extras?.total
-    return typeof total === 'number' ? total : parseInt((total as string) || '0', 10)
+    return typeof total === 'number' ? total : Number.parseInt((total as string) || '0', 10)
   }
 
   /**
@@ -420,7 +420,9 @@ export abstract class BaseRepository<TModel extends LucidModel> {
   /**
    * Construire une query de base avec gestion des soft deletes
    */
-  protected buildBaseQuery(includeDeleted: boolean = false): ModelQueryBuilderContract<TModel, InstanceType<TModel>> {
+  protected buildBaseQuery(
+    includeDeleted: boolean = false
+  ): ModelQueryBuilderContract<TModel, InstanceType<TModel>> {
     const query = this.model.query()
 
     if (!includeDeleted && this.supportsSoftDelete()) {
@@ -452,10 +454,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * la clé est globale — n'utiliser que pour des données réellement partagées
    * entre tenants (plans publics, settings globaux, etc.).
    */
-  protected buildCacheKey(
-    scope: string | undefined,
-    ...parts: (string | number)[]
-  ): string {
+  protected buildCacheKey(scope: string | undefined, ...parts: (string | number)[]): string {
     const base = this.getModelName().toLowerCase()
     if (scope) {
       return [base, `scope:${scope}`, ...parts].join(':')

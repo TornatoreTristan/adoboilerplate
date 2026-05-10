@@ -63,9 +63,9 @@ export default class ImageOptimizationService {
     options: OptimizationOptions = {}
   ): Promise<OptimizationResult> {
     const {
-      maxWidth = parseInt(env.get('IMAGE_MAX_WIDTH', '2048')),
-      maxHeight = parseInt(env.get('IMAGE_MAX_HEIGHT', '2048')),
-      quality = parseInt(env.get('IMAGE_QUALITY', '80')),
+      maxWidth = Number.parseInt(env.get('IMAGE_MAX_WIDTH', '2048')),
+      maxHeight = Number.parseInt(env.get('IMAGE_MAX_HEIGHT', '2048')),
+      quality = Number.parseInt(env.get('IMAGE_QUALITY', '80')),
       convertToWebP = env.get('IMAGE_CONVERT_TO_WEBP', 'false') === 'true',
       stripMetadata = env.get('IMAGE_STRIP_METADATA', 'true') === 'true',
       fit = 'inside',

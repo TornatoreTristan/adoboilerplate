@@ -36,11 +36,7 @@ export default class AuthorizationService {
   /**
    * Check if user has any of the specified roles in an organization
    */
-  async hasAnyRole(
-    userId: string,
-    organizationId: string,
-    roleSlugs: string[]
-  ): Promise<boolean> {
+  async hasAnyRole(userId: string, organizationId: string, roleSlugs: string[]): Promise<boolean> {
     const result = await db
       .from('organization_user_roles')
       .join('roles', 'organization_user_roles.role_id', 'roles.id')
@@ -55,11 +51,7 @@ export default class AuthorizationService {
   /**
    * Check if user has all specified roles in an organization
    */
-  async hasAllRoles(
-    userId: string,
-    organizationId: string,
-    roleSlugs: string[]
-  ): Promise<boolean> {
+  async hasAllRoles(userId: string, organizationId: string, roleSlugs: string[]): Promise<boolean> {
     const count = await db
       .from('organization_user_roles')
       .join('roles', 'organization_user_roles.role_id', 'roles.id')
@@ -76,11 +68,7 @@ export default class AuthorizationService {
    * Check if user has a specific permission in an organization
    * Checks both direct permissions and role-based permissions
    */
-  async can(
-    userId: string,
-    organizationId: string,
-    permissionSlug: string
-  ): Promise<boolean> {
+  async can(userId: string, organizationId: string, permissionSlug: string): Promise<boolean> {
     const cacheKey = `auth:permission:${userId}:${organizationId}:${permissionSlug}`
 
     return this.cache.remember(
@@ -182,9 +170,7 @@ export default class AuthorizationService {
 
     // Merge and deduplicate by id
     const allPermissions = [...directPermissions, ...rolePermissions]
-    const uniquePermissions = Array.from(
-      new Map(allPermissions.map((p) => [p.id, p])).values()
-    )
+    const uniquePermissions = Array.from(new Map(allPermissions.map((p) => [p.id, p])).values())
 
     return uniquePermissions
   }

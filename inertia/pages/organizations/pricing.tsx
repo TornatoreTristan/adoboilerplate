@@ -1,4 +1,5 @@
-import { Head, Link, router, usePage } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import AppLayout from '@/components/layouts/app-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,7 +8,11 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle2, ArrowLeft } from 'lucide-react'
 import { PageHeader } from '@/components/core/page-header'
 import { cn } from '@/lib/utils'
-import { getTranslation, type TranslatableField, type TranslatableFieldNullable } from '@/lib/translatable'
+import {
+  getTranslation,
+  type TranslatableField,
+  type TranslatableFieldNullable,
+} from '@/lib/translatable'
 import { useI18n } from '@/hooks/use-i18n'
 
 interface Plan {
@@ -40,11 +45,7 @@ interface Props {
   currentSubscription: CurrentSubscription | null
 }
 
-const OrganizationPricingPage = ({
-  userRole,
-  availablePlans,
-  currentSubscription,
-}: Props) => {
+const OrganizationPricingPage = ({ userRole, availablePlans, currentSubscription }: Props) => {
   const { t, locale } = useI18n()
   const canManageSubscription = ['owner', 'admin'].includes(userRole)
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month')
@@ -137,7 +138,8 @@ const OrganizationPricingPage = ({
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {availablePlans.map((plan) => {
               const isCurrentPlan = currentSubscription?.plan.id === plan.id
-              const displayPrice = billingInterval === 'month' ? plan.priceMonthly : plan.priceYearly
+              const displayPrice =
+                billingInterval === 'month' ? plan.priceMonthly : plan.priceYearly
               const pricePerMonth =
                 billingInterval === 'year' && plan.priceYearly > 0
                   ? plan.priceYearly / 12

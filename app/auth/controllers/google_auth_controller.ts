@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import GoogleAuthService from '#auth/services/google_auth_service'
+import type GoogleAuthService from '#auth/services/google_auth_service'
 import type { OAuthUserData } from '#shared/types/oauth'
 
 export default class GoogleAuthController {

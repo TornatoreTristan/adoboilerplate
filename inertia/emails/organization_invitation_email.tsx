@@ -50,8 +50,7 @@ export default function OrganizationInvitationEmail({
 
           <Text style={text}>
             <strong>{inviterName}</strong> vous invite à rejoindre l'organisation{' '}
-            <strong>{organizationName}</strong> en tant que{' '}
-            <strong>{getRoleLabel(role)}</strong>.
+            <strong>{organizationName}</strong> en tant que <strong>{getRoleLabel(role)}</strong>.
           </Text>
 
           <Button style={button} href={invitationUrl}>

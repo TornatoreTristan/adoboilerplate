@@ -46,10 +46,7 @@ test.group('EmailVerificationController', (group) => {
     response.assertStatus(401)
   })
 
-  test('GET /auth/email/verify/:token - should verify valid token', async ({
-    assert,
-    client,
-  }) => {
+  test('GET /auth/email/verify/:token - should verify valid token', async ({ assert, client }) => {
     const user = await User.create({
       email: 'user@example.com',
       password: await hash.make('password123'),

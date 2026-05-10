@@ -2,8 +2,8 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AdminService from '#admin/services/admin_service'
-import IntegrationRepository from '#integrations/repositories/integration_repository'
+import type AdminService from '#admin/services/admin_service'
+import type IntegrationRepository from '#integrations/repositories/integration_repository'
 
 test.group('AdminService - Integrations', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())

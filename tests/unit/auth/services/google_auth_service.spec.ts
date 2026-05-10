@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import GoogleAuthService from '#auth/services/google_auth_service'
-import UserRepository from '#users/repositories/user_repository'
-import SessionService from '#sessions/services/session_service'
+import type UserRepository from '#users/repositories/user_repository'
+import type SessionService from '#sessions/services/session_service'
 import type { OAuthUserData } from '#shared/types/oauth'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
@@ -19,7 +19,7 @@ test.group('GoogleAuthService', (group) => {
   })
 
   group.each.teardown(async () => {
-    const User = (await import('#users/models/user')).default
+    const { default: User } = await import('#users/models/user')
     await User.query().delete()
   })
 

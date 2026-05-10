@@ -146,7 +146,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle>{t('admin.app_settings_page.branding_title')}</CardTitle>
-                  <CardDescription>{t('admin.app_settings_page.branding_description')}</CardDescription>
+                  <CardDescription>
+                    {t('admin.app_settings_page.branding_description')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleBrandingSubmit} className="space-y-6">
@@ -174,7 +176,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                               alt="Logo"
                               className="h-16 w-16 object-contain rounded border"
                             />
-                            <span className="text-sm text-muted-foreground">{settings.logo.filename}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {settings.logo.filename}
+                            </span>
                           </div>
                         )}
                         <div>
@@ -214,7 +218,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                               alt="Favicon"
                               className="h-8 w-8 object-contain rounded border"
                             />
-                            <span className="text-sm text-muted-foreground">{settings.favicon.filename}</span>
+                            <span className="text-sm text-muted-foreground">
+                              {settings.favicon.filename}
+                            </span>
                           </div>
                         )}
                         <div>
@@ -260,7 +266,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle>{t('admin.app_settings_page.legal_title')}</CardTitle>
-                  <CardDescription>{t('admin.app_settings_page.legal_description')}</CardDescription>
+                  <CardDescription>
+                    {t('admin.app_settings_page.legal_description')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLegalSubmit} className="space-y-6">
@@ -282,7 +290,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="termsOfSale">{t('admin.app_settings_page.terms_of_sale_label')}</Label>
+                      <Label htmlFor="termsOfSale">
+                        {t('admin.app_settings_page.terms_of_sale_label')}
+                      </Label>
                       <Textarea
                         id="termsOfSale"
                         rows={10}
@@ -312,7 +322,9 @@ const SettingsPage = ({ settings }: SettingsPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle>{t('admin.app_settings_page.privacy_title')}</CardTitle>
-                  <CardDescription>{t('admin.app_settings_page.privacy_description')}</CardDescription>
+                  <CardDescription>
+                    {t('admin.app_settings_page.privacy_description')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleLegalSubmit} className="space-y-6">

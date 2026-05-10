@@ -53,4 +53,3 @@ router
     middleware.organizationContext(),
     middleware.updateSessionActivity(),
   ])
-

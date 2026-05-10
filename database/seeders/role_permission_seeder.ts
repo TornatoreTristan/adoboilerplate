@@ -82,14 +82,14 @@ export default class extends BaseSeeder {
         slug: 'settings.view',
         resource: 'settings',
         action: 'view',
-        description: 'Voir les paramètres de l\'organisation',
+        description: "Voir les paramètres de l'organisation",
       },
       {
         name: 'Modifier les paramètres',
         slug: 'settings.update',
         resource: 'settings',
         action: 'update',
-        description: 'Modifier les paramètres de l\'organisation',
+        description: "Modifier les paramètres de l'organisation",
       },
 
       // Roles & Permissions management

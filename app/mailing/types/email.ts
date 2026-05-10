@@ -35,11 +35,7 @@ export interface EmailResult {
   error?: string
 }
 
-export type EmailTemplate =
-  | 'welcome'
-  | 'password-reset'
-  | 'organization-invite'
-  | 'session-alert'
+export type EmailTemplate = 'welcome' | 'password-reset' | 'organization-invite' | 'session-alert'
 
 export interface WelcomeEmailData {
   userName: string

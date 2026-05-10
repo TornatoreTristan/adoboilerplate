@@ -33,10 +33,7 @@ export default class AuditLogListeners {
     this.eventBus.on('organization:updated', this.handleOrganizationUpdated.bind(this))
     this.eventBus.on('organization:deleted', this.handleOrganizationDeleted.bind(this))
     this.eventBus.on('organization:member:added', this.handleOrganizationMemberAdded.bind(this))
-    this.eventBus.on(
-      'organization:member:removed',
-      this.handleOrganizationMemberRemoved.bind(this)
-    )
+    this.eventBus.on('organization:member:removed', this.handleOrganizationMemberRemoved.bind(this))
 
     // Invitation events
     this.eventBus.on('invitation:sent', this.handleInvitationSent.bind(this))

@@ -104,19 +104,22 @@ export function configureContainer(): Container {
   // ==========================================
 
   // Redis client
-  container.bind<IoRedis>(TYPES.RedisClient).toDynamicValue(() => {
-    const redisConfig = {
-      host: env.get('REDIS_HOST'),
-      port: env.get('REDIS_PORT'),
-      password: env.get('REDIS_PASSWORD') || undefined,
-      db: 0,
-      retryDelayOnFailover: 100,
-      enableReadyCheck: false,
-      maxRetriesPerRequest: null,
-    }
+  container
+    .bind<IoRedis>(TYPES.RedisClient)
+    .toDynamicValue(() => {
+      const redisConfig = {
+        host: env.get('REDIS_HOST'),
+        port: env.get('REDIS_PORT'),
+        password: env.get('REDIS_PASSWORD') || undefined,
+        db: 0,
+        retryDelayOnFailover: 100,
+        enableReadyCheck: false,
+        maxRetriesPerRequest: null,
+      }
 
-    return new IoRedis(redisConfig)
-  }).inSingletonScope()
+      return new IoRedis(redisConfig)
+    })
+    .inSingletonScope()
 
   // Logger
   container.bind(TYPES.Logger).toConstantValue(logger)
@@ -152,14 +155,20 @@ export function configureContainer(): Container {
   // ==========================================
 
   container.bind<HealthHistoryRepository>(TYPES.HealthHistoryRepository).to(HealthHistoryRepository)
-  container.bind<DatabaseHealthCheck>(TYPES.DatabaseHealthCheck).to(DatabaseHealthCheck).inSingletonScope()
+  container
+    .bind<DatabaseHealthCheck>(TYPES.DatabaseHealthCheck)
+    .to(DatabaseHealthCheck)
+    .inSingletonScope()
   container.bind<RedisHealthCheck>(TYPES.RedisHealthCheck).to(RedisHealthCheck).inSingletonScope()
   container.bind<DiskHealthCheck>(TYPES.DiskHealthCheck).to(DiskHealthCheck).inSingletonScope()
   container.bind<EmailHealthCheck>(TYPES.EmailHealthCheck).to(EmailHealthCheck).inSingletonScope()
   container.bind<HealthService>(TYPES.HealthService).to(HealthService).inSingletonScope()
   container.bind<MetricsService>(TYPES.MetricsService).to(MetricsService).inSingletonScope()
   container.bind<HealthHistoryService>(TYPES.HealthHistoryService).to(HealthHistoryService)
-  container.bind<MonitoringService>(TYPES.MonitoringService).to(MonitoringService).inSingletonScope()
+  container
+    .bind<MonitoringService>(TYPES.MonitoringService)
+    .to(MonitoringService)
+    .inSingletonScope()
 
   // ==========================================
   // LOGS
@@ -198,8 +207,14 @@ export function configureContainer(): Container {
   // LISTENERS
   // ==========================================
 
-  container.bind<NotificationListeners>(TYPES.NotificationListeners).to(NotificationListeners).inSingletonScope()
-  container.bind<AuditLogListeners>(TYPES.AuditLogListeners).to(AuditLogListeners).inSingletonScope()
+  container
+    .bind<NotificationListeners>(TYPES.NotificationListeners)
+    .to(NotificationListeners)
+    .inSingletonScope()
+  container
+    .bind<AuditLogListeners>(TYPES.AuditLogListeners)
+    .to(AuditLogListeners)
+    .inSingletonScope()
 
   // ==========================================
   // REPOSITORIES
@@ -233,7 +248,9 @@ export function configureContainer(): Container {
   container.bind<OrganizationService>(TYPES.OrganizationService).to(OrganizationService)
   container.bind<SessionService>(TYPES.SessionService).to(SessionService)
   container.bind<GoogleAuthService>(TYPES.GoogleAuthService).to(GoogleAuthService)
-  container.bind<EmailVerificationService>(TYPES.EmailVerificationService).to(EmailVerificationService)
+  container
+    .bind<EmailVerificationService>(TYPES.EmailVerificationService)
+    .to(EmailVerificationService)
   container.bind<NotificationService>(TYPES.NotificationService).to(NotificationService)
   container
     .bind<UserNotificationPreferenceService>(TYPES.UserNotificationPreferenceService)
@@ -243,13 +260,18 @@ export function configureContainer(): Container {
   container.bind<StripeConnectService>(TYPES.StripeConnectService).to(StripeConnectService)
   container.bind<PlanService>(TYPES.PlanService).to(PlanService)
   container.bind<SubscriptionService>(TYPES.SubscriptionService).to(SubscriptionService)
-  container.bind<PricingCalculatorService>(TYPES.PricingCalculatorService).to(PricingCalculatorService)
+  container
+    .bind<PricingCalculatorService>(TYPES.PricingCalculatorService)
+    .to(PricingCalculatorService)
 
   // ==========================================
   // UPLOAD SERVICES
   // ==========================================
 
-  container.bind<LocalStorageDriver>(TYPES.LocalStorageDriver).to(LocalStorageDriver).inSingletonScope()
+  container
+    .bind<LocalStorageDriver>(TYPES.LocalStorageDriver)
+    .to(LocalStorageDriver)
+    .inSingletonScope()
   container.bind<S3StorageDriver>(TYPES.S3StorageDriver).to(S3StorageDriver).inSingletonScope()
   container.bind<StorageService>(TYPES.StorageService).to(StorageService).inSingletonScope()
   container.bind<UploadService>(TYPES.UploadService).to(UploadService)

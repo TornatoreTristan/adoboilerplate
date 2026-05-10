@@ -8,15 +8,16 @@ interface EmailVerificationResultProps {
   error?: string
 }
 
-export default function EmailVerificationResult({
-  success,
-  error,
-}: EmailVerificationResultProps) {
+export default function EmailVerificationResult({ success, error }: EmailVerificationResultProps) {
   const { t } = useI18n()
   return (
     <>
       <Head
-        title={success ? t('auth.verification_result.head_success') : t('auth.verification_result.head_error')}
+        title={
+          success
+            ? t('auth.verification_result.head_success')
+            : t('auth.verification_result.head_error')
+        }
       />
 
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -57,10 +58,8 @@ export default function EmailVerificationResult({
                 <div className="bg-muted w-full rounded-lg p-4">
                   <p className="text-sm">
                     <strong>{t('auth.verification_result.what_to_do')}</strong>
-                    <br />
-                    • {t('auth.verification_result.tip_expired')}
-                    <br />
-                    • {t('auth.verification_result.tip_used')}
+                    <br />• {t('auth.verification_result.tip_expired')}
+                    <br />• {t('auth.verification_result.tip_used')}
                     <br />• {t('auth.verification_result.tip_request_new')}
                   </p>
                 </div>

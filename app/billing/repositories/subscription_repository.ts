@@ -55,10 +55,7 @@ export default class SubscriptionRepository extends BaseRepository<typeof Subscr
   }
 
   async findByStatus(status: SubscriptionStatus): Promise<Subscription[]> {
-    return this.buildBaseQuery()
-      .where('status', status)
-      .preload('plan')
-      .preload('organization')
+    return this.buildBaseQuery().where('status', status).preload('plan').preload('organization')
   }
 
   async findByPlanId(planId: string): Promise<Subscription[]> {
@@ -99,13 +96,15 @@ export default class SubscriptionRepository extends BaseRepository<typeof Subscr
   }
 
   async getStatusCounts(): Promise<SubscriptionStatusCounts> {
-    const rows = await this.buildBaseQuery()
-      .select('status')
-      .count('* as count')
-      .groupBy('status')
+    const rows = await this.buildBaseQuery().select('status').count('* as count').groupBy('status')
 
     const counts: SubscriptionStatusCounts = {
-      total: 0, active: 0, trialing: 0, paused: 0, canceled: 0, pastDue: 0,
+      total: 0,
+      active: 0,
+      trialing: 0,
+      paused: 0,
+      canceled: 0,
+      pastDue: 0,
     }
 
     for (const row of rows) {

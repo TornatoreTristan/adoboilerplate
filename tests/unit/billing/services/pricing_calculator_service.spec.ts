@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import PricingCalculatorService from '#billing/services/pricing_calculator_service'
+import type PricingCalculatorService from '#billing/services/pricing_calculator_service'
 import Plan from '#billing/models/plan'
 
 test.group('PricingCalculatorService', () => {

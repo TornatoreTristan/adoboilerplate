@@ -39,9 +39,12 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
    * Trouver une organisation par slug
    */
   async findBySlug(slug: string): Promise<Organization | null> {
-    return this.findOneBy({ slug }, {
-      cache: { ttl: 600, tags: ['organizations', 'org_slug'] }
-    })
+    return this.findOneBy(
+      { slug },
+      {
+        cache: { ttl: 600, tags: ['organizations', 'org_slug'] },
+      }
+    )
   }
 
   /**
@@ -63,7 +66,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
 
     if (excludeId) {
       const orgs = await this.findBy(criteria)
-      return orgs.some(org => org.id !== excludeId)
+      return orgs.some((org) => org.id !== excludeId)
     }
 
     return this.exists(criteria)
@@ -75,15 +78,15 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
   async search(term: string, limit: number = 10): Promise<Organization[]> {
     const query = this.buildBaseQuery()
 
-    return query
-      .where('name', 'LIKE', `%${term}%`)
-      .limit(limit)
+    return query.where('name', 'LIKE', `%${term}%`).limit(limit)
   }
 
   /**
    * Obtenir les organisations d'un utilisateur avec son rôle
    */
-  async findByUserId(userId: string | number): Promise<Array<Organization & { pivot_role: string }>> {
+  async findByUserId(
+    userId: string | number
+  ): Promise<Array<Organization & { pivot_role: string }>> {
     const query = this.buildBaseQuery()
 
     const results = await query
@@ -185,11 +188,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     if (cached !== null) return cached
 
     const org = await this.findByIdOrFail(organizationId)
-    const membership = await org
-      .related('users')
-      .pivotQuery()
-      .where('user_id', userId)
-      .first()
+    const membership = await org.related('users').pivotQuery().where('user_id', userId).first()
 
     const isMember = !!membership
 
@@ -207,11 +206,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     userId: string | number
   ): Promise<string | null> {
     const org = await this.findByIdOrFail(organizationId)
-    const membership = await org
-      .related('users')
-      .pivotQuery()
-      .where('user_id', userId)
-      .first()
+    const membership = await org.related('users').pivotQuery().where('user_id', userId).first()
 
     return membership?.role || null
   }
@@ -224,10 +219,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const offset = (page - 1) * perPage
 
     const [orgs, totalRow, memberRows] = await Promise.all([
-      this.buildBaseQuery()
-        .orderBy('created_at', 'desc')
-        .offset(offset)
-        .limit(perPage),
+      this.buildBaseQuery().orderBy('created_at', 'desc').offset(offset).limit(perPage),
       this.buildBaseQuery().count('* as total').first(),
       db
         .from('user_organizations')
@@ -268,11 +260,12 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
       const extras: any = (user as any).$extras ?? {}
       const joinedAtRaw = extras.pivot_joined_at
 
-      const joinedAt = joinedAtRaw instanceof Date
-        ? joinedAtRaw.toISOString()
-        : joinedAtRaw
-        ? new Date(joinedAtRaw).toISOString()
-        : ''
+      const joinedAt =
+        joinedAtRaw instanceof Date
+          ? joinedAtRaw.toISOString()
+          : joinedAtRaw
+            ? new Date(joinedAtRaw).toISOString()
+            : ''
 
       return {
         id: user.id,

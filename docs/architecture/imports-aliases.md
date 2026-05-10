@@ -24,6 +24,7 @@
 ```
 
 **Utilisation** :
+
 ```typescript
 import UserService from '#users/services/user_service'
 import { E } from '#shared/exceptions/index'
@@ -33,6 +34,7 @@ import { TYPES } from '#shared/container/types'
 ### Frontend (Inertia/React) - Alias `@`
 
 **Configuration** :
+
 - `vite.config.ts` (runtime)
 - `inertia/tsconfig.json` (TypeScript)
 - `components.json` (Shadcn)
@@ -61,6 +63,7 @@ resolve: {
 ```
 
 **Utilisation** :
+
 ```typescript
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -73,11 +76,13 @@ import AppLayout from '@/components/layouts/app-layout'
 ### Fonctionnement
 
 1. **Installation composant** :
+
 ```bash
 npx shadcn@latest add button
 ```
 
 2. **Shadcn lit** `components.json` :
+
 ```json
 {
   "aliases": {
@@ -88,9 +93,10 @@ npx shadcn@latest add button
 ```
 
 3. **Génère automatiquement** avec les bons chemins :
+
 ```tsx
 // inertia/components/ui/button.tsx
-import { cn } from '@/lib/utils'  // ✅ Alias appliqué automatiquement
+import { cn } from '@/lib/utils' // ✅ Alias appliqué automatiquement
 ```
 
 ### Ajout d'un nouveau composant
@@ -128,6 +134,7 @@ app/
 ### Changer `@/` vers autre chose (ex: `~/`)
 
 1. **Vite** :
+
 ```typescript
 // vite.config.ts
 alias: {
@@ -136,6 +143,7 @@ alias: {
 ```
 
 2. **TypeScript** :
+
 ```json
 // inertia/tsconfig.json
 "paths": {
@@ -144,6 +152,7 @@ alias: {
 ```
 
 3. **Shadcn** :
+
 ```json
 // components.json
 "aliases": {
@@ -153,6 +162,7 @@ alias: {
 ```
 
 4. **Mise à jour des imports existants** :
+
 ```bash
 # Find & replace dans tous les fichiers
 find inertia -name "*.tsx" -exec sed -i '' 's/@\//~\//g' {} +
@@ -165,6 +175,7 @@ find inertia -name "*.tsx" -exec sed -i '' 's/@\//~\//g' {} +
 **Cause** : Vite cache non invalidé
 
 **Solution** :
+
 ```bash
 rm -rf node_modules/.vite
 npm run dev
@@ -188,7 +199,7 @@ Créer un fichier de test :
 
 ```typescript
 // inertia/test-imports.tsx
-import { cn } from '@/lib/utils'              // ✅ Should work
+import { cn } from '@/lib/utils' // ✅ Should work
 import { Button } from '@/components/ui/button' // ✅ Should work
 
 // Ne devrait PAS fonctionner (cross-boundary) :

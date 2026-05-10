@@ -23,11 +23,7 @@ export function createTranslatableField(fr: string, en: string): TranslatableFie
 }
 
 export function isTranslatableField(value: any): value is TranslatableField {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    ('fr' in value || 'en' in value)
-  )
+  return typeof value === 'object' && value !== null && ('fr' in value || 'en' in value)
 }
 
 export function validateTranslatableField(
@@ -35,9 +31,7 @@ export function validateTranslatableField(
   required: boolean = true
 ): { isValid: boolean; error?: string } {
   if (!field) {
-    return required
-      ? { isValid: false, error: 'Field is required' }
-      : { isValid: true }
+    return required ? { isValid: false, error: 'Field is required' } : { isValid: true }
   }
 
   if (!isTranslatableField(field)) {

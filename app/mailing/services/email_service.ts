@@ -124,9 +124,8 @@ export default class EmailService {
   }
 
   async sendPasswordResetEmail(to: string, data: PasswordResetEmailData): Promise<EmailResult> {
-    const { default: PasswordResetEmail } = await import(
-      '../../../inertia/emails/password_reset_email.js'
-    )
+    const { default: PasswordResetEmail } =
+      await import('../../../inertia/emails/password_reset_email.js')
     return this.send({
       to,
       subject: 'Réinitialisation de votre mot de passe',
@@ -153,9 +152,8 @@ export default class EmailService {
   }
 
   async queuePasswordResetEmail(to: string, data: PasswordResetEmailData): Promise<void> {
-    const { default: PasswordResetEmail } = await import(
-      '../../../inertia/emails/password_reset_email.js'
-    )
+    const { default: PasswordResetEmail } =
+      await import('../../../inertia/emails/password_reset_email.js')
     await this.queue(
       {
         to,

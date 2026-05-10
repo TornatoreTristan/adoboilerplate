@@ -5,11 +5,7 @@ import type { RateLimitConfig, RateLimitResult } from '#shared/types/rate_limit'
 @injectable()
 export default class RateLimitService {
   async checkLimit(identifier: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    const {
-      maxRequests,
-      windowMs,
-      keyPrefix = 'default',
-    } = config
+    const { maxRequests, windowMs, keyPrefix = 'default' } = config
 
     const key = this.buildKey(identifier, keyPrefix)
     const now = Date.now()

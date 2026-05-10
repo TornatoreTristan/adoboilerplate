@@ -20,7 +20,7 @@ test.group('PasswordResetRepository', (group) => {
     const tokenData = {
       email: 'test@example.com',
       token: tokenHash,
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     }
 
     // Act
@@ -42,7 +42,7 @@ test.group('PasswordResetRepository', (group) => {
     const token = await PasswordResetToken.create({
       email: 'test@example.com',
       token: tokenHash,
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
     // Act — le repository reçoit le hash, pas le token brut
@@ -72,7 +72,7 @@ test.group('PasswordResetRepository', (group) => {
     const token = await PasswordResetToken.create({
       email: 'test@example.com',
       token: hashToken('token-to-use'),
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
     assert.isTrue(token.usedAt === null || token.usedAt === undefined)
@@ -94,20 +94,20 @@ test.group('PasswordResetRepository', (group) => {
     await PasswordResetToken.create({
       email: 'expired1@example.com',
       token: hashToken('expired-1'),
-      expiresAt: DateTime.now().minus({ hours: 2 })
+      expiresAt: DateTime.now().minus({ hours: 2 }),
     })
 
     await PasswordResetToken.create({
       email: 'expired2@example.com',
       token: hashToken('expired-2'),
-      expiresAt: DateTime.now().minus({ days: 1 })
+      expiresAt: DateTime.now().minus({ days: 1 }),
     })
 
     // Créer un token valide
     await PasswordResetToken.create({
       email: 'valid@example.com',
       token: hashToken('valid-token'),
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
     // Act
@@ -130,20 +130,20 @@ test.group('PasswordResetRepository', (group) => {
     await PasswordResetToken.create({
       email,
       token: hashToken('token-1'),
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
     await PasswordResetToken.create({
       email,
       token: hashToken('token-2'),
-      expiresAt: DateTime.now().plus({ hours: 2 })
+      expiresAt: DateTime.now().plus({ hours: 2 }),
     })
 
     // Créer un token pour un autre email
     await PasswordResetToken.create({
       email: 'other@example.com',
       token: hashToken('token-3'),
-      expiresAt: DateTime.now().plus({ hours: 1 })
+      expiresAt: DateTime.now().plus({ hours: 1 }),
     })
 
     // Act
@@ -167,7 +167,7 @@ test.group('PasswordResetRepository', (group) => {
       email,
       token: hashToken('valid-token'),
       expiresAt: DateTime.now().plus({ hours: 1 }),
-      usedAt: null
+      usedAt: null,
     })
 
     // Créer un token expiré
@@ -175,7 +175,7 @@ test.group('PasswordResetRepository', (group) => {
       email,
       token: hashToken('expired-token'),
       expiresAt: DateTime.now().minus({ hours: 1 }),
-      usedAt: null
+      usedAt: null,
     })
 
     // Créer un token utilisé
@@ -183,7 +183,7 @@ test.group('PasswordResetRepository', (group) => {
       email,
       token: hashToken('used-token'),
       expiresAt: DateTime.now().plus({ hours: 1 }),
-      usedAt: DateTime.now().minus({ minutes: 30 })
+      usedAt: DateTime.now().minus({ minutes: 30 }),
     })
 
     // Act

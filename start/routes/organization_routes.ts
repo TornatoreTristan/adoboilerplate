@@ -25,10 +25,12 @@ router.get('/organizations/invitations/:token/accept', [
 ])
 
 // Post-auth invitation handler
-router.get('/organizations/invitations/post-auth', [
-  OrganizationInvitationsController,
-  'handlePostAuth',
-]).use([middleware.auth()])
+router
+  .get('/organizations/invitations/post-auth', [
+    OrganizationInvitationsController,
+    'handlePostAuth',
+  ])
+  .use([middleware.auth()])
 
 // Routes de retour Stripe - publiques (Stripe redirige ici) - AVANT les autres routes
 router.get('/organizations/subscriptions/success', [SubscriptionsController, 'success'])
@@ -43,14 +45,20 @@ router
     router.get('/settings/integrations', [OrganizationSettingsController, 'integrations'])
     router.get('/settings/users', [OrganizationSettingsController, 'users'])
     router.post('/settings/users/invite', [OrganizationSettingsController, 'inviteMember'])
-    router.delete('/settings/users/invitations/:invitationId', [OrganizationSettingsController, 'cancelInvitation'])
+    router.delete('/settings/users/invitations/:invitationId', [
+      OrganizationSettingsController,
+      'cancelInvitation',
+    ])
     router.put('/settings/users/:userId/role', [OrganizationSettingsController, 'updateMemberRole'])
     router.delete('/settings/users/:userId', [OrganizationSettingsController, 'removeMember'])
     router.get('/settings/subscriptions', [OrganizationSettingsController, 'subscriptions'])
     router.get('/pricing', [OrganizationSettingsController, 'pricing'])
     router.post('/subscriptions/checkout', [SubscriptionsController, 'createCheckoutSession'])
     router.delete('/subscriptions/:id', [SubscriptionsController, 'cancelSubscription'])
-    router.post('/subscriptions/:id/reactivate', [SubscriptionsController, 'reactivateSubscription'])
+    router.post('/subscriptions/:id/reactivate', [
+      SubscriptionsController,
+      'reactivateSubscription',
+    ])
   })
   .prefix('/organizations')
   .use([middleware.auth(), middleware.requireOrganization(), middleware.organizationContext()])

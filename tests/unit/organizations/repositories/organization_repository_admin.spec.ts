@@ -2,13 +2,15 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import OrganizationRepository from '#organizations/repositories/organization_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type OrganizationRepository from '#organizations/repositories/organization_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 test.group('OrganizationRepository - admin methods', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('findPaginatedWithMemberCounts returns paginated orgs with their member counts', async ({ assert }) => {
+  test('findPaginatedWithMemberCounts returns paginated orgs with their member counts', async ({
+    assert,
+  }) => {
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
 
@@ -39,13 +41,27 @@ test.group('OrganizationRepository - admin methods', (group) => {
     assert.exists(found1!.createdAt)
   })
 
-  test('getMembers returns members of an organization with their pivot role', async ({ assert }) => {
+  test('getMembers returns members of an organization with their pivot role', async ({
+    assert,
+  }) => {
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
 
-    const org = await orgRepo.create({ name: 'Members Org', slug: 'members-org', isActive: true } as any)
-    const admin = await userRepo.create({ email: 'm-admin@x.com', password: 'pw', fullName: 'Admin' })
-    const member = await userRepo.create({ email: 'm-member@x.com', password: 'pw', fullName: 'Member' })
+    const org = await orgRepo.create({
+      name: 'Members Org',
+      slug: 'members-org',
+      isActive: true,
+    } as any)
+    const admin = await userRepo.create({
+      email: 'm-admin@x.com',
+      password: 'pw',
+      fullName: 'Admin',
+    })
+    const member = await userRepo.create({
+      email: 'm-member@x.com',
+      password: 'pw',
+      fullName: 'Member',
+    })
 
     await orgRepo.addUser(org.id, admin.id, 'admin')
     await orgRepo.addUser(org.id, member.id, 'member')
@@ -65,7 +81,11 @@ test.group('OrganizationRepository - admin methods', (group) => {
 
   test('getMembers returns empty array for organization without members', async ({ assert }) => {
     const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
-    const org = await orgRepo.create({ name: 'Lonely Org', slug: 'lonely-org', isActive: true } as any)
+    const org = await orgRepo.create({
+      name: 'Lonely Org',
+      slug: 'lonely-org',
+      isActive: true,
+    } as any)
 
     const members = await orgRepo.getMembers(org.id)
 

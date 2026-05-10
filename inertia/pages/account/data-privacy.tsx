@@ -124,9 +124,7 @@ export default function DataPrivacy() {
             <CardContent>
               <div className="space-y-4 text-sm text-muted-foreground">
                 <div>
-                  <h4 className="font-medium text-foreground mb-2">
-                    {t('account.your_rights')}
-                  </h4>
+                  <h4 className="font-medium text-foreground mb-2">{t('account.your_rights')}</h4>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>{t('account.right_to_access')}</li>
                     <li>{t('account.right_to_rectification')}</li>
@@ -176,9 +174,7 @@ export default function DataPrivacy() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-foreground mb-2">
-                    {t('account.grace_period')}
-                  </h4>
+                  <h4 className="font-medium text-foreground mb-2">{t('account.grace_period')}</h4>
                   <p>{t('account.grace_period_description')}</p>
                 </div>
               </div>

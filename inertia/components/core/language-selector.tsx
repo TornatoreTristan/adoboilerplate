@@ -12,10 +12,14 @@ export function LanguageSelector() {
   const { locale } = useI18n()
 
   const changeLanguage = (newLocale: 'fr' | 'en') => {
-    router.post('/locale', { locale: newLocale }, {
-      preserveState: false,
-      preserveScroll: false,
-    })
+    router.post(
+      '/locale',
+      { locale: newLocale },
+      {
+        preserveState: false,
+        preserveScroll: false,
+      }
+    )
   }
 
   const currentFlag = locale === 'fr' ? '🇫🇷' : '🇬🇧'

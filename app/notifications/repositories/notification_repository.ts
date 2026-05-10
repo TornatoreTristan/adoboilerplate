@@ -14,14 +14,16 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   async findByUserIdSortedByPriority(userId: string): Promise<Notification[]> {
     return this.buildBaseQuery()
       .where('user_id', userId)
-      .orderByRaw(`
+      .orderByRaw(
+        `
         CASE priority
           WHEN 'urgent' THEN 1
           WHEN 'high' THEN 2
           WHEN 'normal' THEN 3
           WHEN 'low' THEN 4
         END ASC
-      `)
+      `
+      )
       .orderBy('created_at', 'desc')
   }
 
@@ -30,9 +32,7 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   }
 
   async countUnreadByUserId(userId: string): Promise<number> {
-    const query = this.buildBaseQuery()
-      .where('user_id', userId)
-      .whereNull('read_at')
+    const query = this.buildBaseQuery().where('user_id', userId).whereNull('read_at')
 
     const result = await query.count('* as total')
     const row = result[0] as { $extras?: { total?: string | number } } | undefined
@@ -44,9 +44,7 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   }
 
   async markAsReadBulk(ids: string[]): Promise<number> {
-    await this.buildBaseQuery()
-      .whereIn('id', ids)
-      .update({ read_at: DateTime.now().toSQL() })
+    await this.buildBaseQuery().whereIn('id', ids).update({ read_at: DateTime.now().toSQL() })
 
     await this.invalidateListCaches()
 

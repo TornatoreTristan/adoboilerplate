@@ -2,8 +2,8 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import UserService from '#users/services/user_service'
-import SessionService from '#sessions/services/session_service'
+import type UserService from '#users/services/user_service'
+import type SessionService from '#sessions/services/session_service'
 import type { CreateUserData } from '#shared/types/user'
 
 test.group('SessionController', (group) => {

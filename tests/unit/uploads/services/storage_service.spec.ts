@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import StorageService from '#uploads/services/storage_service'
+import type StorageService from '#uploads/services/storage_service'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 
@@ -19,7 +19,6 @@ test.group('StorageService - Local Storage', () => {
     assert.include(result.path, 'test/file.txt')
   })
 
-
   test('should get file content from local disk', async ({ assert }) => {
     const storageService = getService<StorageService>(TYPES.StorageService)
 
@@ -35,7 +34,6 @@ test.group('StorageService - Local Storage', () => {
     assert.equal(content.toString(), 'test content')
   })
 
-
   test('should delete file from local disk', async ({ assert }) => {
     const storageService = getService<StorageService>(TYPES.StorageService)
 
@@ -50,7 +48,6 @@ test.group('StorageService - Local Storage', () => {
     const exists = await storageService.exists(stored.path, 'local')
     assert.isFalse(exists)
   })
-
 
   test('should check if file exists on local disk', async ({ assert }) => {
     const storageService = getService<StorageService>(TYPES.StorageService)
@@ -69,7 +66,6 @@ test.group('StorageService - Local Storage', () => {
     assert.isFalse(notExists)
   })
 
-
   test('should generate signed URL for local file', async ({ assert }) => {
     const storageService = getService<StorageService>(TYPES.StorageService)
 
@@ -85,7 +81,6 @@ test.group('StorageService - Local Storage', () => {
     assert.include(signedUrl, '/uploads/signed/')
   })
 
-
   test('should generate public URL for local public file', async ({ assert }) => {
     const storageService = getService<StorageService>(TYPES.StorageService)
 
@@ -100,6 +95,4 @@ test.group('StorageService - Local Storage', () => {
     assert.isString(publicUrl)
     assert.include(publicUrl, stored.path)
   })
-
 })
-

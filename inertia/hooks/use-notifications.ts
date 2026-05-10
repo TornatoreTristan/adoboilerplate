@@ -107,12 +107,15 @@ export function useNotifications() {
       }
     })
 
-    subscription.create().then(() => {
-      setIsConnected(true)
-    }).catch((error) => {
-      console.error('Failed to connect to notifications stream:', error)
-      setIsConnected(false)
-    })
+    subscription
+      .create()
+      .then(() => {
+        setIsConnected(true)
+      })
+      .catch((error) => {
+        console.error('Failed to connect to notifications stream:', error)
+        setIsConnected(false)
+      })
 
     return () => {
       stopListening()

@@ -26,10 +26,7 @@ export default class HealthHistoryRepository extends BaseRepository<typeof Healt
       .limit(limit)
   }
 
-  async getHistoryForPeriod(
-    startDate: DateTime,
-    endDate: DateTime
-  ): Promise<HealthHistory[]> {
+  async getHistoryForPeriod(startDate: DateTime, endDate: DateTime): Promise<HealthHistory[]> {
     return HealthHistory.query()
       .whereBetween('created_at', [toSqlOrThrow(startDate), toSqlOrThrow(endDate)])
       .orderBy('created_at', 'asc')

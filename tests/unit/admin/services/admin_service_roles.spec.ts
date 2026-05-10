@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AdminService from '#admin/services/admin_service'
+import type AdminService from '#admin/services/admin_service'
 import Role from '#roles/models/role'
 import Permission from '#roles/models/permission'
 
@@ -145,8 +145,6 @@ test.group('AdminService - Roles', (group) => {
   })
 
   test('should throw error when role not found', async ({ assert }) => {
-    await assert.rejects(
-      () => adminService.getRoleDetail('00000000-0000-0000-0000-000000000000')
-    )
+    await assert.rejects(() => adminService.getRoleDetail('00000000-0000-0000-0000-000000000000'))
   })
 })

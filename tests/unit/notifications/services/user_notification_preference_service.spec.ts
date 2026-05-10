@@ -1,9 +1,9 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
-import UserNotificationPreferenceRepository from '#notifications/repositories/user_notification_preference_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
+import type UserNotificationPreferenceRepository from '#notifications/repositories/user_notification_preference_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import type { NotificationType } from '#notifications/types/notification'
 import type { NotificationChannel } from '#notifications/models/user_notification_preference'
 
@@ -14,9 +14,7 @@ test.group('UserNotificationPreferenceService', (group) => {
   let testUserId: string
 
   group.each.setup(async () => {
-    service = getService<UserNotificationPreferenceService>(
-      TYPES.UserNotificationPreferenceService
-    )
+    service = getService<UserNotificationPreferenceService>(TYPES.UserNotificationPreferenceService)
     repository = getService<UserNotificationPreferenceRepository>(
       TYPES.UserNotificationPreferenceRepository
     )
@@ -31,7 +29,7 @@ test.group('UserNotificationPreferenceService', (group) => {
     testUserId = user.id
   })
 
-  test('devrait récupérer les préférences d\'un utilisateur', async ({ assert }) => {
+  test("devrait récupérer les préférences d'un utilisateur", async ({ assert }) => {
     // Créer quelques préférences
     await repository.create({
       userId: testUserId,
@@ -53,9 +51,7 @@ test.group('UserNotificationPreferenceService', (group) => {
     assert.isTrue(preferences.every((p) => p.userId === testUserId))
   })
 
-  test('devrait vérifier si une notification est activée (défaut = true)', async ({
-    assert,
-  }) => {
+  test('devrait vérifier si une notification est activée (défaut = true)', async ({ assert }) => {
     // Aucune préférence définie
     const isEnabled = await service.isNotificationEnabled(
       testUserId,
@@ -157,9 +153,7 @@ test.group('UserNotificationPreferenceService', (group) => {
     assert.isFalse(updated.enabled)
   })
 
-  test('devrait initialiser les préférences par défaut pour un utilisateur', async ({
-    assert,
-  }) => {
+  test('devrait initialiser les préférences par défaut pour un utilisateur', async ({ assert }) => {
     await service.initializeDefaultPreferences(testUserId)
 
     const preferences = await service.getUserPreferences(testUserId)
@@ -260,9 +254,7 @@ test.group('UserNotificationPreferenceService', (group) => {
     assert.equal(preferences.length, 0)
   })
 
-  test('devrait gérer plusieurs canaux pour le même type de notification', async ({
-    assert,
-  }) => {
+  test('devrait gérer plusieurs canaux pour le même type de notification', async ({ assert }) => {
     await service.setPreference(
       testUserId,
       'user.mentioned' as NotificationType,

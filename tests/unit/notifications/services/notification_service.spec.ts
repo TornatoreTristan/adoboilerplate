@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import NotificationService from '#notifications/services/notification_service'
 import NotificationRepository from '#notifications/repositories/notification_repository'
-import UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
+import type UserNotificationPreferenceService from '#notifications/services/user_notification_preference_service'
 import Notification from '#notifications/models/notification'
 import User from '#users/models/user'
 import Organization from '#organizations/models/organization'
@@ -105,7 +105,9 @@ test.group('NotificationService', (group) => {
     assert.isNotNull(updated2?.readAt)
   })
 
-  test('devrait marquer toutes les notifications d\'un utilisateur comme lues', async ({ assert }) => {
+  test("devrait marquer toutes les notifications d'un utilisateur comme lues", async ({
+    assert,
+  }) => {
     await service.createNotification({
       userId: user.id,
       type: 'user.mentioned',
@@ -148,7 +150,7 @@ test.group('NotificationService', (group) => {
     assert.equal(count, 2)
   })
 
-  test('devrait récupérer les notifications d\'un utilisateur', async ({ assert }) => {
+  test("devrait récupérer les notifications d'un utilisateur", async ({ assert }) => {
     await service.createNotification({
       userId: user.id,
       type: 'user.mentioned',
@@ -299,7 +301,7 @@ test.group('NotificationService', (group) => {
     assert.equal(result.action?.endpoint, '/api/test/approve')
   })
 
-  test('devrait échouer si l\'action n\'existe pas', async ({ assert }) => {
+  test("devrait échouer si l'action n'existe pas", async ({ assert }) => {
     const notification = await service.createNotification({
       userId: user.id,
       type: 'user.mentioned',
@@ -313,7 +315,7 @@ test.group('NotificationService', (group) => {
     )
   })
 
-  test('devrait échouer si l\'index d\'action est invalide', async ({ assert }) => {
+  test("devrait échouer si l'index d'action est invalide", async ({ assert }) => {
     const actions = [
       {
         label: 'Accepter',

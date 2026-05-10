@@ -23,8 +23,7 @@ export default class Integration extends BaseModel {
   declare config: Record<string, any>
 
   @column({
-    prepare: (value: Record<string, any> | null) =>
-      value ? JSON.stringify(value) : null,
+    prepare: (value: Record<string, any> | null) => (value ? JSON.stringify(value) : null),
     consume: (value: string | Record<string, any> | null) => {
       if (value === null) return null
       if (typeof value === 'string') {

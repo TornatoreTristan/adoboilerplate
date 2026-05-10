@@ -1,7 +1,7 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import NotificationListeners from '#notifications/listeners/notification_listeners'
+import type NotificationListeners from '#notifications/listeners/notification_listeners'
 
 /**
  * NotificationListenersProvider

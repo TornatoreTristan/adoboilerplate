@@ -30,10 +30,7 @@ export default class HealthHistoryService {
     return this.historyRepo.getHistorySince(since, limit)
   }
 
-  async getHistoryForPeriod(
-    startDate: DateTime,
-    endDate: DateTime
-  ): Promise<HealthHistory[]> {
+  async getHistoryForPeriod(startDate: DateTime, endDate: DateTime): Promise<HealthHistory[]> {
     return this.historyRepo.getHistoryForPeriod(startDate, endDate)
   }
 

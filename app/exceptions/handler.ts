@@ -1,6 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
-import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 import { AppException } from '#shared/exceptions/app_exception'
 import { InternalServerException } from '#shared/exceptions/domain_exceptions'
@@ -55,7 +55,9 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     // Pour toutes les autres erreurs, on les wrappe en InternalServerException
     const wrappedException = new InternalServerException(
       app.inProduction ? 'Une erreur interne est survenue' : (error as Error).message,
-      this.debug ? { originalError: (error as Error).message, stack: (error as Error).stack } : undefined
+      this.debug
+        ? { originalError: (error as Error).message, stack: (error as Error).stack }
+        : undefined
     )
 
     return this.handleAppException(wrappedException, ctx)

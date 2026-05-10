@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UploadService from '#uploads/services/upload_service'
+import type UploadService from '#uploads/services/upload_service'
 import { uploadFileValidator, getUploadsValidator } from '#uploads/validators/upload_validator'
 import { E } from '#shared/exceptions/index'
 import env from '#start/env'

@@ -195,7 +195,9 @@ const OrganizationSettingsUsersPage = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="member">{t('organizations.users.role.member')}</SelectItem>
+                        <SelectItem value="member">
+                          {t('organizations.users.role.member')}
+                        </SelectItem>
                         <SelectItem value="admin">{t('organizations.users.role.admin')}</SelectItem>
                         <SelectItem value="owner">{t('organizations.users.role.owner')}</SelectItem>
                       </SelectContent>
@@ -224,7 +226,9 @@ const OrganizationSettingsUsersPage = ({
                   {t('organizations.users.invitations.card_title')}
                 </CardTitle>
                 <CardDescription>
-                  {t('organizations.users.invitations.card_description_count', { count: invitations.length })}
+                  {t('organizations.users.invitations.card_description_count', {
+                    count: invitations.length,
+                  })}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -258,7 +262,9 @@ const OrganizationSettingsUsersPage = ({
                             onClick={() => {
                               if (
                                 confirm(
-                                  t('organizations.users.invitations.cancel_confirm', { email: invitation.email })
+                                  t('organizations.users.invitations.cancel_confirm', {
+                                    email: invitation.email,
+                                  })
                                 )
                               ) {
                                 router.delete(
@@ -309,7 +315,10 @@ const OrganizationSettingsUsersPage = ({
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src={member.avatarUrl || ''} alt={member.fullName || ''} />
+                              <AvatarImage
+                                src={member.avatarUrl || ''}
+                                alt={member.fullName || ''}
+                              />
                               <AvatarFallback>
                                 {member.fullName?.charAt(0) || member.email.charAt(0).toUpperCase()}
                               </AvatarFallback>
@@ -415,32 +424,46 @@ const OrganizationSettingsUsersPage = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={memberToView.avatarUrl || ''} alt={memberToView.fullName || ''} />
+                    <AvatarImage
+                      src={memberToView.avatarUrl || ''}
+                      alt={memberToView.fullName || ''}
+                    />
                     <AvatarFallback className="text-xl">
-                      {memberToView.fullName?.charAt(0) || memberToView.email.charAt(0).toUpperCase()}
+                      {memberToView.fullName?.charAt(0) ||
+                        memberToView.email.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{memberToView.fullName || memberToView.email}</h3>
+                    <h3 className="font-semibold text-lg">
+                      {memberToView.fullName || memberToView.email}
+                    </h3>
                     <p className="text-sm text-muted-foreground">{memberToView.email}</p>
                   </div>
                 </div>
                 <div className="grid gap-3">
                   <div className="flex justify-between py-2 border-b">
-                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.role_label')}</span>
+                    <span className="text-sm font-medium">
+                      {t('organizations.users.view_dialog.role_label')}
+                    </span>
                     <Badge variant={getRoleBadgeVariant(memberToView.role)}>
                       {getRoleLabel(memberToView.role)}
                     </Badge>
                   </div>
                   <div className="flex justify-between py-2 border-b">
-                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.since_label')}</span>
+                    <span className="text-sm font-medium">
+                      {t('organizations.users.view_dialog.since_label')}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       {formatLongDate(memberToView.joinedAt)}
                     </span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-sm font-medium">{t('organizations.users.view_dialog.user_id_label')}</span>
-                    <span className="text-sm text-muted-foreground font-mono">{memberToView.id}</span>
+                    <span className="text-sm font-medium">
+                      {t('organizations.users.view_dialog.user_id_label')}
+                    </span>
+                    <span className="text-sm text-muted-foreground font-mono">
+                      {memberToView.id}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -458,7 +481,9 @@ const OrganizationSettingsUsersPage = ({
               <AlertDialogDescription>
                 <span
                   dangerouslySetInnerHTML={{
-                    __html: t('organizations.users.delete_dialog.description_with_name', { name: deleteName }),
+                    __html: t('organizations.users.delete_dialog.description_with_name', {
+                      name: deleteName,
+                    }),
                   }}
                 />
               </AlertDialogDescription>

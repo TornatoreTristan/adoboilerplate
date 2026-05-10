@@ -21,8 +21,8 @@ export default class AuditLogsController {
       search: request.input('search'),
       startDate: request.input('startDate') ? new Date(request.input('startDate')) : undefined,
       endDate: request.input('endDate') ? new Date(request.input('endDate')) : undefined,
-      limit: parseInt(request.input('limit', '50')),
-      offset: parseInt(request.input('offset', '0')),
+      limit: Number.parseInt(request.input('limit', '50')),
+      offset: Number.parseInt(request.input('offset', '0')),
     }
 
     const { data, total, hasMore } = await auditLogService.findWithFilters(filters)
@@ -86,7 +86,7 @@ export default class AuditLogsController {
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
     const query = request.input('q', '')
-    const limit = parseInt(request.input('limit', '50'))
+    const limit = Number.parseInt(request.input('limit', '50'))
 
     const results = await auditLogService.search(query, limit)
 
@@ -99,8 +99,8 @@ export default class AuditLogsController {
   async recent({ request }: HttpContext) {
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const days = parseInt(request.input('days', '7'))
-    const limit = parseInt(request.input('limit', '100'))
+    const days = Number.parseInt(request.input('days', '7'))
+    const limit = Number.parseInt(request.input('limit', '100'))
 
     const logs = await auditLogService.getRecent(days, limit)
 
@@ -113,7 +113,7 @@ export default class AuditLogsController {
   async userLogs({ params, request }: HttpContext) {
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const limit = parseInt(request.input('limit', '100'))
+    const limit = Number.parseInt(request.input('limit', '100'))
 
     const logs = await auditLogService.getUserLogs(params.userId, limit)
 
@@ -126,7 +126,7 @@ export default class AuditLogsController {
   async organizationLogs({ params, request }: HttpContext) {
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const limit = parseInt(request.input('limit', '100'))
+    const limit = Number.parseInt(request.input('limit', '100'))
 
     const logs = await auditLogService.getOrganizationLogs(params.organizationId, limit)
 
@@ -139,7 +139,7 @@ export default class AuditLogsController {
   async resourceLogs({ params, request }: HttpContext) {
     const auditLogService = getService<AuditLogService>(TYPES.AuditLogService)
 
-    const limit = parseInt(request.input('limit', '100'))
+    const limit = Number.parseInt(request.input('limit', '100'))
 
     const logs = await auditLogService.getResourceLogs(
       params.resourceType,

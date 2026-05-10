@@ -33,11 +33,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
 
   return (
     <>
-      <form
-        className={cn('flex flex-col gap-6', className)}
-        onSubmit={handleSubmit}
-        {...props}
-      >
+      <form className={cn('flex flex-col gap-6', className)} onSubmit={handleSubmit} {...props}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
             <h1 className="text-2xl font-bold">{t('auth.register_form.title')}</h1>
@@ -84,7 +80,9 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="confirmPassword">{t('auth.register_form.confirm_password')}</FieldLabel>
+            <FieldLabel htmlFor="confirmPassword">
+              {t('auth.register_form.confirm_password')}
+            </FieldLabel>
             <Input
               id="confirmPassword"
               type="password"
@@ -124,7 +122,8 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'form'>) => 
               </a>
             </Button>
             <FieldDescription className="text-center">
-              {t('auth.register_form.have_account')}<br />
+              {t('auth.register_form.have_account')}
+              <br />
               <a href="/login" className="underline underline-offset-4">
                 {t('auth.register_form.login_now')}
               </a>

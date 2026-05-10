@@ -2,7 +2,7 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import UserService from '#users/services/user_service'
+import type UserService from '#users/services/user_service'
 import type { CreateUserData } from '#shared/types/user'
 import db from '@adonisjs/lucid/services/db'
 
@@ -21,9 +21,7 @@ test.group('SuperAdmin Middleware', (group) => {
     }
   })
 
-  test('should allow access to super-admin route when user is super-admin', async ({
-    client,
-  }) => {
+  test('should allow access to super-admin route when user is super-admin', async ({ client }) => {
     const userData: CreateUserData = {
       email: 'admin@example.com',
       password: 'password123',
@@ -62,11 +60,7 @@ test.group('SuperAdmin Middleware', (group) => {
     // (the previous test in this group inserts via raw db.table(), which has
     // intermittently been observed to escape withGlobalTransaction). Drop
     // any super-admin grant against *our* user before asserting denial.
-    await db
-      .from('user_roles')
-      .where('user_id', user.id)
-      .where('role_slug', 'super-admin')
-      .delete()
+    await db.from('user_roles').where('user_id', user.id).where('role_slug', 'super-admin').delete()
 
     const loginResponse = await client.post('/auth/login').withCsrfToken().json({
       email: 'user@example.com',

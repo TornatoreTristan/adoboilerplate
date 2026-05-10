@@ -68,7 +68,9 @@ export default function CreateOrganization() {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={processing}>
-                    {processing ? t('organizations.create.submitting') : t('organizations.create.submit')}
+                    {processing
+                      ? t('organizations.create.submitting')
+                      : t('organizations.create.submit')}
                   </Button>
                 </form>
               </div>

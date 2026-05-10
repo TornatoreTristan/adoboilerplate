@@ -13,9 +13,10 @@ import { DateTime } from 'luxon'
  * object onto each SubscriptionItem, so reading them from a Subscription
  * directly always returns undefined. We pull them from the first item.
  */
-function getSubscriptionPeriod(
-  sub: Stripe.Subscription
-): { start: number | null; end: number | null } {
+function getSubscriptionPeriod(sub: Stripe.Subscription): {
+  start: number | null
+  end: number | null
+} {
   const item = sub.items?.data?.[0]
   return {
     start: item?.current_period_start ?? null,
@@ -120,7 +121,10 @@ export default class StripeWebhookController {
     logger.info({ organizationId, planId, metadata: session.metadata }, 'Metadata extraites')
 
     if (!organizationId || !planId) {
-      logger.warn({ sessionId: session.id, metadata: session.metadata }, 'Metadata manquantes dans la session checkout')
+      logger.warn(
+        { sessionId: session.id, metadata: session.metadata },
+        'Metadata manquantes dans la session checkout'
+      )
       return
     }
 
@@ -144,9 +148,8 @@ export default class StripeWebhookController {
     const billingInterval = stripeSubscription.items.data[0].plan.interval as 'month' | 'year'
 
     // Vérifier si un abonnement existe déjà
-    const existingSubscription = await subscriptionRepo.findByStripeSubscriptionId(
-      stripeSubscriptionId
-    )
+    const existingSubscription =
+      await subscriptionRepo.findByStripeSubscriptionId(stripeSubscriptionId)
 
     if (existingSubscription) {
       logger.info(
@@ -192,9 +195,15 @@ export default class StripeWebhookController {
           canceledAt: null,
         } as any)
 
-        logger.info({ subscriptionId: newSubscription.id, organizationId, planId }, 'Nouvel abonnement créé avec succès')
+        logger.info(
+          { subscriptionId: newSubscription.id, organizationId, planId },
+          'Nouvel abonnement créé avec succès'
+        )
       } catch (error) {
-        logger.error({ error, organizationId, planId }, 'Erreur lors de la création de l\'abonnement')
+        logger.error(
+          { error, organizationId, planId },
+          "Erreur lors de la création de l'abonnement"
+        )
         throw error
       }
     }

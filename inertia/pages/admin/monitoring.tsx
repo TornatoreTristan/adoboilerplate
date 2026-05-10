@@ -260,7 +260,9 @@ export default function Monitoring() {
                   )}
                   {data.health.redis.details?.memory && (
                     <div className="text-sm text-muted-foreground">
-                      {t('admin.monitoring.memory_label', { value: data.health.redis.details.memory.used })}
+                      {t('admin.monitoring.memory_label', {
+                        value: data.health.redis.details.memory.used,
+                      })}
                     </div>
                   )}
                 </div>
@@ -279,9 +281,13 @@ export default function Monitoring() {
                 <div className="space-y-2">
                   {data.health.disk.details && (
                     <>
-                      <div className="text-2xl font-bold">{data.health.disk.details.freePercentage}%</div>
+                      <div className="text-2xl font-bold">
+                        {data.health.disk.details.freePercentage}%
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {t('admin.monitoring.free_suffix', { value: data.health.disk.details.free })}
+                        {t('admin.monitoring.free_suffix', {
+                          value: data.health.disk.details.free,
+                        })}
                       </div>
                     </>
                   )}
@@ -303,7 +309,9 @@ export default function Monitoring() {
                     <>
                       <div className="text-2xl font-bold">{data.health.email.details.waiting}</div>
                       <div className="text-sm text-muted-foreground">
-                        {t('admin.monitoring.pending_failed', { failed: data.health.email.details.failed })}
+                        {t('admin.monitoring.pending_failed', {
+                          failed: data.health.email.details.failed,
+                        })}
                       </div>
                     </>
                   )}
@@ -323,14 +331,20 @@ export default function Monitoring() {
               <CardContent className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.monitoring.metric_cpu')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.monitoring.metric_cpu')}
+                    </span>
                     <span className="font-medium">{data.metrics.process.cpuUsagePercent}%</span>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.monitoring.metric_memory')}</span>
-                    <span className="font-medium">{data.metrics.process.memoryUsage.percentage}%</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.monitoring.metric_memory')}
+                    </span>
+                    <span className="font-medium">
+                      {data.metrics.process.memoryUsage.percentage}%
+                    </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {data.metrics.process.memoryUsage.rss}
@@ -352,7 +366,9 @@ export default function Monitoring() {
                   <span className="font-medium">{data.metrics.system.cpuCount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('admin.monitoring.metric_total_memory')}</span>
+                  <span className="text-muted-foreground">
+                    {t('admin.monitoring.metric_total_memory')}
+                  </span>
                   <span className="font-medium">{data.metrics.system.totalMemory}</span>
                 </div>
               </CardContent>
@@ -360,16 +376,22 @@ export default function Monitoring() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium">{t('admin.monitoring.card_cache')}</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.monitoring.card_cache')}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('admin.monitoring.metric_hit_rate')}</span>
+                  <span className="text-muted-foreground">
+                    {t('admin.monitoring.metric_hit_rate')}
+                  </span>
                   <span className="font-medium">{data.metrics.cache.hitRate}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('admin.monitoring.metric_keys')}</span>
-                  <span className="font-medium">{data.metrics.cache.keyCount.toLocaleString()}</span>
+                  <span className="font-medium">
+                    {data.metrics.cache.keyCount.toLocaleString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -380,7 +402,9 @@ export default function Monitoring() {
               <Card>
                 <CardHeader>
                   <CardTitle>{t('admin.monitoring.chart_response_time_title')}</CardTitle>
-                  <CardDescription>{t('admin.monitoring.chart_response_time_description')}</CardDescription>
+                  <CardDescription>
+                    {t('admin.monitoring.chart_response_time_description')}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={chartConfig} className="h-[300px]">
@@ -420,7 +444,9 @@ export default function Monitoring() {
                 <Card>
                   <CardHeader>
                     <CardTitle>{t('admin.monitoring.chart_cpu_memory_title')}</CardTitle>
-                    <CardDescription>{t('admin.monitoring.chart_cpu_memory_description')}</CardDescription>
+                    <CardDescription>
+                      {t('admin.monitoring.chart_cpu_memory_description')}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-[300px]">
@@ -463,7 +489,9 @@ export default function Monitoring() {
                 <Card>
                   <CardHeader>
                     <CardTitle>{t('admin.monitoring.chart_cache_title')}</CardTitle>
-                    <CardDescription>{t('admin.monitoring.chart_cache_description')}</CardDescription>
+                    <CardDescription>
+                      {t('admin.monitoring.chart_cache_description')}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ChartContainer config={chartConfig} className="h-[300px]">

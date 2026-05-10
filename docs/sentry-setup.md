@@ -5,6 +5,7 @@ This boilerplate comes with **Sentry** pre-configured for production-ready error
 ## 📋 Features
 
 ✅ **Backend Monitoring** (AdonisJS)
+
 - Automatic exception capture
 - Performance monitoring (APM)
 - Profiling
@@ -13,6 +14,7 @@ This boilerplate comes with **Sentry** pre-configured for production-ready error
 - Breadcrumbs
 
 ✅ **Frontend Monitoring** (React)
+
 - React Error Boundary
 - Automatic error capture
 - Performance monitoring
@@ -50,6 +52,7 @@ VITE_SENTRY_REPLAY_SESSION_RATE=0.1  # 10% session replay
 ```
 
 **Important Notes:**
+
 - Set `SENTRY_ENABLED=false` in development to disable
 - Use **different DSNs** for backend and frontend (create 2 projects in Sentry)
 - Sample rates control how many events are sent (lower = less quota used)
@@ -57,6 +60,7 @@ VITE_SENTRY_REPLAY_SESSION_RATE=0.1  # 10% session replay
 ### 3. Deploy and Test
 
 Once deployed, Sentry will automatically:
+
 - Capture all unhandled exceptions
 - Track performance metrics
 - Record user sessions on errors
@@ -67,16 +71,19 @@ Once deployed, Sentry will automatically:
 ### Backend
 
 ✅ **All exceptions** (except filtered ones)
+
 - Database errors
 - API errors
 - Uncaught exceptions
 
 ❌ **Filtered out** (not critical)
+
 - Validation errors (VineJS)
 - 404 errors
 - User authentication failures
 
 **Context included:**
+
 ```json
 {
   "user": { "id": "123", "email": "user@example.com" },
@@ -94,19 +101,23 @@ Once deployed, Sentry will automatically:
 ### Frontend
 
 ✅ **React errors**
+
 - Component crashes
 - Rendering errors
 - Async errors
 
 ✅ **Network errors**
+
 - Failed API calls (in production)
 
 ❌ **Filtered out**
+
 - Browser extension errors
 - Third-party script errors
 
 **Fallback UI:**
 When an error occurs, users see a friendly error page with:
+
 - Error message
 - "Try again" button
 - Error ID (for support)
@@ -129,6 +140,7 @@ After deploying, you'll see in Sentry:
 ## 🔔 Alerts
 
 Sentry sends notifications for:
+
 - New errors (never seen before)
 - Regressions (errors that returned)
 - Spike detection (sudden increase)
@@ -152,7 +164,7 @@ try {
 } catch (error) {
   sentry.captureException(error, {
     operation: 'payment',
-    orderId: '123'
+    orderId: '123',
   })
 }
 
@@ -163,14 +175,14 @@ sentry.captureMessage('Important event happened', 'info')
 sentry.addBreadcrumb({
   message: 'User clicked export button',
   category: 'user-action',
-  level: 'info'
+  level: 'info',
 })
 
 // Set user context
 sentry.setUser({
   id: user.id,
   email: user.email,
-  username: user.fullName
+  username: user.fullName,
 })
 ```
 
@@ -190,13 +202,13 @@ try {
 Sentry.addBreadcrumb({
   category: 'navigation',
   message: 'User navigated to /dashboard',
-  level: 'info'
+  level: 'info',
 })
 
 // Set user context
 Sentry.setUser({
   id: user.id,
-  email: user.email
+  email: user.email,
 })
 ```
 
@@ -229,6 +241,7 @@ Or use GitHub Actions (see `.github/workflows/deploy.yml`)
 ### Backend (APM)
 
 Sentry automatically tracks:
+
 - Request duration
 - Database query performance
 - External API calls
@@ -237,6 +250,7 @@ Sentry automatically tracks:
 ### Frontend (Web Vitals)
 
 Automatically tracks:
+
 - **LCP** (Largest Contentful Paint)
 - **FID** (First Input Delay)
 - **CLS** (Cumulative Layout Shift)
@@ -246,12 +260,14 @@ Automatically tracks:
 ## 💾 Session Replay
 
 When an error occurs, Sentry records a video replay showing:
+
 - User actions before the crash
 - Network requests
 - Console logs
 - DOM changes
 
 **Privacy:**
+
 - All text is masked by default
 - All media is blocked by default
 
@@ -267,6 +283,7 @@ When an error occurs, Sentry records a video replay showing:
 ### Too many events
 
 Reduce sample rates:
+
 ```env
 SENTRY_TRACES_SAMPLE_RATE=0.05  # 5% instead of 10%
 VITE_SENTRY_REPLAY_SESSION_RATE=0.05
@@ -275,12 +292,13 @@ VITE_SENTRY_REPLAY_SESSION_RATE=0.05
 ### Missing source maps (frontend)
 
 Ensure Vite builds source maps in production:
+
 ```ts
 // vite.config.ts
 export default {
   build: {
-    sourcemap: true  // Enable source maps
-  }
+    sourcemap: true, // Enable source maps
+  },
 }
 ```
 

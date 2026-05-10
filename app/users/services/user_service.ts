@@ -7,9 +7,7 @@ import hash from '@adonisjs/core/services/hash'
 
 @injectable()
 export default class UserService {
-  constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
-  ) {}
+  constructor(@inject(TYPES.UserRepository) private userRepo: UserRepository) {}
 
   async create(userData: CreateUserData): Promise<User> {
     const hashedPassword = await hash.make(userData.password)

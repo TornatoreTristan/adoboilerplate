@@ -19,7 +19,11 @@ export default class AppSettingsService {
     return this.appSettingsRepo.updateSettings(data)
   }
 
-  async updateBranding(appName?: string, logoId?: string | null, faviconId?: string | null): Promise<AppSettings> {
+  async updateBranding(
+    appName?: string,
+    logoId?: string | null,
+    faviconId?: string | null
+  ): Promise<AppSettings> {
     const data: UpdateAppSettingsData = {}
 
     if (appName !== undefined) data.appName = appName

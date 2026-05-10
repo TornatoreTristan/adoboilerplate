@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UserRepository from '#users/repositories/user_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import { E } from '#shared/exceptions/index'
 
 export default class AuthMiddleware {
@@ -19,8 +19,8 @@ export default class AuthMiddleware {
     const user = await userRepository.findById(userId, {
       cache: {
         ttl: 300,
-        tags: [`user_${userId}`, 'users']
-      }
+        tags: [`user_${userId}`, 'users'],
+      },
     })
 
     // Si l'utilisateur n'existe plus

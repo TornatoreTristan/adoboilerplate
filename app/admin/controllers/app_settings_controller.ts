@@ -1,8 +1,8 @@
-import { HttpContext } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AppSettingsService from '#app_settings/services/app_settings_service'
-import UploadService from '#uploads/services/upload_service'
+import type AppSettingsService from '#app_settings/services/app_settings_service'
+import type UploadService from '#uploads/services/upload_service'
 import vine from '@vinejs/vine'
 import { E } from '#shared/exceptions/index'
 import { readFile } from 'node:fs/promises'
@@ -121,7 +121,7 @@ export default class AppSettingsController {
       session.flash('success', 'Logo mis à jour avec succès')
       return response.redirect().back()
     } catch (error) {
-      session.flash('error', error.message || 'Erreur lors de l\'upload du logo')
+      session.flash('error', error.message || "Erreur lors de l'upload du logo")
       return response.redirect().back()
     }
   }
@@ -179,7 +179,7 @@ export default class AppSettingsController {
       return response.redirect().back()
     } catch (error) {
       logger.error('❌ Favicon upload error', error)
-      session.flash('error', error.message || 'Erreur lors de l\'upload du favicon')
+      session.flash('error', error.message || "Erreur lors de l'upload du favicon")
       return response.redirect().back()
     }
   }

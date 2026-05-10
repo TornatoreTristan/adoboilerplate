@@ -65,133 +65,136 @@ export default function Profile() {
         <div className="max-w-2xl space-y-10">
           {/* Photo de profil */}
           <div className="space-y-4">
-              <h3 className="text-base font-medium">{t('account.profile.profile_picture')}</h3>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={user.avatarUrl || ''} alt={user.fullName || 'Avatar'} />
-                  <AvatarFallback className="text-lg">
-                    {user.fullName
-                      ? user.fullName
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()
-                      : user.email[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <Button variant="outline" size="sm">
-                  {t('account.profile.change')}
+            <h3 className="text-base font-medium">{t('account.profile.profile_picture')}</h3>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={user.avatarUrl || ''} alt={user.fullName || 'Avatar'} />
+                <AvatarFallback className="text-lg">
+                  {user.fullName
+                    ? user.fullName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .toUpperCase()
+                    : user.email[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <Button variant="outline" size="sm">
+                {t('account.profile.change')}
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Informations personnelles */}
+          <div className="space-y-4">
+            <h3 className="text-base font-medium">{t('account.profile.personal_info')}</h3>
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fullName">{t('account.profile.full_name')}</Label>
+                <Input
+                  id="fullName"
+                  value={data.fullName}
+                  onChange={(e) => setData('fullName', e.target.value)}
+                  placeholder={t('account.profile.full_name_placeholder')}
+                />
+                {errors.fullName && <p className="text-destructive text-xs">{errors.fullName}</p>}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="email">{t('account.profile.email')}</Label>
+                <Input id="email" type="email" defaultValue={user.email} disabled />
+                {!user.isEmailVerified && (
+                  <p className="text-destructive text-xs">
+                    {t('account.profile.email_not_verified')} -{' '}
+                    <button className="underline">{t('account.profile.resend_email')}</button>
+                  </p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-fit" disabled={processing}>
+                {processing ? t('account.profile.saving') : t('account.profile.save')}
+              </Button>
+            </form>
+          </div>
+
+          <Separator />
+
+          {/* Mot de passe */}
+          <div className="space-y-4">
+            <h3 className="text-base font-medium">{t('account.profile.password')}</h3>
+            {user.googleId ? (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>{t('account.profile.google_password_notice')}</AlertDescription>
+              </Alert>
+            ) : (
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="current-password">{t('account.profile.current_password')}</Label>
+                  <Input id="current-password" type="password" />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="new-password">{t('account.profile.new_password')}</Label>
+                  <Input id="new-password" type="password" />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="confirm-password">{t('account.profile.confirm_password')}</Label>
+                  <Input id="confirm-password" type="password" />
+                </div>
+
+                <Button variant="outline" className="w-fit">
+                  {t('account.profile.change_password')}
                 </Button>
               </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Zone de danger */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-destructive text-base font-medium">
+                {t('account.profile.danger_zone')}
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {t('account.profile.danger_zone_description')}
+              </p>
             </div>
-
-            <Separator />
-
-            {/* Informations personnelles */}
-            <div className="space-y-4">
-              <h3 className="text-base font-medium">{t('account.profile.personal_info')}</h3>
-              <form onSubmit={handleSubmit} className="grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="fullName">{t('account.profile.full_name')}</Label>
-                  <Input
-                    id="fullName"
-                    value={data.fullName}
-                    onChange={(e) => setData('fullName', e.target.value)}
-                    placeholder={t('account.profile.full_name_placeholder')}
-                  />
-                  {errors.fullName && (
-                    <p className="text-destructive text-xs">{errors.fullName}</p>
-                  )}
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="email">{t('account.profile.email')}</Label>
-                  <Input id="email" type="email" defaultValue={user.email} disabled />
-                  {!user.isEmailVerified && (
-                    <p className="text-destructive text-xs">
-                      {t('account.profile.email_not_verified')} - <button className="underline">{t('account.profile.resend_email')}</button>
-                    </p>
-                  )}
-                </div>
-
-                <Button type="submit" className="w-fit" disabled={processing}>
-                  {processing ? t('account.profile.saving') : t('account.profile.save')}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  {t('account.profile.delete_account')}
                 </Button>
-              </form>
-            </div>
-
-            <Separator />
-
-            {/* Mot de passe */}
-            <div className="space-y-4">
-              <h3 className="text-base font-medium">{t('account.profile.password')}</h3>
-              {user.googleId ? (
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    {t('account.profile.google_password_notice')}
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="current-password">{t('account.profile.current_password')}</Label>
-                    <Input id="current-password" type="password" />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="new-password">{t('account.profile.new_password')}</Label>
-                    <Input id="new-password" type="password" />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="confirm-password">{t('account.profile.confirm_password')}</Label>
-                    <Input id="confirm-password" type="password" />
-                  </div>
-
-                  <Button variant="outline" className="w-fit">
-                    {t('account.profile.change_password')}
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Zone de danger */}
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-destructive text-base font-medium">{t('account.profile.danger_zone')}</h3>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  {t('account.profile.danger_zone_description')}
-                </p>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    {t('account.profile.delete_account')}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t('account.profile.delete_account_confirm_title')}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t('account.profile.delete_account_confirm_description')}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t('account.profile.cancel')}</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteAccount}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? t('account.profile.deleting') : t('account.profile.delete_account')}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t('account.profile.delete_account_confirm_title')}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t('account.profile.delete_account_confirm_description')}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t('account.profile.cancel')}</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeleting
+                      ? t('account.profile.deleting')
+                      : t('account.profile.delete_account')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </AccountLayout>
     </>

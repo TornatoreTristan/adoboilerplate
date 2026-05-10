@@ -2,14 +2,17 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import UserService from '#users/services/user_service'
-import OrganizationService from '#organizations/services/organization_service'
+import type UserService from '#users/services/user_service'
+import type OrganizationService from '#organizations/services/organization_service'
 import type { CreateUserData } from '#shared/types/user'
 
 test.group('RequireOrganization Middleware', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('should allow access when user has at least one organization', async ({ client, assert }) => {
+  test('should allow access when user has at least one organization', async ({
+    client,
+    assert,
+  }) => {
     // Arrange - Create user with organization
     const userData: CreateUserData = {
       email: 'user@example.com',
@@ -41,7 +44,10 @@ test.group('RequireOrganization Middleware', (group) => {
     assert.notEqual(response.status(), 302)
   })
 
-  test('should redirect to organization creation when user has no organizations', async ({ client, assert }) => {
+  test('should redirect to organization creation when user has no organizations', async ({
+    client,
+    assert,
+  }) => {
     // Arrange - Create user WITHOUT organization
     const userData: CreateUserData = {
       email: 'noorg@example.com',
@@ -68,10 +74,7 @@ test.group('RequireOrganization Middleware', (group) => {
     const status = response.status()
 
     // Accept either 302 redirect or 200 with redirect indication
-    assert.isTrue(
-      status === 302 || status === 200,
-      `Expected 302 or 200, got ${status}`
-    )
+    assert.isTrue(status === 302 || status === 200, `Expected 302 or 200, got ${status}`)
   })
 
   test('should not interfere with organization creation route', async ({ client, assert }) => {

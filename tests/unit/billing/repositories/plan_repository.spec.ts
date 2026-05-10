@@ -2,7 +2,7 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import PlanRepository from '#billing/repositories/plan_repository'
+import type PlanRepository from '#billing/repositories/plan_repository'
 
 test.group('PlanRepository', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -36,7 +36,10 @@ test.group('PlanRepository', (group) => {
     assert.equal(plan.currency, 'EUR')
     assert.equal(plan.pricingModel, 'flat')
     assert.equal(plan.trialDays, 14)
-    assert.deepEqual(plan.featuresI18n, { fr: '1 utilisateur, Support email', en: '1 user, Email support' })
+    assert.deepEqual(plan.featuresI18n, {
+      fr: '1 utilisateur, Support email',
+      en: '1 user, Email support',
+    })
     assert.deepEqual(plan.limits, { maxUsers: 1 })
     assert.isTrue(plan.isActive)
     assert.isTrue(plan.isVisible)
@@ -49,7 +52,8 @@ test.group('PlanRepository', (group) => {
       nameI18n: { fr: 'Pro', en: 'Pro' },
       slug: 'pro',
       descriptionI18n: { fr: 'Plan pro', en: 'Pro plan' },
-      priceMonthly: 29, priceYearly: 290,
+      priceMonthly: 29,
+      priceYearly: 290,
       currency: 'EUR',
       pricingModel: 'per_seat',
       pricingTiers: null,
@@ -73,7 +77,8 @@ test.group('PlanRepository', (group) => {
       nameI18n: { fr: 'Enterprise', en: 'Enterprise' },
       slug: 'enterprise',
       descriptionI18n: { fr: 'Plan entreprise', en: 'Enterprise plan' },
-      priceMonthly: 0, priceYearly: 0,
+      priceMonthly: 0,
+      priceYearly: 0,
       currency: 'EUR',
       pricingModel: 'tiered',
       pricingTiers: [
@@ -103,7 +108,8 @@ test.group('PlanRepository', (group) => {
       nameI18n: { fr: 'Volume', en: 'Volume' },
       slug: 'volume',
       descriptionI18n: { fr: 'Plan volume', en: 'Volume plan' },
-      priceMonthly: 0, priceYearly: 0,
+      priceMonthly: 0,
+      priceYearly: 0,
       currency: 'EUR',
       pricingModel: 'volume',
       pricingTiers: [
@@ -133,7 +139,8 @@ test.group('PlanRepository', (group) => {
       nameI18n: { fr: 'Pro', en: 'Pro' },
       slug: 'pro',
       descriptionI18n: { fr: 'Plan pro', en: 'Pro plan' },
-      priceMonthly: 49, priceYearly: 490,
+      priceMonthly: 49,
+      priceYearly: 490,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,
@@ -160,7 +167,8 @@ test.group('PlanRepository', (group) => {
     await planRepository.create({
       nameI18n: { fr: 'Visible Active', en: 'Visible Active' },
       slug: 'visible-active',
-      priceMonthly: 10, priceYearly: 100,
+      priceMonthly: 10,
+      priceYearly: 100,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,
@@ -178,7 +186,8 @@ test.group('PlanRepository', (group) => {
     await planRepository.create({
       nameI18n: { fr: 'Hidden Active', en: 'Hidden Active' },
       slug: 'hidden-active',
-      priceMonthly: 20, priceYearly: 200,
+      priceMonthly: 20,
+      priceYearly: 200,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,
@@ -196,7 +205,8 @@ test.group('PlanRepository', (group) => {
     await planRepository.create({
       nameI18n: { fr: 'Visible Inactive', en: 'Visible Inactive' },
       slug: 'visible-inactive',
-      priceMonthly: 30, priceYearly: 300,
+      priceMonthly: 30,
+      priceYearly: 300,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,
@@ -223,7 +233,8 @@ test.group('PlanRepository', (group) => {
     const plan = await planRepository.create({
       nameI18n: { fr: 'Original', en: 'Original' },
       slug: 'original',
-      priceMonthly: 10, priceYearly: 100,
+      priceMonthly: 10,
+      priceYearly: 100,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,
@@ -240,7 +251,8 @@ test.group('PlanRepository', (group) => {
 
     const updated = await planRepository.update(plan.id, {
       nameI18n: { fr: 'Updated', en: 'Updated' },
-      priceMonthly: 20, priceYearly: 200,
+      priceMonthly: 20,
+      priceYearly: 200,
     })
 
     assert.deepEqual(updated.nameI18n, { fr: 'Updated', en: 'Updated' })
@@ -254,7 +266,8 @@ test.group('PlanRepository', (group) => {
     const plan = await planRepository.create({
       nameI18n: { fr: 'To Delete', en: 'To Delete' },
       slug: 'to-delete',
-      priceMonthly: 10, priceYearly: 100,
+      priceMonthly: 10,
+      priceYearly: 100,
       currency: 'EUR',
       pricingModel: 'flat',
       pricingTiers: null,

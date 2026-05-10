@@ -24,10 +24,12 @@ export function initSentry() {
     ],
 
     // Performance monitoring sample rate
-    tracesSampleRate: parseFloat(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || '0.1'),
+    tracesSampleRate: Number.parseFloat(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || '0.1'),
 
     // Session Replay sample rate
-    replaysSessionSampleRate: parseFloat(import.meta.env.VITE_SENTRY_REPLAY_SESSION_RATE || '0.1'),
+    replaysSessionSampleRate: Number.parseFloat(
+      import.meta.env.VITE_SENTRY_REPLAY_SESSION_RATE || '0.1'
+    ),
     replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
 
     // Filter out certain errors
@@ -54,7 +56,7 @@ export function initSentry() {
       'canvas.contentDocument',
       'MyApp_RemoveAllHighlights',
       // See: http://blog.errorception.com/2012/03/tale-of-unfindable-js-error.html
-      'Can\'t find variable: ZiteReader',
+      "Can't find variable: ZiteReader",
       'jigsaw is not defined',
       'ComboSearch is not defined',
       // Facebook borked
@@ -69,7 +71,9 @@ export function initSentry() {
     ],
   })
 
-  console.log(`[Sentry] Client initialized for environment: ${import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE}`)
+  console.log(
+    `[Sentry] Client initialized for environment: ${import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE}`
+  )
 }
 
 export function setSentryUser(user: { id: string; email: string; username?: string } | null) {

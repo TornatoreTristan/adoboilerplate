@@ -141,7 +141,9 @@ const CreatePlanPage = () => {
                     <Input
                       id="slug"
                       value={data.slug}
-                      onChange={(e) => setData('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                      onChange={(e) =>
+                        setData('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))
+                      }
                       placeholder="pro"
                     />
                     <p className="text-xs text-muted-foreground">
@@ -196,7 +198,7 @@ const CreatePlanPage = () => {
                     {data.pricingModel === 'per_seat' &&
                       'Prix de base + prix par utilisateur supplémentaire'}
                     {data.pricingModel === 'tiered' &&
-                      'Prix fixe selon la tranche de nombre d\'utilisateurs'}
+                      "Prix fixe selon la tranche de nombre d'utilisateurs"}
                     {data.pricingModel === 'volume' &&
                       'Prix par utilisateur dégressif selon le volume'}
                   </p>
@@ -207,7 +209,10 @@ const CreatePlanPage = () => {
                 {/* Devise */}
                 <div className="space-y-2">
                   <Label htmlFor="currency">Devise *</Label>
-                  <Select value={data.currency} onValueChange={(value) => setData('currency', value)}>
+                  <Select
+                    value={data.currency}
+                    onValueChange={(value) => setData('currency', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -271,9 +276,7 @@ const CreatePlanPage = () => {
                         {errors.priceMonthly && (
                           <p className="text-sm text-destructive">{errors.priceMonthly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">
-                          Prix par utilisateur/mois
-                        </p>
+                        <p className="text-xs text-muted-foreground">Prix par utilisateur/mois</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="priceYearly">Prix par siège (annuel) *</Label>
@@ -287,14 +290,13 @@ const CreatePlanPage = () => {
                         {errors.priceYearly && (
                           <p className="text-sm text-destructive">{errors.priceYearly}</p>
                         )}
-                        <p className="text-xs text-muted-foreground">
-                          Prix par utilisateur/an
-                        </p>
+                        <p className="text-xs text-muted-foreground">Prix par utilisateur/an</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg bg-muted/50">
                       <p className="text-sm text-muted-foreground">
-                        <strong>Modèle par siège :</strong> Le prix est multiplié par le nombre d'utilisateurs.
+                        <strong>Modèle par siège :</strong> Le prix est multiplié par le nombre
+                        d'utilisateurs.
                         <br />
                         Exemple : 5 utilisateurs × 29€ = 145€/mois
                       </p>
@@ -438,12 +440,7 @@ const CreatePlanPage = () => {
                     </Button>
                   </div>
                 ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addFeature}
-                  className="w-full"
-                >
+                <Button type="button" variant="outline" onClick={addFeature} className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
                   Ajouter une fonctionnalité
                 </Button>

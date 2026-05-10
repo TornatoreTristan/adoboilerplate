@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import PasswordResetService from '#auth/services/password_reset_service'
-import PasswordResetRepository from '#auth/repositories/password_reset_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type PasswordResetRepository from '#auth/repositories/password_reset_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
 
@@ -45,7 +45,11 @@ test.group('PasswordResetService', () => {
     assert.equal(result!.email, email)
     assert.isString(result!.token)
     assert.lengthOf(result!.token, 64)
-    assert.notEqual(result!.token, hashToken(result!.token), 'le token retourné doit être brut, pas un hash')
+    assert.notEqual(
+      result!.token,
+      hashToken(result!.token),
+      'le token retourné doit être brut, pas un hash'
+    )
     assert.isTrue(result!.expiresAt instanceof DateTime)
     assert.isTrue(result!.expiresAt > DateTime.now())
   })

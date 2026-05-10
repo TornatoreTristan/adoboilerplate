@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AntivirusService from '#uploads/services/antivirus_service'
+import type AntivirusService from '#uploads/services/antivirus_service'
 
 test.group('AntivirusService', () => {
   test('should initialize without ClamAV installed', async ({ assert }) => {

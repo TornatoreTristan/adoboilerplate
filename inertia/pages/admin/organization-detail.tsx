@@ -1,6 +1,7 @@
 import AdminLayout from '@/components/layouts/admin-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { Head, Link, useForm, usePage } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
+import { Head, useForm, usePage } from '@inertiajs/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -92,7 +93,11 @@ const getRoleIcon = (role: string) => {
   return <Users className="h-4 w-4" />
 }
 
-const OrganizationDetailPage = ({ organization, members, invoices }: OrganizationDetailPageProps) => {
+const OrganizationDetailPage = ({
+  organization,
+  members,
+  invoices,
+}: OrganizationDetailPageProps) => {
   const { t, locale } = useI18n()
   const adminCount = members.filter((m) => m.role === 'admin' || m.role === 'owner').length
   const [open, setOpen] = useState(false)
@@ -169,7 +174,9 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
     return <Badge variant="outline">{status}</Badge>
   }
 
-  const totalRevenue = invoices.filter((inv) => inv.paid).reduce((sum, inv) => sum + inv.amountPaid, 0)
+  const totalRevenue = invoices
+    .filter((inv) => inv.paid)
+    .reduce((sum, inv) => sum + inv.amountPaid, 0)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -194,7 +201,10 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
       <Head title={t('admin.organization_detail.head_title', { name: organization.name })} />
       <AdminLayout
         breadcrumbs={[
-          { label: t('admin.organization_detail.breadcrumb_organizations'), href: '/admin/organizations' },
+          {
+            label: t('admin.organization_detail.breadcrumb_organizations'),
+            href: '/admin/organizations',
+          },
           { label: organization.name },
         ]}
       >
@@ -227,25 +237,33 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.organization_detail.field_id')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.organization_detail.field_id')}
+                    </span>
                     <span className="font-mono text-xs">{organization.id}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.organization_detail.field_slug')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.organization_detail.field_slug')}
+                    </span>
                     <span className="font-mono">/{organization.slug}</span>
                   </div>
 
                   {organization.description && (
                     <div className="flex flex-col gap-2 text-sm">
-                      <span className="text-muted-foreground">{t('admin.organization_detail.field_description')}</span>
+                      <span className="text-muted-foreground">
+                        {t('admin.organization_detail.field_description')}
+                      </span>
                       <p className="text-sm">{organization.description}</p>
                     </div>
                   )}
 
                   {organization.website && (
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-muted-foreground">{t('admin.organization_detail.field_website')}</span>
+                      <span className="text-muted-foreground">
+                        {t('admin.organization_detail.field_website')}
+                      </span>
                       <a
                         href={organization.website}
                         target="_blank"
@@ -259,7 +277,9 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                   )}
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.organization_detail.field_status')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.organization_detail.field_status')}
+                    </span>
                     {organization.isActive ? (
                       <div className="flex items-center gap-1 text-green-600">
                         <CheckCircle2 className="h-4 w-4" />
@@ -274,12 +294,16 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.organization_detail.field_created_at')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.organization_detail.field_created_at')}
+                    </span>
                     <span>{formatDateTime(organization.createdAt)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('admin.organization_detail.field_updated_at')}</span>
+                    <span className="text-muted-foreground">
+                      {t('admin.organization_detail.field_updated_at')}
+                    </span>
                     <span>{formatDateTime(organization.updatedAt)}</span>
                   </div>
                 </div>
@@ -299,7 +323,9 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                   <span className="font-semibold">{members.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">{t('admin.organization_detail.stats_admins')}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t('admin.organization_detail.stats_admins')}
+                  </span>
                   <span className="font-semibold">{adminCount}</span>
                 </div>
                 <div className="flex justify-between">
@@ -350,7 +376,9 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                 <DialogContent>
                   <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                      <DialogTitle>{t('admin.organization_detail.add_member_dialog_title')}</DialogTitle>
+                      <DialogTitle>
+                        {t('admin.organization_detail.add_member_dialog_title')}
+                      </DialogTitle>
                       <DialogDescription>
                         {t('admin.organization_detail.add_member_dialog_description')}
                       </DialogDescription>
@@ -372,13 +400,23 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                         <Label htmlFor="role">{t('admin.organization_detail.role_label')}</Label>
                         <Select value={data.role} onValueChange={(value) => setData('role', value)}>
                           <SelectTrigger>
-                            <SelectValue placeholder={t('admin.organization_detail.role_placeholder')} />
+                            <SelectValue
+                              placeholder={t('admin.organization_detail.role_placeholder')}
+                            />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="owner">{t('admin.organization_detail.role.owner')}</SelectItem>
-                            <SelectItem value="admin">{t('admin.organization_detail.role.admin')}</SelectItem>
-                            <SelectItem value="moderator">{t('admin.organization_detail.role.moderator')}</SelectItem>
-                            <SelectItem value="member">{t('admin.organization_detail.role.member')}</SelectItem>
+                            <SelectItem value="owner">
+                              {t('admin.organization_detail.role.owner')}
+                            </SelectItem>
+                            <SelectItem value="admin">
+                              {t('admin.organization_detail.role.admin')}
+                            </SelectItem>
+                            <SelectItem value="moderator">
+                              {t('admin.organization_detail.role.moderator')}
+                            </SelectItem>
+                            <SelectItem value="member">
+                              {t('admin.organization_detail.role.member')}
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -430,7 +468,9 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                           </div>
                           <p className="text-xs text-muted-foreground">{member.email}</p>
                           <p className="text-xs text-muted-foreground">
-                            {t('admin.organization_detail.member_since', { date: formatDateOnly(member.joinedAt) })}
+                            {t('admin.organization_detail.member_since', {
+                              date: formatDateOnly(member.joinedAt),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -455,8 +495,12 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
               {invoices.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Receipt className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium">{t('admin.organization_detail.empty_invoices_title')}</p>
-                  <p className="text-sm mt-2">{t('admin.organization_detail.empty_invoices_subtitle')}</p>
+                  <p className="text-lg font-medium">
+                    {t('admin.organization_detail.empty_invoices_title')}
+                  </p>
+                  <p className="text-sm mt-2">
+                    {t('admin.organization_detail.empty_invoices_subtitle')}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -469,13 +513,17 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                         <div className="flex items-center gap-2">
                           <span className="font-medium">
                             {invoice.number ||
-                              t('admin.organization_detail.invoice_default_number', { id: invoice.id.substring(0, 8) })}
+                              t('admin.organization_detail.invoice_default_number', {
+                                id: invoice.id.substring(0, 8),
+                              })}
                           </span>
                           {renderInvoiceStatusBadge(invoice.status, invoice.paid)}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>
-                            {t('admin.organization_detail.invoice_created_label', { date: formatDate(invoice.created) })}
+                            {t('admin.organization_detail.invoice_created_label', {
+                              date: formatDate(invoice.created),
+                            })}
                           </span>
                           {invoice.periodStart && invoice.periodEnd && (
                             <span>
@@ -490,17 +538,26 @@ const OrganizationDetailPage = ({ organization, members, invoices }: Organizatio
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <div className="font-semibold text-lg">
-                            {formatPrice(invoice.paid ? invoice.amountPaid : invoice.amountDue, invoice.currency)}
+                            {formatPrice(
+                              invoice.paid ? invoice.amountPaid : invoice.amountDue,
+                              invoice.currency
+                            )}
                           </div>
                           {!invoice.paid && invoice.dueDate && (
                             <div className="text-xs text-muted-foreground">
-                              {t('admin.organization_detail.invoice_due_label', { date: formatDate(invoice.dueDate) })}
+                              {t('admin.organization_detail.invoice_due_label', {
+                                date: formatDate(invoice.dueDate),
+                              })}
                             </div>
                           )}
                         </div>
                         <div className="flex gap-2">
                           {invoice.hostedInvoiceUrl && (
-                            <a href={invoice.hostedInvoiceUrl} target="_blank" rel="noopener noreferrer">
+                            <a
+                              href={invoice.hostedInvoiceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               <Button variant="outline" size="sm">
                                 <ExternalLink className="h-4 w-4" />
                               </Button>

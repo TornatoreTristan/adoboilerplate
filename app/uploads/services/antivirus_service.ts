@@ -50,7 +50,7 @@ export default class AntivirusService {
         clamdscan: {
           socket: env.get('CLAMAV_SOCKET', '/var/run/clamav/clamd.ctl'),
           host: env.get('CLAMAV_HOST', 'localhost'),
-          port: parseInt(env.get('CLAMAV_PORT', '3310')),
+          port: Number.parseInt(env.get('CLAMAV_PORT', '3310')),
           timeout: 60000,
           localFallback: true, // Fallback to local clamscan if socket fails
         },

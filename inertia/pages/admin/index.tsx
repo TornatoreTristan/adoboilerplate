@@ -48,8 +48,16 @@ const Index = ({ user, stats }: AdminIndexProps) => {
 
   const activeUsersData = useMemo(
     () => [
-      { name: t('admin.index.charts.active'), value: stats.activeUsers, fill: 'hsl(var(--chart-1))' },
-      { name: t('admin.index.charts.inactive'), value: stats.inactiveUsers, fill: 'hsl(var(--chart-3))' },
+      {
+        name: t('admin.index.charts.active'),
+        value: stats.activeUsers,
+        fill: 'hsl(var(--chart-1))',
+      },
+      {
+        name: t('admin.index.charts.inactive'),
+        value: stats.inactiveUsers,
+        fill: 'hsl(var(--chart-3))',
+      },
     ],
     [stats.activeUsers, stats.inactiveUsers, t]
   )
@@ -81,62 +89,83 @@ const Index = ({ user, stats }: AdminIndexProps) => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('admin.index.stats.total_revenue_title')}</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.index.stats.total_revenue_title')}
+                </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
                   {formatPrice(stats.totalRevenue, stats.currency)}
                 </div>
-                <p className="text-xs text-muted-foreground">{t('admin.index.stats.total_revenue_subtitle')}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('admin.index.stats.mrr_title')}</CardTitle>
-                <Repeat className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {formatPrice(stats.mrr, stats.currency)}
-                </div>
-                <p className="text-xs text-muted-foreground">{t('admin.index.stats.mrr_subtitle')}</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('admin.index.stats.users_title')}</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalUsers}</div>
                 <p className="text-xs text-muted-foreground">
-                  {t('admin.index.stats.users_breakdown', { active: stats.activeUsers, inactive: stats.inactiveUsers })}
+                  {t('admin.index.stats.total_revenue_subtitle')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('admin.index.stats.avg_sessions_title')}</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.index.stats.mrr_title')}
+                </CardTitle>
+                <Repeat className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.avgSessionsPerUser}</div>
-                <p className="text-xs text-muted-foreground">{t('admin.index.stats.avg_sessions_subtitle')}</p>
+                <div className="text-2xl font-bold text-blue-600">
+                  {formatPrice(stats.mrr, stats.currency)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t('admin.index.stats.mrr_subtitle')}
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{t('admin.index.stats.activity_title')}</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.index.stats.users_title')}
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalUsers}</div>
+                <p className="text-xs text-muted-foreground">
+                  {t('admin.index.stats.users_breakdown', {
+                    active: stats.activeUsers,
+                    inactive: stats.inactiveUsers,
+                  })}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.index.stats.avg_sessions_title')}
+                </CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.avgSessionsPerUser}</div>
+                <p className="text-xs text-muted-foreground">
+                  {t('admin.index.stats.avg_sessions_subtitle')}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('admin.index.stats.activity_title')}
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalActivePercentage}%</div>
-                <p className="text-xs text-muted-foreground">{t('admin.index.stats.activity_subtitle')}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t('admin.index.stats.activity_subtitle')}
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -147,7 +176,9 @@ const Index = ({ user, stats }: AdminIndexProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>{t('admin.index.charts.users_growth_title')}</CardTitle>
-                <CardDescription>{t('admin.index.charts.users_growth_description')}</CardDescription>
+                <CardDescription>
+                  {t('admin.index.charts.users_growth_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={usersChartConfig}>
@@ -186,7 +217,9 @@ const Index = ({ user, stats }: AdminIndexProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>{t('admin.index.charts.sessions_growth_title')}</CardTitle>
-                <CardDescription>{t('admin.index.charts.sessions_growth_description')}</CardDescription>
+                <CardDescription>
+                  {t('admin.index.charts.sessions_growth_description')}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={sessionsChartConfig}>

@@ -194,7 +194,7 @@ export default class AdminController {
 
     try {
       await adminService.addUserToOrganization(params.id, data.email, data.role)
-      session.flash('success', 'Utilisateur ajouté à l\'organisation avec succès')
+      session.flash('success', "Utilisateur ajouté à l'organisation avec succès")
     } catch (error) {
       session.flashErrors({ email: error.message })
     }
@@ -289,13 +289,17 @@ export default class AdminController {
     try {
       const tokens = await stripeConnectService.exchangeCodeForToken(code)
 
-      await adminService.configureIntegration('stripe', {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        publicKey: tokens.stripe_publishable_key,
-        stripeUserId: tokens.stripe_user_id,
-        scope: tokens.scope,
-      }, true)
+      await adminService.configureIntegration(
+        'stripe',
+        {
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          publicKey: tokens.stripe_publishable_key,
+          stripeUserId: tokens.stripe_user_id,
+          scope: tokens.scope,
+        },
+        true
+      )
 
       session.flash('success', 'Compte Stripe connecté avec succès !')
     } catch (err) {

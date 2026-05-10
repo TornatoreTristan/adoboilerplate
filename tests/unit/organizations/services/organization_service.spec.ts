@@ -2,9 +2,9 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import OrganizationService from '#organizations/services/organization_service'
-import OrganizationRepository from '#organizations/repositories/organization_repository'
-import UserService from '#users/services/user_service'
+import type OrganizationService from '#organizations/services/organization_service'
+import type OrganizationRepository from '#organizations/repositories/organization_repository'
+import type UserService from '#users/services/user_service'
 import type { CreateOrganizationData } from '#shared/types/organization'
 
 test.group('OrganizationService', (group) => {

@@ -9,9 +9,7 @@ import { createPlanValidator, updatePlanValidator } from '#billing/validators/pl
 export default class PlansController {
   async index({ inertia }: HttpContext) {
     const planService = getService<PlanService>(TYPES.PlanService)
-    const subscriptionRepository = getService<SubscriptionRepository>(
-      TYPES.SubscriptionRepository
-    )
+    const subscriptionRepository = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 
     const plans = await planService.getPlans()
 
@@ -50,9 +48,7 @@ export default class PlansController {
 
   async show({ params, inertia }: HttpContext) {
     const planService = getService<PlanService>(TYPES.PlanService)
-    const subscriptionRepository = getService<SubscriptionRepository>(
-      TYPES.SubscriptionRepository
-    )
+    const subscriptionRepository = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 
     const plan = await planService.getPlanById(params.id)
     const subscriptions = await subscriptionRepository.findByPlanId(params.id)

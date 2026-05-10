@@ -37,7 +37,8 @@ export default class UploadService {
     @inject(TYPES.UploadRepository) private uploadRepo: UploadRepository,
     @inject(TYPES.StorageService) private storageService: StorageService,
     @inject(TYPES.AntivirusService) private antivirusService: AntivirusService,
-    @inject(TYPES.ImageOptimizationService) private imageOptimizationService: ImageOptimizationService
+    @inject(TYPES.ImageOptimizationService)
+    private imageOptimizationService: ImageOptimizationService
   ) {}
 
   async uploadFile(options: UploadFileOptions): Promise<Upload> {
@@ -64,10 +65,7 @@ export default class UploadService {
     }
 
     // Step 2: Image Optimization
-    if (
-      !options.skipImageOptimization &&
-      this.imageOptimizationService.isImage(options.mimeType)
-    ) {
+    if (!options.skipImageOptimization && this.imageOptimizationService.isImage(options.mimeType)) {
       logger.info(`🖼️  Optimizing image: ${options.filename}`)
 
       try {

@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import OrganizationRepository from '#organizations/repositories/organization_repository'
+import type OrganizationRepository from '#organizations/repositories/organization_repository'
 
 export default class RequireOrganizationMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {

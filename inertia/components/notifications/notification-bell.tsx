@@ -1,5 +1,5 @@
 import { Bell } from 'lucide-react'
-import { Link } from '@inertiajs/react'
+import { Link } from '@adonisjs/inertia/react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { useNotifications } from '@/hooks/use-notifications'

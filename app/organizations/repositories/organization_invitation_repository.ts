@@ -10,9 +10,12 @@ export default class OrganizationInvitationRepository extends BaseRepository<
   protected model = OrganizationInvitation
 
   async findByToken(token: string): Promise<OrganizationInvitation | null> {
-    return this.findOneBy({ token }, {
-      cache: { ttl: 60, tags: ['invitations'] }
-    })
+    return this.findOneBy(
+      { token },
+      {
+        cache: { ttl: 60, tags: ['invitations'] },
+      }
+    )
   }
 
   async findPendingByOrganization(organizationId: string): Promise<OrganizationInvitation[]> {
@@ -39,13 +42,9 @@ export default class OrganizationInvitationRepository extends BaseRepository<
   async markAsAccepted(id: string): Promise<OrganizationInvitation> {
     await this.findByIdOrFail(id)
 
-    return this.update(
-      id,
-      { acceptedAt: DateTime.now() } as any,
-      {
-        cache: { tags: ['invitations', `invitation_${id}`] },
-      }
-    )
+    return this.update(id, { acceptedAt: DateTime.now() } as any, {
+      cache: { tags: ['invitations', `invitation_${id}`] },
+    })
   }
 
   async deleteExpired(): Promise<number> {

@@ -10,7 +10,9 @@ const OrganizationSettingsIntegrationsPage = () => {
       <OrganizationSettingsLayout>
         <div className="space-y-6">
           <h2 className="text-lg font-semibold">{t('organizations.integrations.section_title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('organizations.integrations.coming_soon')}</p>
+          <p className="text-sm text-muted-foreground">
+            {t('organizations.integrations.coming_soon')}
+          </p>
         </div>
       </OrganizationSettingsLayout>
     </>

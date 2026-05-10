@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import NotificationService from '#notifications/services/notification_service'
+import type NotificationService from '#notifications/services/notification_service'
 import type { NotificationType } from '#notifications/types/notification'
 
 export default class NotificationsController {
@@ -122,13 +122,13 @@ export default class NotificationsController {
   async executeAction({ params, response, session }: HttpContext) {
     const userId = session.get('user_id')
     const notificationId = params.id
-    const actionIndex = parseInt(params.actionIndex, 10)
+    const actionIndex = Number.parseInt(params.actionIndex, 10)
 
     if (!userId) {
       return response.status(401).json({ error: 'Non authentifié' })
     }
 
-    if (isNaN(actionIndex)) {
+    if (Number.isNaN(actionIndex)) {
       return response.status(400).json({ error: 'Invalid action index' })
     }
 

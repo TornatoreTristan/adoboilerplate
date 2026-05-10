@@ -124,7 +124,9 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
             <div className="grid gap-2">
               <Label htmlFor="name">
                 {t('organizations.settings.name_label')}{' '}
-                <span className="text-destructive">{t('organizations.settings.required_marker')}</span>
+                <span className="text-destructive">
+                  {t('organizations.settings.required_marker')}
+                </span>
               </Label>
               <Input
                 id="name"
@@ -181,9 +183,7 @@ const OrganizationSettingsPage = ({ organization }: OrganizationSettingsPageProp
                   onChange={(e) => setData('vatNumber', e.target.value)}
                   placeholder={t('organizations.settings.vat_placeholder')}
                 />
-                {errors.vatNumber && (
-                  <p className="text-xs text-destructive">{errors.vatNumber}</p>
-                )}
+                {errors.vatNumber && <p className="text-xs text-destructive">{errors.vatNumber}</p>}
               </div>
             </div>
 

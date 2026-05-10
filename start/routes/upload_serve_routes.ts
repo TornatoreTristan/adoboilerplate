@@ -1,6 +1,6 @@
 import router from '@adonisjs/core/services/router'
 import app from '@adonisjs/core/services/app'
-import { HttpContext } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 import { join, resolve } from 'node:path'
 import { readFile, stat } from 'node:fs/promises'
 import LocalStorageDriver from '#uploads/services/storage/local_storage_driver'

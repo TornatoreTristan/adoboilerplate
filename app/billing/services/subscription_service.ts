@@ -26,7 +26,7 @@ export default class SubscriptionService {
     const plan = await this.planRepository.findByIdOrFail(subscription.planId)
 
     if (!subscription.stripeSubscriptionId) {
-      throw new Error('L\'abonnement n\'est pas synchronisé avec Stripe')
+      throw new Error("L'abonnement n'est pas synchronisé avec Stripe")
     }
 
     // Détecter le bon price ID selon le billing interval de l'abonnement
@@ -56,7 +56,7 @@ export default class SubscriptionService {
     const subscriptionItemId = stripeSubscription.items.data[0]?.id
 
     if (!subscriptionItemId) {
-      throw new Error('Aucun item trouvé dans l\'abonnement Stripe')
+      throw new Error("Aucun item trouvé dans l'abonnement Stripe")
     }
 
     // Mettre à jour le prix de l'abonnement
@@ -72,9 +72,7 @@ export default class SubscriptionService {
     })
 
     // Récupérer le nouveau prix
-    const newPrice = subscription.billingInterval === 'month'
-      ? plan.priceMonthly
-      : plan.priceYearly
+    const newPrice = subscription.billingInterval === 'month' ? plan.priceMonthly : plan.priceYearly
 
     // Mettre à jour la base de données
     return this.subscriptionRepository.update(subscriptionId, {
@@ -91,7 +89,8 @@ export default class SubscriptionService {
     organizationId: string,
     limit: number = 10
   ): Promise<Stripe.Invoice[]> {
-    const subscription = await this.subscriptionRepository.findActiveByOrganizationId(organizationId)
+    const subscription =
+      await this.subscriptionRepository.findActiveByOrganizationId(organizationId)
 
     if (!subscription || !subscription.stripeCustomerId) {
       return []
@@ -125,14 +124,13 @@ export default class SubscriptionService {
       billingInterval === 'month' ? plan.stripePriceIdMonthly : plan.stripePriceIdYearly
 
     if (!stripePriceId) {
-      throw new Error(
-        `Le plan n'a pas de prix configuré pour l'interval ${billingInterval}`
-      )
+      throw new Error(`Le plan n'a pas de prix configuré pour l'interval ${billingInterval}`)
     }
 
     // Vérifier si l'organisation a déjà un customer Stripe
     let stripeCustomerId: string | undefined
-    const existingSubscription = await this.subscriptionRepository.findActiveByOrganizationId(organizationId)
+    const existingSubscription =
+      await this.subscriptionRepository.findActiveByOrganizationId(organizationId)
 
     if (existingSubscription?.stripeCustomerId) {
       stripeCustomerId = existingSubscription.stripeCustomerId
@@ -205,10 +203,7 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async pauseSubscription(
-    subscriptionId: string,
-    organizationId?: string
-  ): Promise<Subscription> {
+  async pauseSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -239,10 +234,7 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async resumeSubscription(
-    subscriptionId: string,
-    organizationId?: string
-  ): Promise<Subscription> {
+  async resumeSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -272,10 +264,7 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async cancelSubscription(
-    subscriptionId: string,
-    organizationId?: string
-  ): Promise<Subscription> {
+  async cancelSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -318,7 +307,7 @@ export default class SubscriptionService {
     }
 
     if (!subscription.canceledAt) {
-      E.validationError('Cet abonnement n\'est pas en cours d\'annulation', 'status')
+      E.validationError("Cet abonnement n'est pas en cours d'annulation", 'status')
     }
 
     const stripe = await this.getStripeClient()

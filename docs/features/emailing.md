@@ -35,22 +35,22 @@ EMAIL_FROM_NAME=Mon Application
 
 ### Drivers disponibles
 
-| Driver | Usage | Description |
-|--------|-------|-------------|
-| `smtp` | Production / staging | Envoi réel via nodemailer (universel SMTP) |
-| `log` | Tests / dev local | Logue chaque mail dans la sortie applicative, n'envoie rien |
+| Driver | Usage                | Description                                                 |
+| ------ | -------------------- | ----------------------------------------------------------- |
+| `smtp` | Production / staging | Envoi réel via nodemailer (universel SMTP)                  |
+| `log`  | Tests / dev local    | Logue chaque mail dans la sortie applicative, n'envoie rien |
 
 ### Changer de provider SMTP
 
 Il suffit de modifier les `MAIL_SMTP_*`. Pour utiliser **SendGrid**, **Mailgun**, **Postmark**, **Brevo**, etc., il n'y a aucun changement de code à faire — uniquement les credentials SMTP.
 
-| Provider | Host | Port | Secure |
-|----------|------|------|--------|
-| Scaleway TEM | `smtp.tem.scw.cloud` | 587 | false |
-| Mailgun | `smtp.mailgun.org` | 587 | false |
-| SendGrid | `smtp.sendgrid.net` | 587 | false |
-| Postmark | `smtp.postmarkapp.com` | 587 | false |
-| Brevo | `smtp-relay.brevo.com` | 587 | false |
+| Provider     | Host                   | Port | Secure |
+| ------------ | ---------------------- | ---- | ------ |
+| Scaleway TEM | `smtp.tem.scw.cloud`   | 587  | false  |
+| Mailgun      | `smtp.mailgun.org`     | 587  | false  |
+| SendGrid     | `smtp.sendgrid.net`    | 587  | false  |
+| Postmark     | `smtp.postmarkapp.com` | 587  | false  |
+| Brevo        | `smtp-relay.brevo.com` | 587  | false  |
 
 ## 🚀 Utilisation
 

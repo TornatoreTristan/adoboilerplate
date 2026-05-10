@@ -61,7 +61,7 @@ export default class OrganizationsController {
     const isMember = await orgRepo.isUserMember(organizationId, user.id)
 
     if (!isMember) {
-      E.forbidden('Vous n\'êtes pas membre de cette organisation')
+      E.forbidden("Vous n'êtes pas membre de cette organisation")
     }
 
     // Update session with new current organization

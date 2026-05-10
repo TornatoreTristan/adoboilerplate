@@ -29,8 +29,8 @@ export default class SentryProvider {
       environment: env.get('SENTRY_ENVIRONMENT') || env.get('NODE_ENV') || 'development',
       release: process.env.npm_package_version || 'unknown',
       enabled: env.get('SENTRY_ENABLED') === 'true',
-      tracesSampleRate: parseFloat(env.get('SENTRY_TRACES_SAMPLE_RATE') || '0.1'),
-      profilesSampleRate: parseFloat(env.get('SENTRY_PROFILES_SAMPLE_RATE') || '0.1'),
+      tracesSampleRate: Number.parseFloat(env.get('SENTRY_TRACES_SAMPLE_RATE') || '0.1'),
+      profilesSampleRate: Number.parseFloat(env.get('SENTRY_PROFILES_SAMPLE_RATE') || '0.1'),
     })
   }
 

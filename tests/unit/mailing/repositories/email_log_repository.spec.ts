@@ -3,8 +3,8 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { DateTime } from 'luxon'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import EmailLogRepository from '#mailing/repositories/email_log_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type EmailLogRepository from '#mailing/repositories/email_log_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 test.group('EmailLogRepository', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())

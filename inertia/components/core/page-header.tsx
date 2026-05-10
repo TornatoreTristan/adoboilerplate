@@ -10,7 +10,13 @@ export interface PageHeaderProps {
   separator?: boolean
 }
 
-export function PageHeader({ title, description, icon: Icon, actions, separator = true }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  icon: Icon,
+  actions,
+  separator = true,
+}: PageHeaderProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

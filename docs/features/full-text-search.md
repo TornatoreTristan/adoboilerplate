@@ -14,6 +14,7 @@
 ## Vue d'ensemble
 
 Le boilerplate intègre un système de recherche Full-Text performant basé sur PostgreSQL. Chaque table dispose d'une colonne `search_vector` de type `tsvector` avec :
+
 - Index GIN pour des performances optimales
 - Trigger auto-update pour maintenir les vecteurs de recherche
 - Configuration française pour meilleure pertinence
@@ -149,9 +150,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
     const result = await this.db
       .from(this.tableName)
       .select('*')
-      .select(
-        this.db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query])
-      )
+      .select(this.db.raw(`ts_rank(search_vector, plainto_tsquery('french', ?)) as rank`, [query]))
       .whereRaw(`search_vector @@ plainto_tsquery('french', ?)`, [query])
       .orderBy('rank', 'desc')
       .limit(limit)
@@ -190,9 +189,7 @@ import UserRepository from '#users/repositories/user_repository'
 
 @injectable()
 export default class SearchService {
-  constructor(
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
-  ) {}
+  constructor(@inject(TYPES.UserRepository) private userRepo: UserRepository) {}
 
   async searchUsers(query: string) {
     if (query.length < 2) {
@@ -240,14 +237,12 @@ export default class GlobalSearchService {
     ])
 
     const results = [
-      ...users.map(u => this.mapUserToResult(u)),
-      ...organizations.map(o => this.mapOrganizationToResult(o)),
-      ...plans.map(p => this.mapPlanToResult(p)),
+      ...users.map((u) => this.mapUserToResult(u)),
+      ...organizations.map((o) => this.mapOrganizationToResult(o)),
+      ...plans.map((p) => this.mapPlanToResult(p)),
     ]
 
-    return results
-      .sort((a, b) => b.rank - a.rank)
-      .slice(0, limit)
+    return results.sort((a, b) => b.rank - a.rank).slice(0, limit)
   }
 
   private async searchUsers(query: string) {

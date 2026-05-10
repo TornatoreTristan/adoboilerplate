@@ -23,9 +23,12 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    * Trouver un utilisateur par email
    */
   async findByEmail(email: string): Promise<UserModel | null> {
-    return this.findOneBy({ email }, {
-      cache: { ttl: 300, tags: ['users', 'user_email'] }
-    })
+    return this.findOneBy(
+      { email },
+      {
+        cache: { ttl: 300, tags: ['users', 'user_email'] },
+      }
+    )
   }
 
   /**
@@ -55,7 +58,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
     if (excludeId) {
       // Pour les mises à jour, exclure l'ID actuel
       const users = await this.findBy(criteria)
-      return users.some(user => user.id !== excludeId)
+      return users.some((user) => user.id !== excludeId)
     }
 
     return this.exists(criteria)
@@ -69,9 +72,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
 
     return query
       .where((builder) => {
-        builder
-          .where('email', 'LIKE', `%${term}%`)
-          .orWhere('full_name', 'LIKE', `%${term}%`)
+        builder.where('email', 'LIKE', `%${term}%`).orWhere('full_name', 'LIKE', `%${term}%`)
       })
       .limit(limit)
   }
@@ -81,7 +82,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    */
   async findActive(): Promise<UserModel[]> {
     return this.findAll({
-      cache: { ttl: 600, tags: ['users', 'active_users'] }
+      cache: { ttl: 600, tags: ['users', 'active_users'] },
     })
   }
 
@@ -89,9 +90,12 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    * Trouver un utilisateur par email incluant les soft deleted
    */
   async findByEmailIncludingDeleted(email: string): Promise<UserModel | null> {
-    return this.findOneBy({ email }, {
-      includeDeleted: true
-    })
+    return this.findOneBy(
+      { email },
+      {
+        includeDeleted: true,
+      }
+    )
   }
 
   /**
@@ -113,9 +117,8 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
     return rows.map((row: any) => {
       const extras = row.$extras || {}
       const rawDate = extras.date ?? row.date
-      const date = rawDate instanceof Date
-        ? rawDate.toISOString().slice(0, 10)
-        : String(rawDate).slice(0, 10)
+      const date =
+        rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : String(rawDate).slice(0, 10)
       return {
         date,
         count: Number(extras.count ?? row.count),

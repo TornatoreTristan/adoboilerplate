@@ -1,9 +1,9 @@
 import { test } from '@japa/runner'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import UploadService from '#uploads/services/upload_service'
-import UserRepository from '#users/repositories/user_repository'
-import UploadRepository from '#uploads/repositories/upload_repository'
+import type UploadService from '#uploads/services/upload_service'
+import type UserRepository from '#users/repositories/user_repository'
+import type UploadRepository from '#uploads/repositories/upload_repository'
 import testUtils from '@adonisjs/core/services/test_utils'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -197,7 +197,10 @@ test.group('UploadService', (group) => {
       visibility: 'public',
     })
 
-    const privateUploads = await uploadService.getUploads({ userId: user.id, visibility: 'private' })
+    const privateUploads = await uploadService.getUploads({
+      userId: user.id,
+      visibility: 'private',
+    })
     const publicUploads = await uploadService.getUploads({ userId: user.id, visibility: 'public' })
 
     assert.lengthOf(privateUploads, 1)

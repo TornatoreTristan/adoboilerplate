@@ -21,12 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AlertCircle, Info, AlertTriangle, XCircle, Skull, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -164,7 +159,9 @@ export default function Logs() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.total_logs')}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('admin.logs.stats.total_logs')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
@@ -172,7 +169,9 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.last_24h')}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('admin.logs.stats.last_24h')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.last24h.toLocaleString()}</div>
@@ -180,7 +179,9 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.errors')}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('admin.logs.stats.errors')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-600">
@@ -190,10 +191,14 @@ export default function Logs() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{t('admin.logs.stats.warnings')}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {t('admin.logs.stats.warnings')}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-yellow-600">{stats.byLevel.warn || 0}</div>
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {stats.byLevel.warn || 0}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -295,7 +300,9 @@ export default function Logs() {
                       >
                         <TableCell>{getLevelBadge(log.level)}</TableCell>
                         <TableCell className="max-w-md truncate">{log.message}</TableCell>
-                        <TableCell>{log.method && <Badge variant="outline">{log.method}</Badge>}</TableCell>
+                        <TableCell>
+                          {log.method && <Badge variant="outline">{log.method}</Badge>}
+                        </TableCell>
                         <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                           {log.url}
                         </TableCell>
@@ -367,10 +374,12 @@ export default function Logs() {
                   <h4 className="font-semibold mb-2">{t('admin.logs.detail_request')}</h4>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="font-medium">{t('admin.logs.detail_method')}</span> {selectedLog.method}
+                      <span className="font-medium">{t('admin.logs.detail_method')}</span>{' '}
+                      {selectedLog.method}
                     </p>
                     <p className="break-all">
-                      <span className="font-medium">{t('admin.logs.detail_url')}</span> {selectedLog.url}
+                      <span className="font-medium">{t('admin.logs.detail_url')}</span>{' '}
+                      {selectedLog.url}
                     </p>
                     {selectedLog.statusCode && (
                       <p>
@@ -399,7 +408,8 @@ export default function Logs() {
                   <h4 className="font-semibold mb-2">{t('admin.logs.detail_client')}</h4>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="font-medium">{t('admin.logs.detail_ip')}</span> {selectedLog.ip}
+                      <span className="font-medium">{t('admin.logs.detail_ip')}</span>{' '}
+                      {selectedLog.ip}
                     </p>
                     {selectedLog.userAgent && (
                       <p className="break-all">
@@ -423,10 +433,13 @@ export default function Logs() {
               <div>
                 <h4 className="font-semibold mb-2">{t('admin.logs.detail_timestamp')}</h4>
                 <p className="text-sm">
-                  {new Date(selectedLog.createdAt).toLocaleString(locale === 'en' ? 'en-US' : 'fr-FR', {
-                    dateStyle: 'full',
-                    timeStyle: 'long',
-                  })}
+                  {new Date(selectedLog.createdAt).toLocaleString(
+                    locale === 'en' ? 'en-US' : 'fr-FR',
+                    {
+                      dateStyle: 'full',
+                      timeStyle: 'long',
+                    }
+                  )}
                 </p>
               </div>
             </div>

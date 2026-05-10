@@ -143,7 +143,9 @@ export default function Sessions() {
           <div className="space-y-4">
             {sessions.length === 0 ? (
               <div className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">
-                {activeTab === 'active' ? t('account.sessions.no_active_sessions') : t('account.sessions.no_history')}
+                {activeTab === 'active'
+                  ? t('account.sessions.no_active_sessions')
+                  : t('account.sessions.no_history')}
               </div>
             ) : (
               sessions.map((session) => {
@@ -193,19 +195,25 @@ export default function Sessions() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>{t('account.sessions.disconnect_session_title')}</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                {t('account.sessions.disconnect_session_title')}
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 {t('account.sessions.disconnect_session_description')}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel disabled={isProcessing}>{t('account.profile.cancel')}</AlertDialogCancel>
+                              <AlertDialogCancel disabled={isProcessing}>
+                                {t('account.profile.cancel')}
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={handleDisconnectSession}
                                 disabled={isProcessing}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                {isProcessing ? t('account.sessions.disconnecting') : t('account.sessions.disconnect')}
+                                {isProcessing
+                                  ? t('account.sessions.disconnecting')
+                                  : t('account.sessions.disconnect')}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -222,7 +230,9 @@ export default function Sessions() {
           {activeTab === 'active' && activeSessions.length > 1 && (
             <div className="border-destructive/50 space-y-4 rounded-lg border p-4">
               <div>
-                <h4 className="text-sm font-medium">{t('account.sessions.disconnect_all_title')}</h4>
+                <h4 className="text-sm font-medium">
+                  {t('account.sessions.disconnect_all_title')}
+                </h4>
                 <p className="text-muted-foreground mt-1 text-xs">
                   {t('account.sessions.disconnect_all_description')}
                 </p>
@@ -235,19 +245,25 @@ export default function Sessions() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>{t('account.sessions.disconnect_all_confirm_title')}</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t('account.sessions.disconnect_all_confirm_title')}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
                       {t('account.sessions.disconnect_all_confirm_description')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isProcessing}>{t('account.profile.cancel')}</AlertDialogCancel>
+                    <AlertDialogCancel disabled={isProcessing}>
+                      {t('account.profile.cancel')}
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDisconnectAll}
                       disabled={isProcessing}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                      {isProcessing ? t('account.sessions.disconnecting') : t('account.sessions.disconnect_all')}
+                      {isProcessing
+                        ? t('account.sessions.disconnecting')
+                        : t('account.sessions.disconnect_all')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

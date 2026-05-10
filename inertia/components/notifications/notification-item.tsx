@@ -124,7 +124,9 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
           </span>
         )}
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${priorityConfig.bgColor} ${priorityConfig.iconColor}`}>
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-lg ${priorityConfig.bgColor} ${priorityConfig.iconColor}`}
+        >
           <PriorityIcon className="h-5 w-5" />
         </div>
       </div>

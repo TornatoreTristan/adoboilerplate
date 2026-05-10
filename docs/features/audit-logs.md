@@ -5,6 +5,7 @@
 ## 📋 Overview
 
 The Audit Logs feature provides comprehensive tracking of all important system events and user actions. This is essential for:
+
 - **GDPR Compliance** - Track who accessed/modified what data and when
 - **Security Monitoring** - Detect suspicious activities and unauthorized access
 - **Debugging** - Understand what happened before an incident
@@ -14,24 +15,29 @@ The Audit Logs feature provides comprehensive tracking of all important system e
 ## 🎯 Features
 
 ✅ **Automatic Event Tracking**
+
 - All critical actions are automatically logged via event listeners
 - No manual logging required for standard operations
 
 ✅ **Full-Text Search**
+
 - PostgreSQL tsvector with GIN indexing
 - Search across actions, resources, metadata, and IP addresses
 - French language support with proper stemming
 
 ✅ **Advanced Filtering**
+
 - Filter by user, organization, action, resource type, date range
 - Pagination with offset/limit
 - Statistics and aggregations
 
 ✅ **Immutable Logs**
+
 - Append-only design (no updates or deletes)
 - Audit logs cannot be tampered with
 
 ✅ **Admin Dashboard**
+
 - View all audit logs with filters
 - Real-time statistics
 - Search functionality
@@ -60,6 +66,7 @@ CREATE TABLE audit_logs (
 ### Tracked Events
 
 **Authentication:**
+
 - `auth.login.success`
 - `auth.login.failed`
 - `auth.logout`
@@ -68,6 +75,7 @@ CREATE TABLE audit_logs (
 - `auth.password.changed`
 
 **User Management:**
+
 - `user.created`
 - `user.updated`
 - `user.deleted`
@@ -75,6 +83,7 @@ CREATE TABLE audit_logs (
 - `user.profile.updated`
 
 **Organizations:**
+
 - `organization.created`
 - `organization.updated`
 - `organization.deleted`
@@ -83,11 +92,13 @@ CREATE TABLE audit_logs (
 - `organization.member.role.changed`
 
 **Invitations:**
+
 - `invitation.sent`
 - `invitation.accepted`
 - `invitation.rejected`
 
 **Subscriptions:**
+
 - `subscription.created`
 - `subscription.updated`
 - `subscription.cancelled`
@@ -95,12 +106,14 @@ CREATE TABLE audit_logs (
 - `subscription.resumed`
 
 **GDPR:**
+
 - `gdpr.data.export.requested`
 - `gdpr.account.deletion.requested`
 - `gdpr.account.deletion.cancelled`
 - `gdpr.account.deleted.permanently`
 
 **Uploads:**
+
 - `upload.created`
 - `upload.deleted`
 
@@ -199,6 +212,7 @@ console.log({
 Access the audit logs dashboard at `/admin/audit-logs` (requires super-admin role).
 
 Features:
+
 - View all audit logs in a table with DataTable component
 - Search across all fields with full-text search
 - Filter by date range with DateRangeFilter
@@ -211,6 +225,7 @@ Features:
 Each user's audit trail is also visible on their detail page at `/admin/users/{userId}`.
 
 Features:
+
 - Last 50 audit logs for the user
 - Same badge system and formatting as main dashboard
 - "View all" button to see complete audit trail
@@ -231,8 +246,8 @@ Be careful about what you include in `metadata`:
 await auditLogService.log({
   action: 'auth.password.changed',
   metadata: {
-    oldPassword: 'secret123',  // NEVER DO THIS!
-    newPassword: 'secret456',  // NEVER DO THIS!
+    oldPassword: 'secret123', // NEVER DO THIS!
+    newPassword: 'secret456', // NEVER DO THIS!
   },
 })
 
@@ -254,10 +269,7 @@ Consider implementing a retention policy to automatically archive or delete old 
 // Example: Archive logs older than 2 years
 const twoYearsAgo = DateTime.now().minus({ years: 2 })
 
-await db
-  .from('audit_logs')
-  .where('created_at', '<', twoYearsAgo.toJSDate())
-  .delete()
+await db.from('audit_logs').where('created_at', '<', twoYearsAgo.toJSDate()).delete()
 ```
 
 ## 🌍 Internationalization
@@ -265,6 +277,7 @@ await db
 The audit logs dashboard is fully internationalized with French and English support.
 
 **Translations files:**
+
 - `resources/lang/en/admin.json` - English translations
 - `resources/lang/fr/admin.json` - French translations
 - `resources/lang/en/common.json` - Common terms (system, times, none)
@@ -284,6 +297,7 @@ const { t, locale } = useI18n()
 ```
 
 **Available translations:**
+
 - Dashboard title and description
 - Statistics labels (total logs, unique users, etc.)
 - Table headers (action, user, organization, resource, IP, date)
@@ -295,6 +309,7 @@ const { t, locale } = useI18n()
 ### Indexes
 
 The audit_logs table has the following indexes:
+
 - `id` (PRIMARY KEY)
 - `user_id` (for user queries)
 - `organization_id` (for organization queries)
@@ -405,6 +420,7 @@ private async handleCustomAction(data: any) {
 ### Logs not appearing
 
 Check that:
+
 1. The `AuditLogListenersProvider` is registered in `adonisrc.ts`
 2. Events are being emitted correctly
 3. Database connection is working
@@ -413,6 +429,7 @@ Check that:
 ### Slow queries
 
 If queries are slow:
+
 1. Verify indexes are created: `\d+ audit_logs` in psql
 2. Use `EXPLAIN ANALYZE` to check query plans
 3. Consider partitioning for large datasets

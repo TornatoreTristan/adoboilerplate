@@ -5,6 +5,7 @@ Le système d'authentification de ce boilerplate offre une solution complète et
 ## 🎯 Vue d'Ensemble
 
 ### Fonctionnalités
+
 - ✅ **Login/Logout** avec sessions sécurisées
 - ✅ **Session tracking** avec audit et analytics
 - ✅ **Middleware d'authentification** robuste
@@ -14,6 +15,7 @@ Le système d'authentification de ce boilerplate offre une solution complète et
 - ✅ **Multi-device session management**
 
 ### Architecture
+
 ```
 Controllers ← Services ← Repositories ← Models
      ↕            ↕           ↕          ↕
@@ -40,6 +42,7 @@ app/auth/
 ## 🚀 AuthController
 
 ### Login Endpoint
+
 ```typescript
 // POST /auth/login
 export default class AuthController {
@@ -61,7 +64,7 @@ export default class AuthController {
       utmSource: request.input('utm_source'),
       utmMedium: request.input('utm_medium'),
       utmCampaign: request.input('utm_campaign'),
-      referrer: request.header('referer')
+      referrer: request.header('referer'),
     })
 
     // Configuration session AdonisJS
@@ -76,14 +79,15 @@ export default class AuthController {
       message: 'Login successful',
       user: {
         id: user.id,
-        email: user.email
-      }
+        email: user.email,
+      },
     })
   }
 }
 ```
 
 ### Logout Endpoint
+
 ```typescript
 // POST /auth/logout
 async logout({ session, response }: HttpContext) {
@@ -105,6 +109,7 @@ async logout({ session, response }: HttpContext) {
 ## 🔧 AuthService
 
 ### Service Principal
+
 ```typescript
 @injectable()
 export default class AuthService {
@@ -128,7 +133,7 @@ export default class AuthService {
     // Cache user pour performances
     await this.cache.set(`user:${user.id}`, user, {
       ttl: 1800, // 30 minutes
-      tags: [`user_${user.id}`, 'authenticated_users']
+      tags: [`user_${user.id}`, 'authenticated_users'],
     })
 
     return user
@@ -146,7 +151,7 @@ export default class AuthService {
     // Mise en cache
     await this.cache.set(`user:${userId}`, user, {
       ttl: 1800,
-      tags: [`user_${user.id}`, 'authenticated_users']
+      tags: [`user_${user.id}`, 'authenticated_users'],
     })
 
     return user
@@ -157,6 +162,7 @@ export default class AuthService {
 ## 🛡️ Middleware d'Authentification
 
 ### AuthMiddleware
+
 ```typescript
 export default class AuthMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
@@ -187,6 +193,7 @@ export default class AuthMiddleware {
 ```
 
 ### UpdateSessionActivity Middleware
+
 ```typescript
 export default class UpdateSessionActivityMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
@@ -198,11 +205,13 @@ export default class UpdateSessionActivityMiddleware {
       const sessionService = getService<SessionService>(TYPES.SessionService)
 
       // Fire & forget - pas d'attente
-      sessionService.updateActivity(sessionId, {
-        lastActivity: DateTime.now(),
-        lastRoute: ctx.route?.name || ctx.request.url(),
-        lastIp: ctx.request.ip()
-      }).catch(console.error)
+      sessionService
+        .updateActivity(sessionId, {
+          lastActivity: DateTime.now(),
+          lastRoute: ctx.route?.name || ctx.request.url(),
+          lastIp: ctx.request.ip(),
+        })
+        .catch(console.error)
     }
 
     await next()
@@ -213,6 +222,7 @@ export default class UpdateSessionActivityMiddleware {
 ## 📊 Session Tracking
 
 ### SessionService
+
 ```typescript
 @injectable()
 export default class SessionService {
@@ -232,13 +242,13 @@ export default class SessionService {
       utmMedium: data.utmMedium,
       utmCampaign: data.utmCampaign,
       referrer: data.referrer,
-      lastActivity: DateTime.now()
+      lastActivity: DateTime.now(),
     })
 
     // Événement pour analytics
     await this.eventBus.emit('session.created', {
       session,
-      userId: data.userId
+      userId: data.userId,
     })
 
     return session
@@ -249,14 +259,14 @@ export default class SessionService {
 
     await this.sessionRepo.update(sessionId, {
       isActive: false,
-      endedAt: DateTime.now()
+      endedAt: DateTime.now(),
     })
 
     // Événement pour analytics
     await this.eventBus.emit('session.ended', {
       sessionId,
       userId: session.userId,
-      duration: this.calculateDuration(session)
+      duration: this.calculateDuration(session),
     })
   }
 
@@ -267,6 +277,7 @@ export default class SessionService {
 ```
 
 ### Modèle Session
+
 ```typescript
 export default class Session extends BaseModel {
   @column({ isPrimary: true })
@@ -326,6 +337,7 @@ export default class Session extends BaseModel {
 ## 🔄 Password Reset
 
 ### PasswordResetController
+
 ```typescript
 export default class PasswordResetController {
   // POST /password/forgot
@@ -339,33 +351,35 @@ export default class PasswordResetController {
 
       // Toujours succès pour éviter énumération emails
       return response.json({
-        message: 'If email exists, reset instructions have been sent'
+        message: 'If email exists, reset instructions have been sent',
       })
     } catch (error) {
       // Log l'erreur mais retourne succès
       console.error('Password reset error:', error)
       return response.json({
-        message: 'If email exists, reset instructions have been sent'
+        message: 'If email exists, reset instructions have been sent',
       })
     }
   }
 
   // POST /password/reset
   async resetPassword({ request, response }: HttpContext) {
-    const { token, password, password_confirmation } = await request.validateUsing(resetPasswordValidator)
+    const { token, password, password_confirmation } =
+      await request.validateUsing(resetPasswordValidator)
 
     const passwordResetService = getService<PasswordResetService>(TYPES.PasswordResetService)
 
     await passwordResetService.resetPassword(token, password)
 
     return response.json({
-      message: 'Password reset successful'
+      message: 'Password reset successful',
     })
   }
 }
 ```
 
 ### PasswordResetService
+
 ```typescript
 @injectable()
 export default class PasswordResetService {
@@ -393,14 +407,14 @@ export default class PasswordResetService {
       email,
       token,
       expiresAt,
-      used: false
+      used: false,
     })
 
     // Événement pour envoi email
     await this.eventBus.emit('password.reset_requested', {
       email,
       token,
-      user
+      user,
     })
   }
 
@@ -438,7 +452,7 @@ export default class PasswordResetService {
     // Événement pour analytics
     await this.eventBus.emit('password.reset_completed', {
       userId: user.id,
-      email: user.email
+      email: user.email,
     })
   }
 }
@@ -447,13 +461,14 @@ export default class PasswordResetService {
 ## 🔒 Sécurité
 
 ### Validation des Données
+
 ```typescript
 // Validators avec Vine
 export const loginValidator = vine.compile(
   vine.object({
     email: vine.string().email().normalizeEmail(),
     password: vine.string().minLength(6),
-    remember: vine.boolean().optional()
+    remember: vine.boolean().optional(),
   })
 )
 
@@ -461,12 +476,13 @@ export const resetPasswordValidator = vine.compile(
   vine.object({
     token: vine.string().minLength(32),
     password: vine.string().minLength(8),
-    password_confirmation: vine.string().sameAs('password')
+    password_confirmation: vine.string().sameAs('password'),
   })
 )
 ```
 
 ### Protection CSRF
+
 ```typescript
 // Middleware automatique AdonisJS
 // Configuration dans config/shield.ts
@@ -474,23 +490,27 @@ export const shieldConfig = defineConfig({
   csrf: {
     enabled: true,
     exceptRoutes: ['/api/*'], // API sans CSRF
-    enableXsrfCookie: true
-  }
+    enableXsrfCookie: true,
+  },
 })
 ```
 
 ### Rate Limiting
+
 ```typescript
 // Dans start/kernel.ts pour routes sensibles
-router.group(() => {
-  router.post('/login', 'AuthController.login')
-  router.post('/password/forgot', 'PasswordResetController.forgotPassword')
-}).middleware(['throttle:10,1']) // 10 req/min
+router
+  .group(() => {
+    router.post('/login', 'AuthController.login')
+    router.post('/password/forgot', 'PasswordResetController.forgotPassword')
+  })
+  .middleware(['throttle:10,1']) // 10 req/min
 ```
 
 ## 📱 API Usage Examples
 
 ### Login
+
 ```bash
 curl -X POST http://localhost:3333/auth/login \
   -H "Content-Type: application/json" \
@@ -502,6 +522,7 @@ curl -X POST http://localhost:3333/auth/login \
 ```
 
 ### Logout
+
 ```bash
 curl -X POST http://localhost:3333/auth/logout \
   -H "Cookie: adonis-session=..." \
@@ -509,6 +530,7 @@ curl -X POST http://localhost:3333/auth/logout \
 ```
 
 ### Password Reset
+
 ```bash
 # Request reset
 curl -X POST http://localhost:3333/password/forgot \
@@ -528,32 +550,33 @@ curl -X POST http://localhost:3333/password/reset \
 ## 🧪 Testing
 
 ### Test d'Authentification
+
 ```typescript
 test('should login with valid credentials', async ({ client, assert }) => {
   // Arrange
   const userData = {
     email: 'test@example.com',
-    password: 'password123'
+    password: 'password123',
   }
 
   // Créer utilisateur test
   const user = await User.create({
     ...userData,
-    password: await hash.make(userData.password)
+    password: await hash.make(userData.password),
   })
 
   // Act
   const response = await client.post('/auth/login').json({
     email: userData.email,
     password: userData.password,
-    remember: false
+    remember: false,
   })
 
   // Assert
   response.assertStatus(200)
   response.assertBodyContains({
     message: 'Login successful',
-    user: { email: userData.email }
+    user: { email: userData.email },
   })
 
   // Vérifier session
@@ -564,22 +587,26 @@ test('should login with valid credentials', async ({ client, assert }) => {
 ## 🎯 Avantages du Système
 
 ### Sécurité
+
 - **Hashing sécurisé** avec Argon2
 - **Protection CSRF** intégrée
 - **Rate limiting** sur endpoints sensibles
 - **Validation stricte** des données
 
 ### Performance
+
 - **Cache Redis** pour les utilisateurs authentifiés
 - **Sessions optimisées** avec mise à jour asynchrone
 - **Lazy loading** des données utilisateur
 
 ### Analytics
+
 - **Tracking UTM** pour attribution marketing
 - **Audit trail** complet des sessions
 - **Métriques** d'engagement utilisateur
 
 ### Maintenabilité
+
 - **Architecture modulaire** par domaine
 - **Tests complets** avec mocks
 - **Documentation** intégrée

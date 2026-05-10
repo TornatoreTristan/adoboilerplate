@@ -2,9 +2,9 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
-import AdminService from '#admin/services/admin_service'
-import EmailLogRepository from '#mailing/repositories/email_log_repository'
-import UserRepository from '#users/repositories/user_repository'
+import type AdminService from '#admin/services/admin_service'
+import type EmailLogRepository from '#mailing/repositories/email_log_repository'
+import type UserRepository from '#users/repositories/user_repository'
 
 test.group('AdminService - Email Logs', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())

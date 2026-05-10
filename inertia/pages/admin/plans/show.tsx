@@ -36,7 +36,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useI18n } from '@/hooks/use-i18n'
-import { getTranslation, type TranslatableField, type TranslatableFieldNullable } from '@/lib/translatable'
+import {
+  getTranslation,
+  type TranslatableField,
+  type TranslatableFieldNullable,
+} from '@/lib/translatable'
 
 interface Plan {
   id: string
@@ -76,10 +80,15 @@ interface Props {
 const ShowPlanPage = ({ plan, subscriptions }: Props) => {
   const { t, locale } = useI18n()
   const planName = getTranslation(plan.nameI18n)
-  const planDescription = plan.descriptionI18n ? getTranslation(plan.descriptionI18n) : plan.description
+  const planDescription = plan.descriptionI18n
+    ? getTranslation(plan.descriptionI18n)
+    : plan.description
 
   const formatPrice = (price: number, currency: string) =>
-    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', { style: 'currency', currency }).format(price)
+    new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'fr-FR', {
+      style: 'currency',
+      currency,
+    }).format(price)
 
   const formatDate = (date: string | null) => {
     if (!date) return t('admin.plan_show.date_na')
@@ -148,11 +157,16 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
         <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto">
           <PageHeader
             title={planName}
-            description={planDescription || t('admin.plan_show.description_default', { name: planName })}
+            description={
+              planDescription || t('admin.plan_show.description_default', { name: planName })
+            }
             icon={CreditCard}
             actions={
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => router.visit(`/admin/plans/${plan.id}/edit`)}>
+                <Button
+                  variant="outline"
+                  onClick={() => router.visit(`/admin/plans/${plan.id}/edit`)}
+                >
                   {t('admin.plan_show.edit')}
                 </Button>
                 <Button onClick={() => router.visit('/admin/plans')}>
@@ -173,12 +187,20 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
               <CardContent>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-2xl font-bold">{formatPrice(plan.priceMonthly, plan.currency)}</div>
-                    <div className="text-xs text-muted-foreground">{t('admin.plan_show.per_month')}</div>
+                    <div className="text-2xl font-bold">
+                      {formatPrice(plan.priceMonthly, plan.currency)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('admin.plan_show.per_month')}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{formatPrice(plan.priceYearly, plan.currency)}</div>
-                    <div className="text-xs text-muted-foreground">{t('admin.plan_show.per_year')}</div>
+                    <div className="text-2xl font-bold">
+                      {formatPrice(plan.priceYearly, plan.currency)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('admin.plan_show.per_year')}
+                    </div>
                   </div>
                   {plan.trialDays && (
                     <Badge variant="secondary">
@@ -232,10 +254,14 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
                 {plan.stripeProductId && (
                   <div className="text-xs text-muted-foreground space-y-1">
                     <div>
-                      {t('admin.plan_show.stripe_id_monthly', { id: plan.stripePriceIdMonthly?.substring(0, 15) ?? '' })}
+                      {t('admin.plan_show.stripe_id_monthly', {
+                        id: plan.stripePriceIdMonthly?.substring(0, 15) ?? '',
+                      })}
                     </div>
                     <div>
-                      {t('admin.plan_show.stripe_id_yearly', { id: plan.stripePriceIdYearly?.substring(0, 15) ?? '' })}
+                      {t('admin.plan_show.stripe_id_yearly', {
+                        id: plan.stripePriceIdYearly?.substring(0, 15) ?? '',
+                      })}
                     </div>
                   </div>
                 )}
@@ -272,7 +298,9 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" />
-                <CardTitle>{t('admin.plan_show.subscriptions_title', { count: subscriptions.length })}</CardTitle>
+                <CardTitle>
+                  {t('admin.plan_show.subscriptions_title', { count: subscriptions.length })}
+                </CardTitle>
               </div>
               <CardDescription>{t('admin.plan_show.subscriptions_description')}</CardDescription>
             </CardHeader>
@@ -290,7 +318,9 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
                       <TableHead>{t('admin.plan_show.col_current_price')}</TableHead>
                       <TableHead>{t('admin.plan_show.col_period')}</TableHead>
                       <TableHead>{t('admin.plan_show.col_since')}</TableHead>
-                      <TableHead className="text-right">{t('admin.plan_show.col_actions')}</TableHead>
+                      <TableHead className="text-right">
+                        {t('admin.plan_show.col_actions')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -302,19 +332,25 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
                       const isOutdated = subscription.stripePriceId !== expectedPriceId
                       return (
                         <TableRow key={subscription.id}>
-                          <TableCell className="font-medium">{subscription.organizationName}</TableCell>
+                          <TableCell className="font-medium">
+                            {subscription.organizationName}
+                          </TableCell>
                           <TableCell>{getStatusBadge(subscription.status)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {isOutdated ? (
                                 <>
-                                  <Badge variant="outline">{t('admin.plan_show.old_price_badge')}</Badge>
+                                  <Badge variant="outline">
+                                    {t('admin.plan_show.old_price_badge')}
+                                  </Badge>
                                   <span className="text-xs text-muted-foreground">
                                     {subscription.stripePriceId?.substring(0, 15)}...
                                   </span>
                                 </>
                               ) : (
-                                <Badge variant="default">{t('admin.plan_show.current_price_badge')}</Badge>
+                                <Badge variant="default">
+                                  {t('admin.plan_show.current_price_badge')}
+                                </Badge>
                               )}
                               <Badge variant="secondary">
                                 {subscription.billingInterval === 'month'
@@ -343,7 +379,10 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
 
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    handleViewSubscription(subscription.id, subscription.organizationId)
+                                    handleViewSubscription(
+                                      subscription.id,
+                                      subscription.organizationId
+                                    )
                                   }
                                 >
                                   <Eye className="mr-2 h-4 w-4" />
@@ -399,7 +438,9 @@ const ShowPlanPage = ({ plan, subscriptions }: Props) => {
                                     <>
                                       <DropdownMenuSeparator />
                                       <DropdownMenuItem
-                                        onClick={() => handleReactivateSubscription(subscription.id)}
+                                        onClick={() =>
+                                          handleReactivateSubscription(subscription.id)
+                                        }
                                       >
                                         <Check className="mr-2 h-4 w-4" />
                                         {t('admin.plan_show.reactivate')}

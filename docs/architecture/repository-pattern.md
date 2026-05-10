@@ -5,11 +5,13 @@ Le **Repository Pattern** est au cœur de l'architecture de ce boilerplate. Il f
 ## 🎯 Objectifs du Pattern
 
 ### Abstraction de la Couche Données
+
 - Interface cohérente pour tous les modèles
 - Découplage entre logique métier et persistence
 - Facilite les tests avec mocking
 
 ### Fonctionnalités Avancées Intégrées
+
 - Cache Redis automatique avec invalidation
 - Soft deletes pour tous les modèles
 - Hooks pour événements métier
@@ -72,10 +74,9 @@ export default class UserRepository extends BaseRepository<typeof User> {
 
   async findUsersInOrganization(organizationId: string): Promise<User[]> {
     const query = this.buildBaseQuery()
-    return query
-      .whereHas('organizations', (orgQuery) => {
-        orgQuery.where('organization_id', organizationId)
-      })
+    return query.whereHas('organizations', (orgQuery) => {
+      orgQuery.where('organization_id', organizationId)
+    })
   }
 }
 ```
@@ -90,39 +91,42 @@ container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository)
 ## 📋 Options de Configuration
 
 ### FindOptions
+
 ```typescript
 interface FindOptions {
-  includeDeleted?: boolean    // Inclure les supprimés (soft delete)
+  includeDeleted?: boolean // Inclure les supprimés (soft delete)
   cache?: {
-    ttl?: number             // Durée de vie en secondes
-    tags?: string[]          // Tags pour invalidation groupée
+    ttl?: number // Durée de vie en secondes
+    tags?: string[] // Tags pour invalidation groupée
   }
 }
 
 // Exemple d'utilisation
 const user = await userRepo.findById('123', {
   includeDeleted: true,
-  cache: { ttl: 3600, tags: ['users', 'user_123'] }
+  cache: { ttl: 3600, tags: ['users', 'user_123'] },
 })
 ```
 
 ### CreateOptions
+
 ```typescript
 interface CreateOptions {
-  skipHooks?: boolean        // Ignorer les hooks before/after
+  skipHooks?: boolean // Ignorer les hooks before/after
   cache?: {
-    tags?: string[]          // Tags à invalider après création
+    tags?: string[] // Tags à invalider après création
   }
 }
 
 // Exemple
 const user = await userRepo.create(userData, {
   skipHooks: false,
-  cache: { tags: ['users', 'user_list'] }
+  cache: { tags: ['users', 'user_list'] },
 })
 ```
 
 ### UpdateOptions & DeleteOptions
+
 ```typescript
 interface UpdateOptions {
   skipHooks?: boolean
@@ -130,7 +134,7 @@ interface UpdateOptions {
 }
 
 interface DeleteOptions {
-  soft?: boolean            // true = soft delete, false = hard delete
+  soft?: boolean // true = soft delete, false = hard delete
   skipHooks?: boolean
   cache?: { tags?: string[] }
 }
@@ -139,6 +143,7 @@ interface DeleteOptions {
 ## 🗑️ Soft Deletes
 
 ### Configuration Automatique
+
 Le BaseRepository détecte automatiquement si un modèle supporte les soft deletes :
 
 ```typescript
@@ -159,9 +164,9 @@ protected supportsSoftDelete(): boolean {
 
 ```typescript
 // Suppression logique (par défaut)
-await userRepo.delete(userId)                    // soft delete
-await userRepo.delete(userId, { soft: true })    // soft delete explicite
-await userRepo.delete(userId, { soft: false })   // hard delete
+await userRepo.delete(userId) // soft delete
+await userRepo.delete(userId, { soft: true }) // soft delete explicite
+await userRepo.delete(userId, { soft: false }) // hard delete
 
 // Recherche incluant les supprimés
 const deletedUser = await userRepo.findById(userId, { includeDeleted: true })
@@ -171,6 +176,7 @@ const restoredUser = await userRepo.restore(userId)
 ```
 
 ### Comportement des Queries
+
 ```typescript
 // Query normale - exclut les supprimés
 const activeUsers = await userRepo.findAll()
@@ -184,10 +190,11 @@ const allUsers = await userRepo.findAll({ includeDeleted: true })
 ## ⚡ Système de Cache
 
 ### Cache Automatique
+
 ```typescript
 // Cache automatique sur findById
 const user = await userRepo.findById('123', {
-  cache: { ttl: 3600, tags: ['users', 'user_123'] }
+  cache: { ttl: 3600, tags: ['users', 'user_123'] },
 })
 
 // Clé de cache générée : "user:123"
@@ -195,6 +202,7 @@ const user = await userRepo.findById('123', {
 ```
 
 ### Invalidation du Cache
+
 ```typescript
 // Lors d'une création
 await userRepo.create(userData)
@@ -206,21 +214,22 @@ await userRepo.update(userId, updateData)
 // → Invalide les listes d'utilisateurs
 
 // Invalidation manuelle
-await cache.invalidateTags(['users'])  // Invalide tous les utilisateurs
+await cache.invalidateTags(['users']) // Invalide tous les utilisateurs
 ```
 
 ### Stratégie de Cache
 
-| Opération | Cache Key | Tags Invalidés |
-|-----------|-----------|----------------|
-| `findById` | `model:id` | - |
-| `create` | - | `[model, model_list]` |
-| `update` | Supprime `model:id` | `[model, model_list]` |
-| `delete` | Supprime `model:id` | `[model, model_list]` |
+| Opération  | Cache Key           | Tags Invalidés        |
+| ---------- | ------------------- | --------------------- |
+| `findById` | `model:id`          | -                     |
+| `create`   | -                   | `[model, model_list]` |
+| `update`   | Supprime `model:id` | `[model, model_list]` |
+| `delete`   | Supprime `model:id` | `[model, model_list]` |
 
 ## 🎪 Hooks et Événements
 
 ### Hooks Disponibles
+
 ```typescript
 // Dans BaseRepository - hooks automatiques
 protected async beforeCreate(data: Partial<InstanceType<TModel>>): Promise<void>
@@ -232,6 +241,7 @@ protected async afterDelete(record: InstanceType<TModel>): Promise<void>
 ```
 
 ### Événements Automatiques
+
 ```typescript
 // Émis automatiquement par BaseRepository
 await eventBus.emit('user.before_create', { data })
@@ -243,6 +253,7 @@ await eventBus.emit('user.deleted', { record })
 ```
 
 ### Override des Hooks
+
 ```typescript
 export default class UserRepository extends BaseRepository<typeof User> {
   protected async beforeCreate(data: Partial<User>): Promise<void> {
@@ -267,6 +278,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
 ## 🔍 Queries Avancées
 
 ### Pagination
+
 ```typescript
 const result = await userRepo.paginate(page, perPage, criteria)
 
@@ -288,25 +300,21 @@ interface PaginationResult<T> {
 ```
 
 ### Recherches Complexes
+
 ```typescript
 // Dans votre repository personnalisé
 export default class UserRepository extends BaseRepository<typeof User> {
   async findActiveUsersWithOrganizations(): Promise<User[]> {
     const query = this.buildBaseQuery() // Inclut automatiquement whereNull('deleted_at')
 
-    return query
-      .where('status', 'active')
-      .preload('organizations')
-      .orderBy('created_at', 'desc')
+    return query.where('status', 'active').preload('organizations').orderBy('created_at', 'desc')
   }
 
   async searchUsers(searchTerm: string, organizationId?: string): Promise<User[]> {
     const query = this.buildBaseQuery()
 
     query.where((subQuery) => {
-      subQuery
-        .whereILike('email', `%${searchTerm}%`)
-        .orWhereILike('full_name', `%${searchTerm}%`)
+      subQuery.whereILike('email', `%${searchTerm}%`).orWhereILike('full_name', `%${searchTerm}%`)
     })
 
     if (organizationId) {
@@ -323,6 +331,7 @@ export default class UserRepository extends BaseRepository<typeof User> {
 ## 🧪 Testing avec Repository
 
 ### Mock Repository
+
 ```typescript
 // Dans les tests
 const mockUserRepo = {
@@ -338,6 +347,7 @@ container.rebind(TYPES.UserRepository).toConstantValue(mockUserRepo)
 ```
 
 ### Test d'un Service utilisant Repository
+
 ```typescript
 test('should create user with hashed password', async ({ assert }) => {
   // Arrange
@@ -360,6 +370,7 @@ test('should create user with hashed password', async ({ assert }) => {
 ## 🚀 Utilisation dans les Services
 
 ### Service avec Repository
+
 ```typescript
 @injectable()
 export default class UserService {
@@ -376,17 +387,20 @@ export default class UserService {
     const hashedPassword = await hash.make(data.password)
 
     // Création via repository
-    return this.userRepo.create({
-      ...data,
-      password: hashedPassword
-    }, {
-      cache: { tags: ['users'] }
-    })
+    return this.userRepo.create(
+      {
+        ...data,
+        password: hashedPassword,
+      },
+      {
+        cache: { tags: ['users'] },
+      }
+    )
   }
 
   async getUserProfile(userId: string): Promise<User> {
     const user = await this.userRepo.findById(userId, {
-      cache: { ttl: 1800, tags: [`user_${userId}`] }
+      cache: { ttl: 1800, tags: [`user_${userId}`] },
     })
 
     if (!user) {
@@ -408,21 +422,25 @@ export default class UserService {
 ## 🎯 Avantages du Pattern
 
 ### Maintenabilité
+
 - **Interface standardisée** pour tous les modèles
 - **Code réutilisable** avec fonctionnalités communes
 - **Tests faciles** avec injection de dépendances
 
 ### Performance
+
 - **Cache automatique** avec invalidation intelligente
 - **Soft deletes** sans impact sur les performances
 - **Queries optimisées** avec préloading
 
 ### Robustesse
+
 - **Gestion d'erreurs** standardisée
 - **Hooks métier** pour logique transversale
 - **Événements** pour découplage
 
 ### Developer Experience
+
 - **TypeScript** avec typage générique
 - **Patterns cohérents** dans tout le projet
 - **Configuration simple** par héritage

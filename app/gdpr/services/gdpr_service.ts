@@ -107,10 +107,7 @@ export default class GdprService {
    * Demande de suppression de compte (RGPD Article 17 - Droit à l'oubli)
    * Délai de grâce de 30 jours avant suppression définitive
    */
-  async requestAccountDeletion(
-    userId: string,
-    reason?: string
-  ): Promise<AccountDeletionRequest> {
+  async requestAccountDeletion(userId: string, reason?: string): Promise<AccountDeletionRequest> {
     const user = await this.userRepo.findById(userId)
     if (!user) {
       E.userNotFound(userId)

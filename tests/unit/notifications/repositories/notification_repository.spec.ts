@@ -32,7 +32,10 @@ test.group('NotificationRepository', (group) => {
       organizationId: organization.id,
       type: 'user.mentioned' as const,
       titleI18n: { fr: 'Vous avez été mentionné', en: 'You were mentioned' },
-      messageI18n: { fr: 'John Doe vous a mentionné dans un commentaire', en: 'John Doe mentioned you in a comment' },
+      messageI18n: {
+        fr: 'John Doe vous a mentionné dans un commentaire',
+        en: 'John Doe mentioned you in a comment',
+      },
       data: { commentId: '123', userId: 'abc' },
     }
 
@@ -90,7 +93,7 @@ test.group('NotificationRepository', (group) => {
     assert.isNull(result)
   })
 
-  test('devrait trouver toutes les notifications d\'un utilisateur', async ({ assert }) => {
+  test("devrait trouver toutes les notifications d'un utilisateur", async ({ assert }) => {
     const repository = new NotificationRepository()
 
     await Notification.create({
@@ -172,7 +175,7 @@ test.group('NotificationRepository', (group) => {
     assert.isNotNull(updated2?.readAt)
   })
 
-  test('devrait compter les notifications non lues d\'un utilisateur', async ({ assert }) => {
+  test("devrait compter les notifications non lues d'un utilisateur", async ({ assert }) => {
     const repository = new NotificationRepository()
 
     await Notification.create({
@@ -290,7 +293,7 @@ test.group('NotificationRepository', (group) => {
       type: 'system.announcement' as const,
       priority: 'urgent' as const,
       titleI18n: { fr: 'Alerte critique', en: 'Critical alert' },
-      messageI18n: { fr: 'Maintenance d\'urgence', en: 'Emergency maintenance' },
+      messageI18n: { fr: "Maintenance d'urgence", en: 'Emergency maintenance' },
     }
 
     const result = await repository.create(notificationData)

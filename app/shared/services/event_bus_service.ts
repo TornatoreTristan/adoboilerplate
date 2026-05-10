@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify'
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'node:events'
 import { TYPES } from '#shared/container/types'
 import type QueueService from './queue_service.js'
 
@@ -47,7 +47,11 @@ export default class EventBusService extends EventEmitter {
    * branch still returns a boolean wrapped in a Promise.
    */
   // @ts-expect-error — deliberate async override of the base sync signature
-  async emit(eventName: string, data: EventData = {}, options: EventOptions = {}): Promise<boolean> {
+  async emit(
+    eventName: string,
+    data: EventData = {},
+    options: EventOptions = {}
+  ): Promise<boolean> {
     const { async = false, priority, delay } = options
 
     if (async) {
