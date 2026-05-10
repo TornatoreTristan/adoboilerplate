@@ -31,12 +31,11 @@ const shieldConfig = defineConfig({
     exceptRoutes: (ctx) => {
       const url = ctx.request.url()
       return (
+        // Token-based endpoints (no session cookie):
         url.startsWith('/api/') ||
-        url === '/password/forgot' ||
-        url === '/password/reset' ||
-        url.startsWith('/password/reset/') ||
-        url.startsWith('/auth/email/') ||
+        // Stripe verifies its own webhook signature:
         url === '/webhooks/stripe' ||
+        // Locale switch is non-sensitive and called from public pages:
         url === '/locale'
       )
     },

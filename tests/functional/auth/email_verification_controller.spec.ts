@@ -18,7 +18,10 @@ test.group('EmailVerificationController', (group) => {
       password: await hash.make('password123'),
     })
 
-    const response = await client.post('/auth/email/resend').withSession({ user_id: user.id })
+    const response = await client
+      .post('/auth/email/resend')
+      .withCsrfToken()
+      .withSession({ user_id: user.id })
 
     response.assertStatus(200)
     response.assertBodyContains({
@@ -35,7 +38,10 @@ test.group('EmailVerificationController', (group) => {
   })
 
   test('POST /auth/email/resend - should return 401 if not authenticated', async ({ client }) => {
-    const response = await client.post('/auth/email/resend').header('accept', 'application/json')
+    const response = await client
+      .post('/auth/email/resend')
+      .withCsrfToken()
+      .header('accept', 'application/json')
 
     response.assertStatus(401)
   })
@@ -111,6 +117,7 @@ test.group('EmailVerificationController', (group) => {
 
     const response = await client
       .post('/auth/email/change')
+      .withCsrfToken()
       .withSession({ user_id: user.id })
       .json({
         newEmail: 'new@example.com',
@@ -140,6 +147,7 @@ test.group('EmailVerificationController', (group) => {
 
     const response = await client
       .post('/auth/email/change')
+      .withCsrfToken()
       .withSession({ user_id: user.id })
       .json({
         newEmail: 'new@example.com',
@@ -157,6 +165,7 @@ test.group('EmailVerificationController', (group) => {
 
     const response = await client
       .post('/auth/email/change')
+      .withCsrfToken()
       .withSession({ user_id: user.id })
       .json({
         newEmail: 'invalid-email',
@@ -169,6 +178,7 @@ test.group('EmailVerificationController', (group) => {
   test('POST /auth/email/change - should return 401 if not authenticated', async ({ client }) => {
     const response = await client
       .post('/auth/email/change')
+      .withCsrfToken()
       .header('accept', 'application/json')
       .json({
         newEmail: 'new@example.com',

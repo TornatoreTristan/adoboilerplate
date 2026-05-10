@@ -26,6 +26,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/forgot')
+      .withCsrfToken()
       .json({ email: user.email })
 
     // Assert
@@ -48,6 +49,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/forgot')
+      .withCsrfToken()
       .json({ email: 'nonexistent@example.com' })
 
     // Assert
@@ -62,6 +64,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/forgot')
+      .withCsrfToken()
       .json({ email: 'invalid-email' })
 
     // Assert
@@ -170,6 +173,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/reset')
+      .withCsrfToken()
       .json({
         token,
         password: newPassword,
@@ -206,6 +210,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/reset')
+      .withCsrfToken()
       .json({
         token,
         password: 'NewPassword123!',
@@ -235,6 +240,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/reset')
+      .withCsrfToken()
       .json({
         token,
         password: 'short',
@@ -264,6 +270,7 @@ test.group('PasswordResetController', (group) => {
     // Act
     const response = await client
       .post('/password/reset')
+      .withCsrfToken()
       .json({
         token,
         password: 'NewPassword123!',
