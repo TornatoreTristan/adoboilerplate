@@ -1,4 +1,5 @@
 import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import logger from '@adonisjs/core/services/logger'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type SentryService from '#monitoring/services/sentry_service'
@@ -41,7 +42,7 @@ export default class SentryExceptionHandler extends ExceptionHandler {
       }
     } catch (sentryError) {
       // Si Sentry échoue, on ne veut pas crasher l'app
-      console.error('[Sentry] Failed to report error:', sentryError)
+      logger.error({ err: sentryError }, '[Sentry] Failed to report error')
     }
 
     return super.report(error, ctx)

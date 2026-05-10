@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node'
 import { nodeProfilingIntegration } from '@sentry/profiling-node'
 import { injectable } from 'inversify'
 import type { HttpContext } from '@adonisjs/core/http'
+import logger from '@adonisjs/core/services/logger'
 
 export interface SentryConfig {
   dsn: string
@@ -26,7 +27,7 @@ export default class SentryService {
 
     // Ne pas initialiser si désactivé ou pas de DSN
     if (!config.enabled || !config.dsn) {
-      console.log('[Sentry] Disabled - No DSN provided or explicitly disabled')
+      logger.info('[Sentry] Disabled - No DSN provided or explicitly disabled')
       return
     }
 
@@ -69,7 +70,7 @@ export default class SentryService {
     })
 
     this.initialized = true
-    console.log(`[Sentry] Initialized for environment: ${config.environment}`)
+    logger.info(`[Sentry] Initialized for environment: ${config.environment}`)
   }
 
   /**

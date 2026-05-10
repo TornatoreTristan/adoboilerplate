@@ -4,6 +4,7 @@ import type HealthService from './health_service.js'
 import type MetricsService from './metrics_service.js'
 import type HealthHistoryService from './health_history_service.js'
 import { DateTime } from 'luxon'
+import logger from '@adonisjs/core/services/logger'
 
 export interface MonitoringData {
   status: string
@@ -73,7 +74,7 @@ export default class MonitoringService {
     try {
       await this.historyService.saveSnapshot(data.status, data.health, data.metrics)
     } catch (error) {
-      console.error('Failed to save monitoring snapshot:', error)
+      logger.error({ err: error }, 'Failed to save monitoring snapshot')
     }
   }
 }

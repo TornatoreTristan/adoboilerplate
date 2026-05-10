@@ -9,6 +9,7 @@ import type AuthService from '#auth/services/auth_service'
 import type SessionService from '#sessions/services/session_service'
 import type EmailVerificationService from '#auth/services/email_verification_service'
 import RateLimitService from '#shared/services/rate_limit_service'
+import logger from '@adonisjs/core/services/logger'
 
 const EMAIL_RATE_LIMIT_MAX_REQUESTS = 5
 const EMAIL_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000
@@ -195,7 +196,7 @@ export default class AuthController {
       )
       await emailVerificationService.sendVerificationEmail(result.user!.id)
     } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email de vérification:", error)
+      logger.error({ err: error }, "Erreur lors de l'envoi de l'email de vérification")
     }
 
     // Rediriger vers la page de confirmation

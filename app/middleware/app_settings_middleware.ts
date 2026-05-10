@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import logger from '@adonisjs/core/services/logger'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type AppSettingsService from '#app_settings/services/app_settings_service'
@@ -17,7 +18,7 @@ export default class AppSettingsMiddleware {
         },
       })
     } catch (error) {
-      console.error('AppSettings middleware error:', error)
+      logger.error({ err: error }, 'AppSettings middleware error')
       ctx.view.share({
         appSettings: {
           appName: 'My Application',

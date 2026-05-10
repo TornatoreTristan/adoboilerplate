@@ -1,3 +1,4 @@
+import logger from '@adonisjs/core/services/logger'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type CacheService from '#shared/services/cache_service'
@@ -161,7 +162,7 @@ export function CacheLogging(enable: boolean = true) {
       const result = await originalMethod.apply(this, args)
       const endTime = Date.now()
 
-      console.log(
+      logger.debug(
         `[CACHE] ${target.constructor.name}.${propertyKey} executed in ${endTime - startTime}ms`
       )
 

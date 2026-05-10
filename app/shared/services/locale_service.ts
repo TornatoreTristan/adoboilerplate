@@ -2,6 +2,7 @@ import { injectable } from 'inversify'
 import { HttpContext } from '@adonisjs/core/http'
 import type { TranslatableField, TranslatableFieldNullable } from '#shared/helpers/translatable'
 import app from '@adonisjs/core/services/app'
+import logger from '@adonisjs/core/services/logger'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -71,7 +72,7 @@ export default class LocaleService {
       this.cache.set(cacheKey, messages)
       return messages
     } catch (error) {
-      console.error(`Failed to load messages for locale: ${locale}`, error)
+      logger.error({ err: error, locale }, 'Failed to load messages for locale')
       return {}
     }
   }

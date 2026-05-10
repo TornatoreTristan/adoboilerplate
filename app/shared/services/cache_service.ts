@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify'
 import type { Redis } from 'ioredis'
+import logger from '@adonisjs/core/services/logger'
 import { TYPES } from '#shared/container/types'
 
 export interface CacheOptions {
@@ -19,7 +20,7 @@ export default class CacheService {
       const value = await this.redis.get(key)
       return value ? JSON.parse(value) : null
     } catch (error) {
-      console.error('Cache get error:', error)
+      logger.error({ err: error }, 'Cache get error')
       return null
     }
   }
@@ -42,7 +43,7 @@ export default class CacheService {
         await this.addToTags(key, options.tags)
       }
     } catch (error) {
-      console.error('Cache set error:', error)
+      logger.error({ err: error }, 'Cache set error')
     }
   }
 
@@ -53,7 +54,7 @@ export default class CacheService {
     try {
       await this.redis.del(key)
     } catch (error) {
-      console.error('Cache del error:', error)
+      logger.error({ err: error }, 'Cache del error')
     }
   }
 
@@ -66,7 +67,7 @@ export default class CacheService {
     try {
       await this.redis.del(...keys)
     } catch (error) {
-      console.error('Cache delMany error:', error)
+      logger.error({ err: error }, 'Cache delMany error')
     }
   }
 
@@ -83,7 +84,7 @@ export default class CacheService {
         }
       }
     } catch (error) {
-      console.error('Cache invalidateTags error:', error)
+      logger.error({ err: error }, 'Cache invalidateTags error')
     }
   }
 
@@ -95,7 +96,7 @@ export default class CacheService {
       const result = await this.redis.exists(key)
       return result === 1
     } catch (error) {
-      console.error('Cache exists error:', error)
+      logger.error({ err: error }, 'Cache exists error')
       return false
     }
   }
@@ -107,7 +108,7 @@ export default class CacheService {
     try {
       await this.redis.flushdb()
     } catch (error) {
-      console.error('Cache flush error:', error)
+      logger.error({ err: error }, 'Cache flush error')
     }
   }
 
@@ -141,7 +142,7 @@ export default class CacheService {
     try {
       return await this.redis.incrby(key, by)
     } catch (error) {
-      console.error('Cache increment error:', error)
+      logger.error({ err: error }, 'Cache increment error')
       return 0
     }
   }
