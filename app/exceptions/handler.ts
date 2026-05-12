@@ -12,6 +12,18 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type SentryService from '#monitoring/services/sentry_service'
 
+function serializeHttpError(error: { message?: string; status?: number; code?: string }): {
+  message: string
+  status: number
+  code?: string
+} {
+  return {
+    message: error.message ?? 'Une erreur est survenue',
+    status: error.status ?? 500,
+    code: error.code,
+  }
+}
+
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
    * In debug mode, the exception handler will display verbose errors
@@ -31,8 +43,10 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * to return the HTML contents to send as a response.
    */
   protected statusPages: Record<StatusPageRange, StatusPageRenderer> = {
-    '404': (error, { inertia }) => inertia.render('errors/not_found', { error } as any),
-    '500..599': (error, { inertia }) => inertia.render('errors/server_error', { error } as any),
+    '404': (error, { inertia }) =>
+      inertia.render('errors/not_found', { error: serializeHttpError(error) }),
+    '500..599': (error, { inertia }) =>
+      inertia.render('errors/server_error', { error: serializeHttpError(error) }),
   }
 
   /**
@@ -94,14 +108,15 @@ export default class HttpExceptionHandler extends ExceptionHandler {
   /**
    * Gère les erreurs de validation VineJS
    */
-  private handleVineError(error: any, ctx: HttpContext) {
+  private handleVineError(error: unknown, ctx: HttpContext) {
+    const messages = (error as { messages?: Record<string, unknown> }).messages || {}
     const response = {
       success: false,
       error: {
         message: 'Erreurs de validation',
         code: ERROR_CODES.VALIDATION_ERROR,
         details: {
-          fields: error.messages || {},
+          fields: messages,
         },
       },
     }
@@ -146,7 +161,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       typeof error === 'object' &&
       error !== null &&
       'messages' in error &&
-      typeof (error as any).messages === 'object'
+      typeof (error as { messages: unknown }).messages === 'object'
     )
   }
 
@@ -158,7 +173,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       typeof error === 'object' &&
       error !== null &&
       'code' in error &&
-      (error as any).code === 'E_ROUTE_NOT_FOUND'
+      (error as { code: unknown }).code === 'E_ROUTE_NOT_FOUND'
     )
   }
 

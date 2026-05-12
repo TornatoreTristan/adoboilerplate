@@ -50,7 +50,7 @@ export default class UserNotificationPreferenceRepository extends BaseRepository
     const existing = await this.findByUserAndType(userId, notificationType, channel)
 
     if (existing) {
-      return this.update(existing.id, { enabled } as any)
+      return this.update(existing.id, { enabled })
     }
 
     return this.create({
@@ -58,7 +58,7 @@ export default class UserNotificationPreferenceRepository extends BaseRepository
       notificationType,
       channel,
       enabled,
-    } as any)
+    })
   }
 
   async initializeDefaultPreferences(userId: string): Promise<void> {
@@ -82,7 +82,7 @@ export default class UserNotificationPreferenceRepository extends BaseRepository
             notificationType,
             channel,
             enabled: true,
-          } as any)
+          })
         }
       }
     }

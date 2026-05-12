@@ -71,28 +71,28 @@ export default class EmailLog extends BaseModel {
   @column({
     prepare: (value: Record<string, any> | null) =>
       value ? (typeof value === 'string' ? value : JSON.stringify(value)) : null,
-    consume: (value: any) => (value && typeof value === 'string' ? JSON.parse(value) : value),
+    consume: (value: unknown) => (value && typeof value === 'string' ? JSON.parse(value) : value),
   })
   declare metadata: Record<string, any> | null
 
   @column({
     prepare: (value: AttachmentMetadata[] | null) =>
       value ? (typeof value === 'string' ? value : JSON.stringify(value)) : null,
-    consume: (value: any) => (value && typeof value === 'string' ? JSON.parse(value) : value),
+    consume: (value: unknown) => (value && typeof value === 'string' ? JSON.parse(value) : value),
   })
   declare attachmentsMetadata: AttachmentMetadata[] | null
 
   @column({
     prepare: (value: BounceData | null) =>
       value ? (typeof value === 'string' ? value : JSON.stringify(value)) : null,
-    consume: (value: any) => (value && typeof value === 'string' ? JSON.parse(value) : value),
+    consume: (value: unknown) => (value && typeof value === 'string' ? JSON.parse(value) : value),
   })
   declare bounceData: BounceData | null
 
   @column({
     prepare: (value: ComplaintData | null) =>
       value ? (typeof value === 'string' ? value : JSON.stringify(value)) : null,
-    consume: (value: any) => (value && typeof value === 'string' ? JSON.parse(value) : value),
+    consume: (value: unknown) => (value && typeof value === 'string' ? JSON.parse(value) : value),
   })
   declare complaintData: ComplaintData | null
 

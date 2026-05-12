@@ -34,7 +34,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    * Créer un utilisateur (legacy method pour compatibilité)
    */
   async save(userData: CreateUserData): Promise<UserModel> {
-    return this.create(userData as any)
+    return this.create(userData)
   }
 
   /**
@@ -53,7 +53,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    * Mettre à jour le mot de passe d'un utilisateur
    */
   async updatePassword(userId: string, hashedPassword: string): Promise<UserModel> {
-    return this.update(userId, { password: hashedPassword } as any)
+    return this.update(userId, { password: hashedPassword })
   }
 
   /**
@@ -145,7 +145,9 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
 
     const countQuery = query.clone().clearOrder().clearSelect()
     const totalResult = await countQuery.count('* as total')
-    const total = Number((totalResult[0] as any).$extras.total)
+    const total = Number(
+      (totalResult[0] as UserModel & { $extras: { total: string | number } }).$extras.total
+    )
 
     const data = await query
       .orderBy('created_at', 'desc')
@@ -172,7 +174,13 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
       .groupByRaw('DATE(created_at)')
       .orderBy('date', 'asc')
 
-    return rows.map((row: any) => {
+    type AggregateRow = UserModel & {
+      $extras?: { date?: string | Date; count?: string | number }
+      date?: string | Date
+      count?: string | number
+    }
+
+    return (rows as AggregateRow[]).map((row) => {
       const extras = row.$extras || {}
       const rawDate = extras.date ?? row.date
       const date =

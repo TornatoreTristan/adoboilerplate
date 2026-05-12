@@ -90,7 +90,7 @@ export class ExceptionHelpers {
     throw new ValidationException(`Le champ ${field} est requis`, details, field)
   }
 
-  static fieldInvalid(field: string, value?: any, details?: ErrorDetails): never {
+  static fieldInvalid(field: string, value?: unknown, details?: ErrorDetails): never {
     const message = `La valeur du champ ${field}${value ? ` (${value})` : ''} est invalide`
     throw new ValidationException(message, details, field)
   }
@@ -275,7 +275,7 @@ export class ExceptionHelpers {
     }
   }
 
-  static assertUserExists<T extends { id: any }>(
+  static assertUserExists<T extends { id: string | number }>(
     user: T | null | undefined,
     id?: string | number
   ): asserts user is T {
@@ -284,7 +284,7 @@ export class ExceptionHelpers {
     }
   }
 
-  static assertOrganizationExists<T extends { id: any }>(
+  static assertOrganizationExists<T extends { id: string | number }>(
     org: T | null | undefined,
     id?: string | number
   ): asserts org is T {
@@ -293,7 +293,7 @@ export class ExceptionHelpers {
     }
   }
 
-  static assertSessionExists<T extends { id: any }>(
+  static assertSessionExists<T extends { id: string | number }>(
     session: T | null | undefined,
     id?: string | number
   ): asserts session is T {

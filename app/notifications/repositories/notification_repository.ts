@@ -40,7 +40,7 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   }
 
   async markAsRead(id: string): Promise<void> {
-    await this.update(id, { readAt: DateTime.now() } as any)
+    await this.update(id, { readAt: DateTime.now() })
   }
 
   async markAsReadBulk(ids: string[]): Promise<number> {
@@ -52,6 +52,6 @@ export default class NotificationRepository extends BaseRepository<typeof Notifi
   }
 
   async markAsUnread(id: string): Promise<void> {
-    await this.update(id, { readAt: null } as any)
+    await this.update(id, { readAt: null })
   }
 }

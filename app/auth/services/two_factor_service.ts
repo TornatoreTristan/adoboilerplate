@@ -60,7 +60,7 @@ export default class TwoFactorService {
 
     await this.userRepo.update(user.id, {
       twoFactorSecret: secret,
-    } as any)
+    })
 
     return { secret, otpauthUrl, qrCodeDataUrl }
   }
@@ -92,7 +92,7 @@ export default class TwoFactorService {
       twoFactorEnabled: true,
       twoFactorConfirmedAt: DateTime.now(),
       twoFactorBackupCodes: backupCodes.map(TwoFactorService.hashBackupCode),
-    } as any)
+    })
 
     // Returned plaintext to the caller for one-time display; only the hashes
     // are persisted.
@@ -109,7 +109,7 @@ export default class TwoFactorService {
       twoFactorSecret: null,
       twoFactorBackupCodes: [],
       twoFactorConfirmedAt: null,
-    } as any)
+    })
   }
 
   /**
@@ -146,7 +146,7 @@ export default class TwoFactorService {
 
     await this.userRepo.update(user.id, {
       twoFactorBackupCodes: remaining,
-    } as any)
+    })
 
     return true
   }
@@ -161,7 +161,7 @@ export default class TwoFactorService {
     const backupCodes = TwoFactorService.generateBackupCodes()
     await this.userRepo.update(user.id, {
       twoFactorBackupCodes: backupCodes.map(TwoFactorService.hashBackupCode),
-    } as any)
+    })
     return backupCodes
   }
 

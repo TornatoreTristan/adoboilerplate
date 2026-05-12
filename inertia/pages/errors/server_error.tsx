@@ -1,6 +1,6 @@
 import { useI18n } from '@/hooks/use-i18n'
 
-export default function ServerError(props: { error: any }) {
+export default function ServerError(props: { error: { message: string; status: number } }) {
   const { t } = useI18n()
   return (
     <>

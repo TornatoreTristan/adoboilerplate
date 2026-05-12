@@ -286,13 +286,18 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
         .groupBy('organization_id'),
     ])
 
-    const total = Number((totalRow as any)?.$extras?.total ?? (totalRow as any)?.total ?? 0)
+    type CountRow = { $extras?: { total?: string | number }; total?: string | number }
+    const total = Number(
+      (totalRow as CountRow | undefined)?.$extras?.total ??
+        (totalRow as CountRow | undefined)?.total ??
+        0
+    )
 
     const membersCountMap = new Map<string, number>()
-    for (const row of memberRows) {
-      const r: any = row
-      if (r.organization_id !== undefined) {
-        membersCountMap.set(String(r.organization_id), Number(r.members_count))
+    type MemberCountRow = { organization_id: string | number; members_count: string | number }
+    for (const row of memberRows as MemberCountRow[]) {
+      if (row.organization_id !== undefined) {
+        membersCountMap.set(String(row.organization_id), Number(row.members_count))
       }
     }
 
@@ -314,8 +319,13 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const org = await this.findByIdOrFail(organizationId)
     await org.load('users')
 
-    return org.users.map((user) => {
-      const extras: any = (user as any).$extras ?? {}
+    type UserWithPivot = (typeof org.users)[number] & {
+      $extras?: { pivot_role?: string; pivot_joined_at?: string | Date }
+      avatarUrl?: string | null
+    }
+
+    return (org.users as UserWithPivot[]).map((user) => {
+      const extras = user.$extras ?? {}
       const joinedAtRaw = extras.pivot_joined_at
 
       const joinedAt =
@@ -329,7 +339,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
         id: user.id,
         fullName: user.fullName ?? null,
         email: user.email,
-        avatarUrl: (user as any).avatarUrl ?? null,
+        avatarUrl: user.avatarUrl ?? null,
         role: extras.pivot_role ?? '',
         joinedAt,
       }

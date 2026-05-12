@@ -29,14 +29,21 @@ export default class OrganizationSettingsController {
       query.pivotColumns(['role', 'joined_at'])
     })
 
-    const members = organization.users.map((member) => ({
-      id: member.id,
-      fullName: member.fullName,
-      email: member.email,
-      avatarUrl: member.avatarUrl,
-      role: (member as any).$extras.pivot_role,
-      joinedAt: (member as any).$extras.pivot_joined_at,
-    }))
+    type MemberWithPivot = (typeof organization.users)[number] & {
+      $extras: { pivot_role: string; pivot_joined_at: string | Date }
+    }
+
+    const members = organization.users.map((member) => {
+      const m = member as MemberWithPivot
+      return {
+        id: m.id,
+        fullName: m.fullName,
+        email: m.email,
+        avatarUrl: m.avatarUrl,
+        role: m.$extras.pivot_role,
+        joinedAt: m.$extras.pivot_joined_at,
+      }
+    })
 
     return inertia.render('organizations/settings', {
       organization: {
@@ -79,10 +86,10 @@ export default class OrganizationSettingsController {
         address: data.address || null,
         website: data.website || null,
         descriptionI18n:
-          data.description || (data as any).descriptionEn
+          data.description || data.descriptionEn
             ? {
                 fr: data.description || '',
-                en: (data as any).descriptionEn || data.description || '',
+                en: data.descriptionEn || data.description || '',
               }
             : null,
       },
@@ -115,14 +122,21 @@ export default class OrganizationSettingsController {
       query.pivotColumns(['role', 'joined_at'])
     })
 
-    const members = organization.users.map((member) => ({
-      id: member.id,
-      fullName: member.fullName,
-      email: member.email,
-      avatarUrl: member.avatarUrl,
-      role: (member as any).$extras.pivot_role,
-      joinedAt: (member as any).$extras.pivot_joined_at,
-    }))
+    type MemberWithPivot = (typeof organization.users)[number] & {
+      $extras: { pivot_role: string; pivot_joined_at: string | Date }
+    }
+
+    const members = organization.users.map((member) => {
+      const m = member as MemberWithPivot
+      return {
+        id: m.id,
+        fullName: m.fullName,
+        email: m.email,
+        avatarUrl: m.avatarUrl,
+        role: m.$extras.pivot_role,
+        joinedAt: m.$extras.pivot_joined_at,
+      }
+    })
 
     const pendingInvitations = await invitationRepo.findPendingByOrganization(organization.id)
 
@@ -352,7 +366,7 @@ export default class OrganizationSettingsController {
       role: data.role,
       token,
       expiresAt,
-    } as any)
+    })
 
     session.flash('success', `Invitation créée pour ${data.email}`)
 

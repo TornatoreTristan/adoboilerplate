@@ -51,9 +51,9 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   async closeSession(sessionId: string | number): Promise<UserSession> {
     return this.update(sessionId, {
-      is_active: false,
-      ended_at: DateTime.now(),
-    } as any)
+      isActive: false,
+      endedAt: DateTime.now(),
+    })
   }
 
   /**
@@ -111,8 +111,8 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
    */
   async updateLastActivity(sessionId: string | number): Promise<UserSession> {
     return this.update(sessionId, {
-      last_activity: DateTime.now(),
-    } as any)
+      lastActivity: DateTime.now(),
+    })
   }
 
   /**
@@ -159,7 +159,13 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
       .groupByRaw('DATE(started_at)')
       .orderBy('date', 'asc')
 
-    return rows.map((row: any) => {
+    type AggregateRow = UserSession & {
+      $extras?: { date?: string | Date; count?: string | number }
+      date?: string | Date
+      count?: string | number
+    }
+
+    return (rows as AggregateRow[]).map((row) => {
       const extras = row.$extras || {}
       const rawDate = extras.date ?? row.date
       const date =
@@ -188,8 +194,13 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
 
     if (rows.length === 0) return 0
 
-    const totalSessions = rows.reduce(
-      (sum: number, row: any) => sum + Number(row.$extras?.session_count ?? row.session_count ?? 0),
+    type SessionCountRow = UserSession & {
+      $extras?: { session_count?: string | number }
+      session_count?: string | number
+    }
+
+    const totalSessions = (rows as SessionCountRow[]).reduce(
+      (sum, row) => sum + Number(row.$extras?.session_count ?? row.session_count ?? 0),
       0
     )
 
@@ -203,12 +214,17 @@ export default class SessionRepository extends BaseRepository<typeof UserSession
       .select(db.raw('MAX(last_activity) as last_activity'))
       .groupBy('user_id')
 
+    type LastActivityRow = UserSession & {
+      $extras?: { last_activity?: string | Date }
+      last_activity?: string | Date
+      user_id?: string
+    }
+
     const map = new Map<string, DateTime>()
-    for (const row of rows) {
-      const extras = (row as any).$extras || {}
-      const rawValue =
-        extras.last_activity ?? (row as any).lastActivity ?? (row as any).last_activity
-      const userId = (row as any).userId ?? (row as any).user_id
+    for (const row of rows as LastActivityRow[]) {
+      const extras = row.$extras || {}
+      const rawValue = extras.last_activity ?? row.lastActivity ?? row.last_activity
+      const userId = row.userId ?? row.user_id
       if (rawValue && userId) {
         const dt =
           rawValue instanceof Date

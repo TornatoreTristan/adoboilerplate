@@ -188,8 +188,10 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
         : []
 
     // Map relations
-    const userMap = new Map(users.map((u: any) => [u.id, u]))
-    const orgMap = new Map(organizations.map((o: any) => [o.id, o]))
+    type UserRow = { id: string; email: string; fullName: string | null }
+    type OrgRow = { id: string; name: string }
+    const userMap = new Map((users as UserRow[]).map((u) => [u.id, u]))
+    const orgMap = new Map((organizations as OrgRow[]).map((o) => [o.id, o]))
 
     return logs.map((log) => {
       // Handle createdAt - could be DateTime, Date, or string
@@ -323,7 +325,7 @@ export default class AuditLogRepository extends BaseRepository<typeof AuditLog> 
       totalLogs: Number(totalLogs?.count || 0),
       uniqueUsers: Number(uniqueUsers?.count || 0),
       uniqueOrganizations: Number(uniqueOrganizations?.count || 0),
-      topActions: topActions.map((row: any) => ({
+      topActions: (topActions as Array<{ action: string; count: string | number }>).map((row) => ({
         action: row.action,
         count: Number(row.count),
       })),
