@@ -39,12 +39,15 @@ export default class EventBusService extends EventEmitter {
 
   /**
    * Émettre un événement
-   * - Sync (default) : EventEmitter natif (immediate, in-process)
+   * - Sync (default) : await tous les listeners (async-safe)
    * - Async : Bull Queue (reliable, retryable)
    *
-   * Intentionally widens EventEmitter.emit to async — callers that don't
-   * await won't break (the queue branch fires-and-forgets), and the sync
-   * branch still returns a boolean wrapped in a Promise.
+   * Pour la branche sync, on appelle chaque listener manuellement et on
+   * attend les Promises retournées. Le `super.emit` natif d'EventEmitter ne
+   * fait pas ça — il invoque les listeners mais ne les attend pas, ce qui
+   * force les tests à utiliser des `setTimeout` hasardeux. En awaitant les
+   * listeners ici, `await eventBus.emit(...)` garantit que tous les
+   * handlers sync/async sont terminés au retour.
    */
   // @ts-expect-error — deliberate async override of the base sync signature
   async emit(
@@ -62,10 +65,17 @@ export default class EventBusService extends EventEmitter {
       })
 
       return true
-    } else {
-      // Événements sync → EventEmitter
-      return super.emit(eventName, data)
     }
+
+    // Événements sync → invoquer chaque listener et attendre le résultat.
+    // `Promise.allSettled` propage le comportement historique (les erreurs
+    // d'un listener ne crashent pas les autres ; elles restent attrapables
+    // via le rejet d'une Promise individuelle si besoin).
+    const listeners = this.listeners(eventName) as Array<EventHandler>
+    if (listeners.length === 0) return false
+
+    await Promise.allSettled(listeners.map((listener) => listener(data)))
+    return true
   }
 
   /**

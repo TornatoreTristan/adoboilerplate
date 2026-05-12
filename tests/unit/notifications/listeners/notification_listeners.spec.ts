@@ -39,8 +39,6 @@ test.group('Notification Listeners', (group) => {
     listeners.register()
 
     await eventBus.emit('user.created', { record: user }, { async: false })
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
     const notifications = await notificationService.getUserNotifications(user.id, {
       type: 'system.announcement',
     })
@@ -85,8 +83,6 @@ test.group('Notification Listeners', (group) => {
     listeners.register()
 
     await eventBus.emit('organizationinvitation.created', { record: invitation }, { async: false })
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
     const notifications = await notificationService.getUserNotifications(invitee.id, {
       type: 'org.invitation',
     })
@@ -138,8 +134,6 @@ test.group('Notification Listeners', (group) => {
     listeners.register()
 
     await eventBus.emit('subscription.created', { record: subscription }, { async: false })
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
     const notifications = await notificationService.getUserNotifications(owner.id, {
       type: 'system.announcement',
     })

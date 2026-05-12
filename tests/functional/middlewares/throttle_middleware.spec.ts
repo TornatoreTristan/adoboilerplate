@@ -168,6 +168,8 @@ test.group('ThrottleMiddleware', (group) => {
     const result2 = await service.checkLimit('test-ip-6', { maxRequests: 1, windowMs: 500 })
     assert.isFalse(result2.allowed)
 
+    // Real wait required: rate-limit uses Redis TTL based on wall-clock time,
+    // so fake timers won't help. Window is 500 ms, we wait 600 ms.
     await new Promise((resolve) => setTimeout(resolve, 600))
 
     const result3 = await service.checkLimit('test-ip-6', { maxRequests: 1, windowMs: 500 })

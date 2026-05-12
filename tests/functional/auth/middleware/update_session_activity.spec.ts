@@ -2,8 +2,10 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { DateTime } from 'luxon'
 import type UserService from '#users/services/user_service'
 import type SessionService from '#sessions/services/session_service'
+import type SessionRepository from '#sessions/repositories/session_repository'
 import type { CreateUserData } from '#shared/types/user'
 
 test.group('UpdateSessionActivity Middleware', (group) => {
@@ -19,16 +21,17 @@ test.group('UpdateSessionActivity Middleware', (group) => {
     const user = await userService.create(userData)
 
     const sessionService = getService<SessionService>(TYPES.SessionService)
+    const sessionRepo = getService<SessionRepository>(TYPES.SessionRepository)
     const session = await sessionService.createSession({
       userId: user.id,
       ipAddress: '127.0.0.1',
       userAgent: 'Test Browser',
     })
 
-    const initialActivity = session.lastActivity
-
-    // Attendre un peu pour voir la différence
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Antidater explicitement lastActivity pour rendre l'assertion
+    // déterministe sans dépendre du clock du test (évite un setTimeout flaky).
+    const initialActivity = DateTime.now().minus({ hours: 1 })
+    await sessionRepo.update(session.id, { lastActivity: initialActivity })
 
     // Act - Accéder à une route protégée avec la session
     const response = await client

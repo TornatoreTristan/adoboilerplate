@@ -9,14 +9,14 @@ import type SessionService from '#sessions/services/session_service'
 test.group('AuthController - Login', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('should login via HTTP and create session', async ({ client }) => {
+  test('should login via HTTP and create session', async ({ client, assert }) => {
     // Arrange - Créer un utilisateur
     const userData: CreateUserData = {
       email: 'user@example.com',
       password: 'password123',
     }
     const userService = getService<UserService>(TYPES.UserService)
-    await userService.create(userData)
+    const user = await userService.create(userData)
 
     // Act - POST /login
     const response = await client.post('/auth/login').withCsrfToken().json({
@@ -28,7 +28,11 @@ test.group('AuthController - Login', (group) => {
     // Assert
     response.assertStatus(200)
     response.assertBodyContains({ success: true })
-    // TODO: vérifier que la session contient user_id
+
+    // La session doit contenir l'user_id de l'utilisateur connecté + un session_id
+    const sessionData = response.session()
+    assert.equal(sessionData.user_id, user.id)
+    assert.exists(sessionData.session_id)
   })
 
   test('should logout and clear session', async ({ client }) => {
