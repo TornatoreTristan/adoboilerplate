@@ -60,6 +60,9 @@ export interface DeleteOptions {
   soft?: boolean // true = soft delete, false = hard delete
   skipHooks?: boolean
   cache?: CacheMutationOptions
+  // Permet de hard-delete une ligne déjà soft-deleted (ex: GDPR
+  // processScheduledDeletions, suppression définitive d'un compte planifié).
+  includeDeleted?: boolean
 }
 
 @injectable()
@@ -247,8 +250,8 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * Supprimer un enregistrement
    */
   async delete(id: string | number, options: DeleteOptions = {}): Promise<void> {
-    const { soft = true } = options
-    const record = await this.findByIdOrFail(id)
+    const { soft = true, includeDeleted = false } = options
+    const record = await this.findByIdOrFail(id, { includeDeleted })
 
     // Hook avant suppression
     if (!options.skipHooks) {

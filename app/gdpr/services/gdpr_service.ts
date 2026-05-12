@@ -36,13 +36,20 @@ export default class GdprService {
       E.userNotFound(userId)
     }
 
-    const [userOrganizations, notifications, uploads, sessions, subscriptions] = await Promise.all([
+    const [userOrganizations, notifications, uploads, sessions] = await Promise.all([
       this.orgRepo.findByUserId(userId),
       this.notificationRepo.findByUserId(userId),
       this.uploadRepo.findByUserId(userId),
       this.sessionRepo.findByUserId(userId),
-      this.subscriptionRepo.findBy({ userId }),
     ])
+
+    // Les subscriptions sont rattachées aux organisations, pas aux utilisateurs.
+    // On agrège les abonnements de chacune des organisations dont l'utilisateur
+    // est membre.
+    const subscriptionLists = await Promise.all(
+      userOrganizations.map((org) => this.subscriptionRepo.findByOrganizationId(org.id))
+    )
+    const subscriptions = subscriptionLists.flat()
 
     const exportData: UserDataExport = {
       exportDate: DateTime.now().toISO()!,
@@ -149,14 +156,16 @@ export default class GdprService {
    * Annule une demande de suppression de compte
    */
   async cancelAccountDeletion(userId: string): Promise<void> {
-    const user = await this.userRepo.findById(userId)
+    // includeDeleted: par définition, l'utilisateur a deleted_at rempli
+    // (suppression planifiée) — sinon il n'y a rien à annuler.
+    const user = await this.userRepo.findById(userId, { includeDeleted: true })
     if (!user) {
       E.userNotFound(userId)
     }
 
-    await this.userRepo.update(userId, {
-      deleted_at: null,
-    })
+    // restore() est le helper natif soft-delete : il remet deleted_at à null
+    // et fonctionne même si la ligne est "soft-deleted".
+    await this.userRepo.restore(userId)
 
     await this.logService.info('GDPR: Account deletion cancelled', { userId })
 
@@ -173,7 +182,9 @@ export default class GdprService {
    * Suppression définitive du compte et anonymisation des données
    */
   async deleteAccountPermanently(userId: string): Promise<void> {
-    const user = await this.userRepo.findById(userId)
+    // includeDeleted: l'utilisateur peut déjà avoir deleted_at rempli (cas
+    // d'une suppression planifiée arrivée à terme via processScheduledDeletions).
+    const user = await this.userRepo.findById(userId, { includeDeleted: true })
     if (!user) {
       E.userNotFound(userId)
     }
@@ -190,22 +201,19 @@ export default class GdprService {
       await this.uploadRepo.delete(upload.id, { soft: false })
     }
 
-    // 3. Notifications (anonymise pour conserver les stats)
-    const notifications = await this.notificationRepo.findByUserId(userId)
-    for (const notif of notifications) {
-      await this.notificationRepo.update(notif.id, { userId: null })
-    }
-
-    // 4. Memberships
+    // 3. Memberships
     const organizations = await this.orgRepo.findByUserId(userId)
     for (const org of organizations) {
       await this.orgRepo.removeUser(org.id, userId)
     }
 
-    // 5. Logs : conservés pour audit, déjà sans données perso au-delà de l'userId.
+    // 4. Logs : conservés pour audit, déjà sans données perso au-delà de l'userId.
 
-    // 6. Suppression définitive
-    await this.userRepo.delete(userId, { soft: false })
+    // 5. Suppression définitive de l'utilisateur. La table notifications a
+    //    ON DELETE CASCADE sur user_id donc les notifications sont supprimées
+    //    automatiquement par le DB. includeDeleted: car l'utilisateur peut déjà
+    //    être "soft-deleted" (deleted_at rempli par une suppression planifiée).
+    await this.userRepo.delete(userId, { soft: false, includeDeleted: true })
 
     await this.logService.info('GDPR: Account permanently deleted', {
       userId,
