@@ -4,6 +4,7 @@ import UserNotificationPreferenceService from '#notifications/services/user_noti
 import Notification from '#notifications/models/notification'
 import type { CreateNotificationData, NotificationType } from '#notifications/types/notification'
 import { TYPES } from '#shared/container/types'
+import { E } from '#shared/exceptions/exception_helpers'
 import transmit from '@adonisjs/transmit/services/main'
 import logger from '@adonisjs/core/services/logger'
 
@@ -144,19 +145,19 @@ export default class NotificationService {
     const notification = await this.notificationRepo.findById(notificationId)
 
     if (!notification) {
-      throw new Error('Notification not found')
+      E.notFound('Notification', notificationId)
     }
 
     if (notification.userId !== userId) {
-      throw new Error('Unauthorized to execute this action')
+      E.forbidden('exécuter cette action')
     }
 
     if (!notification.actions || notification.actions.length === 0) {
-      throw new Error('No actions available for this notification')
+      E.validationError('No actions available for this notification')
     }
 
     if (actionIndex < 0 || actionIndex >= notification.actions.length) {
-      throw new Error('Invalid action index')
+      E.validationError('Invalid action index', 'actionIndex')
     }
 
     const action = notification.actions[actionIndex]

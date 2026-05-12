@@ -21,6 +21,8 @@ import {
   UploadFailedException,
   QueueNotFoundException,
   QueueJobNotFoundException,
+  TokenInvalidException,
+  InternalServerException,
 } from './domain_exceptions.js'
 import type { ErrorDetails } from './app_exception.js'
 
@@ -225,6 +227,22 @@ export class ExceptionHelpers {
         : undefined,
       details
     )
+  }
+
+  // =====================================================
+  // TOKEN HELPERS
+  // =====================================================
+
+  static tokenInvalid(message?: string, details?: ErrorDetails): never {
+    throw new TokenInvalidException(message, details)
+  }
+
+  // =====================================================
+  // INTERNAL ERROR HELPERS
+  // =====================================================
+
+  static internal(message?: string, details?: ErrorDetails): never {
+    throw new InternalServerException(message, details)
   }
 
   // =====================================================

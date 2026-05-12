@@ -26,7 +26,7 @@ export default class SubscriptionService {
     const plan = await this.planRepository.findByIdOrFail(subscription.planId)
 
     if (!subscription.stripeSubscriptionId) {
-      throw new Error("L'abonnement n'est pas synchronisé avec Stripe")
+      E.subscriptionNotSynced({ subscriptionId })
     }
 
     // Détecter le bon price ID selon le billing interval de l'abonnement
@@ -36,9 +36,7 @@ export default class SubscriptionService {
         : plan.stripePriceIdYearly
 
     if (!newStripePriceId) {
-      throw new Error(
-        `Le plan n'est pas synchronisé avec Stripe pour l'interval ${subscription.billingInterval}`
-      )
+      E.subscriptionNotSynced({ billingInterval: subscription.billingInterval })
     }
 
     // Si l'abonnement utilise déjà le bon prix, rien à faire
@@ -56,7 +54,7 @@ export default class SubscriptionService {
     const subscriptionItemId = stripeSubscription.items.data[0]?.id
 
     if (!subscriptionItemId) {
-      throw new Error("Aucun item trouvé dans l'abonnement Stripe")
+      E.internal("Aucun item trouvé dans l'abonnement Stripe")
     }
 
     // Mettre à jour le prix de l'abonnement
@@ -124,7 +122,10 @@ export default class SubscriptionService {
       billingInterval === 'month' ? plan.stripePriceIdMonthly : plan.stripePriceIdYearly
 
     if (!stripePriceId) {
-      throw new Error(`Le plan n'a pas de prix configuré pour l'interval ${billingInterval}`)
+      E.validationError(
+        `Le plan n'a pas de prix configuré pour l'interval ${billingInterval}`,
+        'billingInterval'
+      )
     }
 
     // Vérifier si l'organisation a déjà un customer Stripe
@@ -171,7 +172,7 @@ export default class SubscriptionService {
     )
 
     if (!session.url) {
-      throw new Error('Impossible de créer la session Stripe Checkout')
+      E.internal('Impossible de créer la session Stripe Checkout')
     }
 
     return session.url
@@ -211,7 +212,7 @@ export default class SubscriptionService {
     const secretKey = env.get('STRIPE_SECRET_KEY')
 
     if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY not configured in .env')
+      E.internal('STRIPE_SECRET_KEY not configured in .env')
     }
 
     return new Stripe(secretKey, {

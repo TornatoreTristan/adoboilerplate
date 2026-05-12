@@ -1,12 +1,13 @@
 import { injectable } from 'inversify'
 import { BaseRepository } from '#shared/repositories/base_repository'
 import HealthHistory from '#health/models/health_history'
+import { E } from '#shared/exceptions/exception_helpers'
 import { DateTime } from 'luxon'
 
 function toSqlOrThrow(dt: DateTime): string {
   const sql = dt.toSQL()
   if (!sql) {
-    throw new Error(`Invalid DateTime passed to HealthHistoryRepository: ${dt.invalidReason}`)
+    E.internal(`Invalid DateTime passed to HealthHistoryRepository: ${dt.invalidReason}`)
   }
   return sql
 }

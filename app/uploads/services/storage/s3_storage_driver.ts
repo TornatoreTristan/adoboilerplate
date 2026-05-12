@@ -9,6 +9,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { injectable } from 'inversify'
 import env from '#start/env'
 import type { StorageDriver, StorageOptions } from '#uploads/types/upload'
+import { E } from '#shared/exceptions/exception_helpers'
 
 @injectable()
 export default class S3StorageDriver implements StorageDriver {
@@ -50,7 +51,7 @@ export default class S3StorageDriver implements StorageDriver {
     const chunks: Uint8Array[] = []
 
     if (!response.Body) {
-      throw new Error('No body in S3 response')
+      E.uploadFailed('No body in S3 response')
     }
 
     for await (const chunk of response.Body as any) {

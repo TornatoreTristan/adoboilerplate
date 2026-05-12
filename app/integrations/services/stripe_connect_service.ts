@@ -1,5 +1,6 @@
 import { injectable } from 'inversify'
 import stripeConfig from '#config/stripe'
+import { E } from '#shared/exceptions/exception_helpers'
 
 interface StripeOAuthResponse {
   access_token: string
@@ -41,7 +42,7 @@ export default class StripeConnectService {
 
     if (!response.ok) {
       const error = (await response.json()) as { error_description?: string; error?: string }
-      throw new Error(`Stripe OAuth error: ${error.error_description || error.error}`)
+      E.internal(`Stripe OAuth error: ${error.error_description || error.error}`)
     }
 
     return (await response.json()) as StripeOAuthResponse
@@ -63,7 +64,7 @@ export default class StripeConnectService {
 
     if (!response.ok) {
       const error = (await response.json()) as { error_description?: string; error?: string }
-      throw new Error(`Stripe deauthorize error: ${error.error_description || error.error}`)
+      E.internal(`Stripe deauthorize error: ${error.error_description || error.error}`)
     }
   }
 }

@@ -4,6 +4,7 @@ import { BaseRepository } from '#shared/repositories/base_repository'
 import AppSettings from '#app_settings/models/app_settings'
 import CacheService from '#shared/services/cache_service'
 import EventBusService from '#shared/services/event_bus_service'
+import { E } from '#shared/exceptions/exception_helpers'
 
 export interface UpdateAppSettingsData {
   appName?: string
@@ -35,7 +36,7 @@ export default class AppSettingsRepository extends BaseRepository<typeof AppSett
     const settings = await this.model.query().preload('logo').preload('favicon').first()
 
     if (!settings) {
-      throw new Error('App settings not found. Run migrations to initialize.')
+      E.internal('App settings not found. Run migrations to initialize.')
     }
 
     return settings
@@ -54,7 +55,7 @@ export default class AppSettingsRepository extends BaseRepository<typeof AppSett
     const updated = await this.model.query().preload('logo').preload('favicon').first()
 
     if (!updated) {
-      throw new Error('App settings not found after update')
+      E.internal('App settings not found after update')
     }
 
     return updated

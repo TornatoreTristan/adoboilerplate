@@ -1,6 +1,16 @@
 import { injectable } from 'inversify'
+import db from '@adonisjs/lucid/services/db'
 import Organization from '#organizations/models/organization'
 import { BaseRepository } from '#shared/repositories/base_repository'
+import type { TranslatableFieldNullable } from '#shared/helpers/translatable'
+
+export interface CreateOrganizationWithOwnerData {
+  name: string
+  slug?: string
+  descriptionI18n?: TranslatableFieldNullable | null
+  website?: string | null
+  isActive?: boolean
+}
 
 export interface OrganizationWithMemberCount {
   id: string
@@ -127,6 +137,54 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     }
 
     return count
+  }
+
+  /**
+   * Créer une organisation et y attacher un propriétaire dans une seule
+   * transaction. Si aucun slug n'est fourni, l'id généré sert de slug.
+   */
+  async createWithOwner(
+    data: CreateOrganizationWithOwnerData,
+    ownerUserId: string | number
+  ): Promise<Organization> {
+    const org = await db.transaction(async (trx) => {
+      const created = await Organization.create(
+        {
+          name: data.name,
+          slug: data.slug || '',
+          descriptionI18n: data.descriptionI18n ?? null,
+          website: data.website ?? null,
+          isActive: data.isActive ?? true,
+        },
+        { client: trx }
+      )
+
+      if (!data.slug) {
+        created.slug = created.id
+        await created.save()
+      }
+
+      await created.related('users').attach(
+        {
+          [ownerUserId]: {
+            role: 'owner',
+            joined_at: new Date(),
+          },
+        },
+        trx
+      )
+
+      return created
+    })
+
+    await this.cache?.invalidateTags([
+      'organizations',
+      'user_organizations',
+      'org_slug',
+      'org_members',
+    ])
+
+    return org
   }
 
   /**

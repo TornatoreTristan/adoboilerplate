@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { TYPES } from '#shared/container/types'
 import PasswordResetRepository from '#auth/repositories/password_reset_repository'
 import UserRepository from '#users/repositories/user_repository'
+import { E } from '#shared/exceptions/exception_helpers'
 import hash from '@adonisjs/core/services/hash'
 
 export interface CreateTokenResult {
@@ -103,19 +104,19 @@ export default class PasswordResetService {
     // Valider le token
     const validation = await this.validateToken(token)
     if (!validation.valid) {
-      throw new Error(validation.error || 'Token invalide')
+      E.tokenInvalid(validation.error || 'Token invalide')
     }
 
     // Récupérer le token et l'utilisateur
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
     const passwordResetToken = await this.passwordResetRepository.findByToken(tokenHash)
     if (!passwordResetToken) {
-      throw new Error('Token invalide')
+      E.tokenInvalid()
     }
 
     const user = await this.userRepository.findByEmail(passwordResetToken.email)
     if (!user) {
-      throw new Error('Utilisateur introuvable')
+      E.userNotFound()
     }
 
     // Hasher et mettre à jour le mot de passe

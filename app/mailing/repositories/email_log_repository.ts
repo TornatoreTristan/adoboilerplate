@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import EmailLog from '#mailing/models/email_log'
 import type { EmailLogStatus } from '#mailing/models/email_log'
 import { BaseRepository } from '#shared/repositories/base_repository'
+import { E } from '#shared/exceptions/exception_helpers'
 
 export interface EmailLogFilters {
   page?: number
@@ -159,7 +160,7 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
   async trackOpen(id: string | number): Promise<EmailLog> {
     const log = await this.findById(id)
     if (!log) {
-      throw new Error('Email log not found')
+      E.notFound('Email log', id)
     }
 
     const updates: Record<string, any> = {
@@ -177,7 +178,7 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
   async trackClick(id: string | number): Promise<EmailLog> {
     const log = await this.findById(id)
     if (!log) {
-      throw new Error('Email log not found')
+      E.notFound('Email log', id)
     }
 
     const updates: Record<string, any> = {

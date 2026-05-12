@@ -8,6 +8,7 @@ import type {
   StoreFileResult,
   StorageDriver,
 } from '#uploads/types/upload'
+import { E } from '#shared/exceptions/exception_helpers'
 
 @injectable()
 export default class StorageService {
@@ -26,7 +27,7 @@ export default class StorageService {
   private getDriver(disk: DiskType): StorageDriver {
     const driver = this.drivers.get(disk)
     if (!driver) {
-      throw new Error(`Storage driver ${disk} not found`)
+      E.internal(`Storage driver ${disk} not found`)
     }
     return driver
   }

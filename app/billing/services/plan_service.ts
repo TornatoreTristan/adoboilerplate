@@ -5,6 +5,7 @@ import type Plan from '#billing/models/plan'
 import type { PricingModel, PricingTier } from '#billing/models/plan'
 import Stripe from 'stripe'
 import env from '#start/env'
+import { E } from '#shared/exceptions/exception_helpers'
 
 interface CreatePlanData {
   name: string
@@ -128,7 +129,7 @@ export default class PlanService {
 
       const stripe = await this.getStripeClient()
       if (!stripe) {
-        throw new Error('Stripe integration not configured')
+        E.internal('Stripe integration not configured')
       }
 
       // 3. Créer un nouveau prix mensuel si changement détecté
@@ -267,7 +268,7 @@ export default class PlanService {
     const secretKey = env.get('STRIPE_SECRET_KEY')
 
     if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY not configured in .env')
+      E.internal('STRIPE_SECRET_KEY not configured in .env')
     }
 
     return new Stripe(secretKey, {
@@ -289,7 +290,7 @@ export default class PlanService {
     const stripe = await this.getStripeClient()
 
     if (!stripe) {
-      throw new Error('Stripe integration not configured')
+      E.internal('Stripe integration not configured')
     }
 
     // 1. Préparer les marketing_features pour Stripe (max 15 features, 80 chars par nom)
@@ -373,7 +374,7 @@ export default class PlanService {
 
       case 'tiered':
         if (!pricingTiers || pricingTiers.length === 0) {
-          throw new Error('pricingTiers is required for tiered pricing model')
+          E.validationError('pricingTiers is required for tiered pricing model', 'pricingTiers')
         }
         return stripe.prices.create({
           product: productId,
@@ -389,7 +390,7 @@ export default class PlanService {
 
       case 'volume':
         if (!pricingTiers || pricingTiers.length === 0) {
-          throw new Error('pricingTiers is required for volume pricing model')
+          E.validationError('pricingTiers is required for volume pricing model', 'pricingTiers')
         }
         return stripe.prices.create({
           product: productId,
@@ -404,7 +405,7 @@ export default class PlanService {
         })
 
       default:
-        throw new Error(`Unsupported pricing model: ${pricingModel}`)
+        E.validationError(`Unsupported pricing model: ${pricingModel}`, 'pricingModel')
     }
   }
 
@@ -418,7 +419,7 @@ export default class PlanService {
     const stripe = await this.getStripeClient()
 
     if (!stripe) {
-      throw new Error('Stripe integration not configured')
+      E.internal('Stripe integration not configured')
     }
 
     // Préparer les marketing_features (max 15 features, 80 chars par nom)

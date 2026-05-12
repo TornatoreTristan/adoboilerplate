@@ -1,6 +1,7 @@
 import { injectable } from 'inversify'
 import redis from '@adonisjs/redis/services/main'
 import type { RateLimitConfig, RateLimitResult } from '#shared/types/rate_limit'
+import { E } from '#shared/exceptions/exception_helpers'
 
 @injectable()
 export default class RateLimitService {
@@ -19,7 +20,7 @@ export default class RateLimitService {
 
     const results = await multi.exec()
     if (!results) {
-      throw new Error('Redis MULTI/EXEC pipeline returned null — the transaction was aborted')
+      E.internal('Redis MULTI/EXEC pipeline returned null — the transaction was aborted')
     }
     const currentCount = results[2][1] as number
 

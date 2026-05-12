@@ -167,9 +167,9 @@ export default class QueueService {
     const dlq = this.getDeadLetterQueue(originalQueue)
     const dead = await dlq.getJob(deadLetterJobId)
     if (!dead) {
-      throw new Error(
-        `Dead-letter job ${deadLetterJobId} not found in ${originalQueue}${DLQ_SUFFIX}`
-      )
+      E.notFound('Dead-letter job', String(deadLetterJobId), {
+        queue: `${originalQueue}${DLQ_SUFFIX}`,
+      })
     }
     const replayed = await this.add(originalQueue, dead.name, dead.data?.data ?? dead.data)
     await dead.remove()
