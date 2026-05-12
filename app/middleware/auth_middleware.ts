@@ -15,16 +15,22 @@ export default class AuthMiddleware {
       return this.handleUnauthenticated(ctx)
     }
 
-    // Charger l'utilisateur depuis la base avec cache
+    // includeDeleted: pendant la grace period RGPD (deleted_at dans le
+    // futur), l'utilisateur doit garder accès à son compte pour pouvoir
+    // annuler la suppression. La cron processScheduledDeletions hard-delete
+    // les lignes dont deleted_at est passé, donc une ligne encore présente
+    // avec deleted_at dans le passé est une anomalie qu'on traite comme
+    // "compte fermé" en bloquant l'accès.
     const user = await userRepository.findById(userId, {
+      includeDeleted: true,
       cache: {
         ttl: 300,
         tags: [`user_${userId}`, 'users'],
       },
     })
 
-    // Si l'utilisateur n'existe plus
-    if (!user) {
+    // Si l'utilisateur n'existe plus (ou suppression définitive arrivée à terme)
+    if (!user || (user.deleted_at && user.deleted_at.toMillis() <= Date.now())) {
       // Nettoyer la session invalide
       ctx.session.forget('user_id')
       ctx.session.forget('session_id')

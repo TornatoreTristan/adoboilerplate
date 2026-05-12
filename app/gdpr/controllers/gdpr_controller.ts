@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type GdprService from '#gdpr/services/gdpr_service'
+import { E } from '#shared/exceptions/index'
 
 export default class GdprController {
   /**
@@ -14,8 +15,9 @@ export default class GdprController {
   /**
    * Export des données utilisateur (JSON)
    */
-  async exportData({ auth, response }: HttpContext) {
-    const userId = auth.user!.id
+  async exportData({ user, response }: HttpContext) {
+    E.assertUserExists(user)
+    const userId = user.id
     const gdprService = getService<GdprService>(TYPES.GdprService)
 
     const data = await gdprService.exportUserData(userId)
@@ -33,13 +35,13 @@ export default class GdprController {
   /**
    * Demande de suppression de compte
    */
-  async requestDeletion({ auth, request, response, session }: HttpContext) {
-    const userId = auth.user!.id
+  async requestDeletion({ user, request, response, session }: HttpContext) {
+    E.assertUserExists(user)
     const { reason } = request.only(['reason'])
 
     const gdprService = getService<GdprService>(TYPES.GdprService)
 
-    await gdprService.requestAccountDeletion(userId, reason)
+    await gdprService.requestAccountDeletion(user.id, reason)
 
     session.flash('success', 'account.deletion_requested')
 
@@ -49,11 +51,11 @@ export default class GdprController {
   /**
    * Annulation de la demande de suppression
    */
-  async cancelDeletion({ auth, response, session }: HttpContext) {
-    const userId = auth.user!.id
+  async cancelDeletion({ user, response, session }: HttpContext) {
+    E.assertUserExists(user)
     const gdprService = getService<GdprService>(TYPES.GdprService)
 
-    await gdprService.cancelAccountDeletion(userId)
+    await gdprService.cancelAccountDeletion(user.id)
 
     session.flash('success', 'account.deletion_cancelled')
 
