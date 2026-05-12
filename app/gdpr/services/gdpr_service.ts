@@ -117,7 +117,7 @@ export default class GdprService {
 
     await this.userRepo.update(userId, {
       deleted_at: scheduledFor,
-    } as any)
+    })
 
     const request: AccountDeletionRequest = {
       userId,
@@ -156,7 +156,7 @@ export default class GdprService {
 
     await this.userRepo.update(userId, {
       deleted_at: null,
-    } as any)
+    })
 
     await this.logService.info('GDPR: Account deletion cancelled', { userId })
 
@@ -193,7 +193,7 @@ export default class GdprService {
     // 3. Notifications (anonymise pour conserver les stats)
     const notifications = await this.notificationRepo.findByUserId(userId)
     for (const notif of notifications) {
-      await this.notificationRepo.update(notif.id, { userId: null } as any)
+      await this.notificationRepo.update(notif.id, { userId: null })
     }
 
     // 4. Memberships

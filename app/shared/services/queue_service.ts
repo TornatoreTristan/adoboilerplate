@@ -117,7 +117,7 @@ export default class QueueService {
   async add(
     queueName: string,
     jobName: string,
-    data: any,
+    data: unknown,
     options?: Bull.JobOptions
   ): Promise<Bull.Job> {
     const queue = this.getQueue(queueName)

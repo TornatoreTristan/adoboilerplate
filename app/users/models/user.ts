@@ -39,7 +39,7 @@ export default class User extends BaseModel {
   declare promotionalOffersEnabled: boolean
 
   @column.dateTime()
-  declare deleted_at: DateTime
+  declare deleted_at: DateTime | null
 
   @column({
     serializeAs: null,

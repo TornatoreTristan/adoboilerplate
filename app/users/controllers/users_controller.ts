@@ -20,7 +20,7 @@ export default class UsersController {
     // Mise à jour
     await userRepository.update(userId, {
       fullName: data.fullName,
-    } as any)
+    })
 
     // Message de succès
     session.flash('success', 'Profil mis à jour avec succès')
@@ -78,7 +78,7 @@ export default class UsersController {
       newsletterEnabled: data.newsletter_enabled,
       tipsEnabled: data.tips_enabled,
       promotionalOffersEnabled: data.promotional_offers_enabled,
-    } as any)
+    })
 
     return response.json({
       success: true,

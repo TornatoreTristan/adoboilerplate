@@ -10,7 +10,7 @@ export default class LogService {
   constructor(@inject(TYPES.LogRepository) private logRepo: LogRepository) {}
 
   async createLog(data: CreateLogData): Promise<Log> {
-    return this.logRepo.create(data as any)
+    return this.logRepo.create(data)
   }
 
   async debug(message: string, context?: LogContext, userId?: string): Promise<Log> {

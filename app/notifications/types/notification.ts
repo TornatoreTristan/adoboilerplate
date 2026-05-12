@@ -41,5 +41,5 @@ export interface NotificationAction {
 }
 
 export interface NotificationData {
-  [key: string]: any
+  [key: string]: unknown
 }

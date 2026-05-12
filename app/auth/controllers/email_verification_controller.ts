@@ -122,7 +122,7 @@ export default class EmailVerificationController {
     return response.redirect('/')
   }
 
-  private isApiRequest(request: any): boolean {
+  private isApiRequest(request: HttpContext['request']): boolean {
     return (
       request.header('accept')?.includes('application/json') ||
       request.url().startsWith('/api/') ||

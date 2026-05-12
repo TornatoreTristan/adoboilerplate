@@ -21,7 +21,7 @@ export default class Notification extends BaseModel {
   declare id: string
 
   @column()
-  declare userId: string
+  declare userId: string | null
 
   @column()
   declare organizationId: string | null

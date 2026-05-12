@@ -91,10 +91,9 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
         try {
           const appSettingsService = getService<AppSettingsService>(TYPES.AppSettingsService)
           const settings = await appSettingsService.getSettings()
-          const favicon = settings.favicon as any
           return {
             appName: settings.appName,
-            faviconUrl: favicon?.url || null,
+            faviconUrl: settings.favicon?.url ?? null,
           }
         } catch {
           return {

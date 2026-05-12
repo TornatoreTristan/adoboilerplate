@@ -1,16 +1,18 @@
 import { usePage } from '@inertiajs/react'
 
+type Messages = { [key: string]: string | Messages }
+
 interface I18nData {
   locale: string
-  messages: Record<string, any>
+  messages: Messages
 }
 
 export function useI18n() {
   const { i18n } = usePage<{ i18n: I18nData }>().props
 
-  const t = (key: string, replacements?: Record<string, any>): string => {
+  const t = (key: string, replacements?: Record<string, string | number>): string => {
     const keys = key.split('.')
-    let value: any = i18n.messages
+    let value: string | Messages = i18n.messages
 
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {

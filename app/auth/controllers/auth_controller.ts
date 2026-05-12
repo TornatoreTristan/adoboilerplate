@@ -135,7 +135,7 @@ export default class AuthController {
     return response.redirect('/')
   }
 
-  private isApiRequest(request: any): boolean {
+  private isApiRequest(request: HttpContext['request']): boolean {
     if (request.header('x-inertia')) {
       return false
     }

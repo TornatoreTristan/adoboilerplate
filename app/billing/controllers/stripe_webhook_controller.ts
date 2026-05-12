@@ -193,7 +193,7 @@ export default class StripeWebhookController {
             ? DateTime.fromSeconds(stripeSubscription.trial_end)
             : null,
           canceledAt: null,
-        } as any)
+        })
 
         logger.info(
           { subscriptionId: newSubscription.id, organizationId, planId },

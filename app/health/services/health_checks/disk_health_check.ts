@@ -47,9 +47,16 @@ export default class DiskHealthCheck extends BaseHealthCheck {
   }> {
     const path = process.cwd()
 
+    // fs.promises.statfs is Node 18.15+ and not in the @types/node bundled
+    // here; cast through unknown to a narrow shape rather than to any.
+    type StatfsResult = { blocks: number; bavail: number; bsize: number }
+    const fsWithStatfs = fs as unknown as {
+      statfs?: (p: string) => Promise<StatfsResult>
+    }
+
     try {
-      if (typeof (fs as any).statfs === 'function') {
-        const stats = await (fs as any).statfs(path)
+      if (typeof fsWithStatfs.statfs === 'function') {
+        const stats = await fsWithStatfs.statfs(path)
         const total = stats.blocks * stats.bsize
         const free = stats.bavail * stats.bsize
         const used = total - free

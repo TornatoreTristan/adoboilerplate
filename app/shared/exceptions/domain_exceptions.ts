@@ -141,8 +141,8 @@ export class ValidationException extends AppException {
   /**
    * Créer une ValidationException depuis des erreurs VineJS
    */
-  static fromVineErrors(errors: any[]): ValidationException {
-    const fieldErrors = errors.reduce((acc, error) => {
+  static fromVineErrors(errors: Array<{ field: string; message: string }>): ValidationException {
+    const fieldErrors = errors.reduce<Record<string, string>>((acc, error) => {
       acc[error.field] = error.message
       return acc
     }, {})

@@ -67,11 +67,15 @@ export default class OrganizationService {
       query.pivotColumns(['role', 'joined_at'])
     })
 
-    return organization.users.map((user) => ({
+    type UserWithPivot = (typeof organization.users)[number] & {
+      $extras: { pivot_role: string; pivot_joined_at: string | Date }
+    }
+
+    return (organization.users as unknown as UserWithPivot[]).map((user) => ({
       id: user.id,
       email: user.email,
-      role: (user as any).$extras.pivot_role,
-      joinedAt: (user as any).$extras.pivot_joined_at,
+      role: user.$extras.pivot_role,
+      joinedAt: user.$extras.pivot_joined_at,
     }))
   }
 }

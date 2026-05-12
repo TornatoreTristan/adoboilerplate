@@ -4,7 +4,7 @@ import { TYPES } from '#shared/container/types'
 import type QueueService from './queue_service.js'
 
 export interface EventData {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface EventOptions {

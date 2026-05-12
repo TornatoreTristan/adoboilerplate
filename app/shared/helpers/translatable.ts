@@ -22,12 +22,12 @@ export function createTranslatableField(fr: string, en: string): TranslatableFie
   return { fr, en }
 }
 
-export function isTranslatableField(value: any): value is TranslatableField {
+export function isTranslatableField(value: unknown): value is TranslatableField {
   return typeof value === 'object' && value !== null && ('fr' in value || 'en' in value)
 }
 
 export function validateTranslatableField(
-  field: any,
+  field: unknown,
   required: boolean = true
 ): { isValid: boolean; error?: string } {
   if (!field) {

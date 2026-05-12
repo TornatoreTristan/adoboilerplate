@@ -5,6 +5,7 @@ import Notification from '#notifications/models/notification'
 import type { CreateNotificationData, NotificationType } from '#notifications/types/notification'
 import { TYPES } from '#shared/container/types'
 import { E } from '#shared/exceptions/exception_helpers'
+import type { NotificationAction } from '#notifications/types/notification'
 import transmit from '@adonisjs/transmit/services/main'
 import logger from '@adonisjs/core/services/logger'
 
@@ -50,7 +51,7 @@ export default class NotificationService {
         messageI18n: { fr: data.message, en: data.message },
         data: data.data || null,
         actions: data.actions || null,
-      } as any,
+      },
       {
         cache: { tags: ['notifications', `user_${data.userId}_notifications`] },
       }
@@ -71,7 +72,7 @@ export default class NotificationService {
           readAt: notification.readAt?.toISO() ?? null,
           createdAt: notification.createdAt.toISO(),
         },
-      } as any)
+      })
     } catch (error) {
       // Ne pas fail si le broadcast échoue (notification en base reste créée)
       logger.error({ err: error }, 'Failed to broadcast notification via Transmit')
@@ -141,7 +142,7 @@ export default class NotificationService {
     notificationId: string,
     actionIndex: number,
     userId: string
-  ): Promise<{ success: boolean; action: any }> {
+  ): Promise<{ success: boolean; action: NotificationAction }> {
     const notification = await this.notificationRepo.findById(notificationId)
 
     if (!notification) {

@@ -42,9 +42,13 @@ export default class OrganizationInvitationRepository extends BaseRepository<
   async markAsAccepted(id: string): Promise<OrganizationInvitation> {
     await this.findByIdOrFail(id)
 
-    return this.update(id, { acceptedAt: DateTime.now() } as any, {
-      cache: { tags: ['invitations', `invitation_${id}`] },
-    })
+    return this.update(
+      id,
+      { acceptedAt: DateTime.now() },
+      {
+        cache: { tags: ['invitations', `invitation_${id}`] },
+      }
+    )
   }
 
   async deleteExpired(): Promise<number> {

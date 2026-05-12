@@ -116,12 +116,12 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
       pending: 0,
     }
 
-    for (const row of rows) {
-      const r: any = row
-      const c = Number(r.$extras?.count ?? 0)
+    type StatusRow = { status: keyof EmailLogStatusCounts; $extras?: { count?: string | number } }
+    for (const row of rows as unknown as StatusRow[]) {
+      const c = Number(row.$extras?.count ?? 0)
       counts.total += c
-      if (r.status in counts) {
-        ;(counts as any)[r.status] = c
+      if (row.status in counts) {
+        counts[row.status] = c
       }
     }
 

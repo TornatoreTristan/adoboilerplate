@@ -65,7 +65,7 @@ export default class AuthService {
         email: registerData.email.toLowerCase().trim(),
         password: hashedPassword,
         fullName: registerData.fullName || null,
-      } as any)
+      })
 
       return this.createRegisterSuccessResult(user)
     } catch (error) {

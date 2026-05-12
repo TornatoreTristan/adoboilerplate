@@ -75,7 +75,7 @@ export default class EmailService {
       })
 
       await this.emailLogRepo.updateStatus(log.id, 'sent')
-      await this.emailLogRepo.update(log.id, { provider_id: result.id } as any)
+      await this.emailLogRepo.update(log.id, { providerId: result.id })
 
       return {
         id: result.id,
@@ -83,7 +83,7 @@ export default class EmailService {
       }
     } catch (error) {
       await this.emailLogRepo.updateStatus(log.id, 'failed')
-      await this.emailLogRepo.update(log.id, { error_message: error.message } as any)
+      await this.emailLogRepo.update(log.id, { errorMessage: error.message })
 
       return {
         id: '',

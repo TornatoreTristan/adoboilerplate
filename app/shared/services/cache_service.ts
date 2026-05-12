@@ -28,7 +28,7 @@ export default class CacheService {
   /**
    * Stocker une valeur dans le cache
    */
-  async set(key: string, value: any, options: CacheOptions = {}): Promise<void> {
+  async set(key: string, value: unknown, options: CacheOptions = {}): Promise<void> {
     try {
       const serialized = JSON.stringify(value)
 

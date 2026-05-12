@@ -110,6 +110,9 @@ export default class PlansController {
     const planService = getService<PlanService>(TYPES.PlanService)
     const plan = await planService.getPlanById(params.id)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any — Inertia's
+    // JSONDataTypes requires nominal types (PricingTier, etc.) to expose an
+    // index signature. Cast at the page boundary.
     return inertia.render('admin/plans/edit', {
       plan: {
         id: plan.id,

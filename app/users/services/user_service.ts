@@ -17,7 +17,7 @@ export default class UserService {
       email: userData.email,
       password: hashedPassword,
       fullName: userData.fullName,
-    } as any)
+    })
   }
 
   async findById(userId: string): Promise<User | null> {
@@ -29,7 +29,7 @@ export default class UserService {
   }
 
   async updateProfile(userId: string, data: { fullName?: string }): Promise<User> {
-    return await this.userRepo.update(userId, data as any)
+    return await this.userRepo.update(userId, data)
   }
 
   async deleteAccount(userId: string): Promise<void> {
@@ -47,6 +47,6 @@ export default class UserService {
       }
     }
 
-    return this.userRepo.update(userId, data as any)
+    return this.userRepo.update(userId, data)
   }
 }

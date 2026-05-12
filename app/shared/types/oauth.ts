@@ -19,8 +19,10 @@ export interface GoogleUserProfile {
   locale?: string
 }
 
+import type User from '#users/models/user'
+
 export interface OAuthCallbackResult {
-  user: any
+  user: User
   isNewUser: boolean
   sessionId?: string
 }

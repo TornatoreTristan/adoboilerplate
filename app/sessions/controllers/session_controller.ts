@@ -2,6 +2,9 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type SessionService from '#sessions/services/session_service'
+import type UserSession from '#sessions/models/user_session'
+
+type HttpRequest = HttpContext['request']
 
 export default class SessionController {
   async index({ response, session }: HttpContext) {
@@ -75,7 +78,7 @@ export default class SessionController {
     })
   }
 
-  private formatUserAgent(userSession: any): string {
+  private formatUserAgent(userSession: UserSession): string {
     const parts = []
 
     if (userSession.browser) {
@@ -89,7 +92,7 @@ export default class SessionController {
     return parts.length > 0 ? parts.join(' ') : userSession.userAgent
   }
 
-  private formatLocation(userSession: any): string | undefined {
+  private formatLocation(userSession: UserSession): string | undefined {
     const parts = []
 
     if (userSession.city) {
@@ -144,7 +147,7 @@ export default class SessionController {
     return response.redirect().back()
   }
 
-  private isApiRequest(request: any): boolean {
+  private isApiRequest(request: HttpRequest): boolean {
     if (request.header('x-inertia')) {
       return false
     }

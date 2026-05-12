@@ -31,7 +31,7 @@ export default class PasswordResetRepository extends BaseRepository<typeof Passw
   async markAsUsed(tokenId: string): Promise<void> {
     await this.update(tokenId, {
       usedAt: DateTime.now(),
-    } as any)
+    })
   }
 
   async deleteExpiredTokens(): Promise<number> {

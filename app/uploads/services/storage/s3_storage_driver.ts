@@ -54,7 +54,9 @@ export default class S3StorageDriver implements StorageDriver {
       E.uploadFailed('No body in S3 response')
     }
 
-    for await (const chunk of response.Body as any) {
+    // The SDK returns a streaming body whose AsyncIterable typing is too loose
+    // to consume directly; cast to a narrow iterable instead of any.
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
       chunks.push(chunk)
     }
 

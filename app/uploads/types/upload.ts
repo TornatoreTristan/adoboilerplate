@@ -6,7 +6,7 @@ export interface UploadMetadata {
   width?: number
   height?: number
   duration?: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface CreateUploadData {

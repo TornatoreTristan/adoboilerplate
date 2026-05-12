@@ -3,7 +3,7 @@ import type { ErrorCode } from '#shared/constants/error_codes'
 import app from '@adonisjs/core/services/app'
 
 export interface ErrorDetails {
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface ErrorResponse {

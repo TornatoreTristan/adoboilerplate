@@ -56,7 +56,7 @@ export default class SessionService {
       country: null,
       city: null,
       region: null,
-    } as any)
+    })
   }
 
   async endSession(sessionId: string): Promise<UserSession> {
