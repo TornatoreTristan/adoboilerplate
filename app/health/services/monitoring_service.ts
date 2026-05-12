@@ -2,25 +2,31 @@ import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type HealthService from './health_service.js'
 import type MetricsService from './metrics_service.js'
+import type { ProcessMetrics, SystemMetrics, CacheMetrics } from './metrics_service.js'
 import type HealthHistoryService from './health_history_service.js'
+import type { HealthCheckResult, HealthStatus } from '#health/types/health'
 import { DateTime } from 'luxon'
 import logger from '@adonisjs/core/services/logger'
 
+export interface MonitoringHealth {
+  database?: HealthCheckResult
+  redis?: HealthCheckResult
+  disk?: HealthCheckResult
+  email?: HealthCheckResult
+}
+
+export interface MonitoringMetrics {
+  process: ProcessMetrics
+  system: SystemMetrics
+  cache: CacheMetrics
+}
+
 export interface MonitoringData {
-  status: string
+  status: HealthStatus
   timestamp: string
   uptime: number
-  health: {
-    database: any
-    redis: any
-    disk: any
-    email: any
-  }
-  metrics: {
-    process: any
-    system: any
-    cache: any
-  }
+  health: MonitoringHealth
+  metrics: MonitoringMetrics
 }
 
 @injectable()

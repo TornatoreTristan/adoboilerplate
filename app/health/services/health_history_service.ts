@@ -3,6 +3,8 @@ import { TYPES } from '#shared/container/types'
 import { DateTime } from 'luxon'
 import type HealthHistoryRepository from '#health/repositories/health_history_repository'
 import type HealthHistory from '#health/models/health_history'
+import type { HealthStatus } from '#health/types/health'
+import type { MonitoringHealth, MonitoringMetrics } from './monitoring_service.js'
 
 @injectable()
 export default class HealthHistoryService {
@@ -11,15 +13,15 @@ export default class HealthHistoryService {
   ) {}
 
   async saveSnapshot(
-    status: string,
-    healthData: Record<string, any>,
-    metricsData: Record<string, any>
+    status: HealthStatus,
+    healthData: MonitoringHealth,
+    metricsData: MonitoringMetrics
   ): Promise<HealthHistory> {
     return this.historyRepo.create({
       status,
       healthData,
       metricsData,
-    } as any)
+    } as Partial<HealthHistory>)
   }
 
   async getRecentHistory(limit: number = 100): Promise<HealthHistory[]> {

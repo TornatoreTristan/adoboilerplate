@@ -15,14 +15,17 @@ export interface CacheEvictOptions {
   allEntries?: boolean // Supprimer toutes les entrées
 }
 
+type DecoratorTarget = { constructor: { name: string } }
+type AsyncMethod = (...args: unknown[]) => Promise<unknown>
+
 /**
  * Décorateur pour mettre en cache le résultat d'une méthode
  */
 export function Cacheable(options: CacheableOptions = {}) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value
+  return function (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value as AsyncMethod
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const cache: CacheService = getService(TYPES.CacheService)
 
       // Construire la clé de cache
@@ -57,10 +60,10 @@ export function Cacheable(options: CacheableOptions = {}) {
  * Décorateur pour invalider le cache après l'exécution d'une méthode
  */
 export function CacheEvict(options: CacheEvictOptions = {}) {
-  return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value
+  return function (_target: DecoratorTarget, _propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value as AsyncMethod
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const cache: CacheService = getService(TYPES.CacheService)
 
       // Exécuter la méthode originale
@@ -90,10 +93,10 @@ export function CachePut(
   cacheOptions: CacheableOptions = {},
   evictOptions: CacheEvictOptions = {}
 ) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value
+  return function (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value as AsyncMethod
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const cache: CacheService = getService(TYPES.CacheService)
 
       // Exécuter la méthode originale
@@ -129,7 +132,7 @@ export function CachePut(
 /**
  * Construire une clé de cache en remplaçant les paramètres
  */
-function buildCacheKey(template: string, args: any[]): string {
+function buildCacheKey(template: string, args: unknown[]): string {
   let key = template
 
   // Remplacer les placeholders {{0}}, {{1}}, etc. par les arguments
@@ -138,8 +141,8 @@ function buildCacheKey(template: string, args: any[]): string {
   })
 
   // Remplacer les placeholders nommés comme {{id}} si les args sont des objets
-  if (args.length > 0 && typeof args[0] === 'object') {
-    const firstArg = args[0]
+  if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
+    const firstArg = args[0] as Record<string, unknown>
     Object.keys(firstArg).forEach((paramName) => {
       key = key.replace(new RegExp(`\\{\\{${paramName}\\}\\}`, 'g'), String(firstArg[paramName]))
     })
@@ -152,12 +155,12 @@ function buildCacheKey(template: string, args: any[]): string {
  * Décorateur pour logger les accès au cache
  */
 export function CacheLogging(enable: boolean = true) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: DecoratorTarget, propertyKey: string, descriptor: PropertyDescriptor) {
     if (!enable) return descriptor
 
-    const originalMethod = descriptor.value
+    const originalMethod = descriptor.value as AsyncMethod
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const startTime = Date.now()
       const result = await originalMethod.apply(this, args)
       const endTime = Date.now()

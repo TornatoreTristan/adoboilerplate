@@ -193,7 +193,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       await this.beforeCreate(data)
     }
 
-    const result = await this.model.create(data as any)
+    const result = await this.model.create(data as Partial<InstanceType<TModel>>)
 
     // Hook après création
     if (!options.skipHooks) {
@@ -225,7 +225,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     // Mise à jour
-    record.merge(data as any)
+    record.merge(data as Partial<InstanceType<TModel>>)
     await record.save()
 
     // Hook après mise à jour
@@ -256,8 +256,10 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     if (soft && this.supportsSoftDelete()) {
-      // Soft delete
-      record.merge({ deleted_at: DateTime.now() } as any)
+      // Soft delete — deleted_at is not in the static TModel signature, so we
+      // cast via unknown. The supportsSoftDelete() check above guarantees the
+      // column exists at runtime.
+      record.merge({ deleted_at: DateTime.now() } as unknown as Partial<InstanceType<TModel>>)
       await record.save()
     } else {
       // Hard delete
@@ -291,7 +293,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       E.notFound(this.getModelName(), id)
     }
 
-    record.merge({ deleted_at: null } as any)
+    record.merge({ deleted_at: null } as unknown as Partial<InstanceType<TModel>>)
     await record.save()
 
     // Invalidation du cache
@@ -437,8 +439,9 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    */
   protected supportsSoftDelete(): boolean {
     // Vérifier si le modèle a une colonne deleted_at dans ses colonnes définies
-    const columns = (this.model as any).$columnsDefinitions
-    return columns && columns.has('deleted_at')
+    const columns = (this.model as unknown as { $columnsDefinitions?: Map<string, unknown> })
+      .$columnsDefinitions
+    return !!columns && columns.has('deleted_at')
   }
 
   /**
@@ -487,7 +490,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       invalidateTags: async () => {},
       exists: async () => false,
       flush: async () => {},
-    } as any
+    } as unknown as CacheService
   }
 
   /**
@@ -499,6 +502,6 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       on: () => {},
       once: () => {},
       off: () => {},
-    } as any
+    } as unknown as EventBusService
   }
 }

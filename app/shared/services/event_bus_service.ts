@@ -71,22 +71,22 @@ export default class EventBusService extends EventEmitter {
   /**
    * Enregistrer un listener synchrone
    */
-  on(eventName: string, handler: EventHandler): this {
-    return super.on(eventName, handler)
+  on<T = EventData>(eventName: string, handler: EventHandler<T>): this {
+    return super.on(eventName, handler as EventHandler)
   }
 
   /**
    * Enregistrer un listener synchrone (une seule fois)
    */
-  once(eventName: string, handler: EventHandler): this {
-    return super.once(eventName, handler)
+  once<T = EventData>(eventName: string, handler: EventHandler<T>): this {
+    return super.once(eventName, handler as EventHandler)
   }
 
   /**
    * Supprimer un listener
    */
-  off(eventName: string, handler: EventHandler): this {
-    return super.off(eventName, handler)
+  off<T = EventData>(eventName: string, handler: EventHandler<T>): this {
+    return super.off(eventName, handler as EventHandler)
   }
 
   /**

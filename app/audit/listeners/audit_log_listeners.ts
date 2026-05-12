@@ -4,6 +4,162 @@ import type EventBusService from '#shared/services/event_bus_service'
 import type AuditLogService from '#audit/services/audit_log_service'
 import { AuditAction } from '#audit/types/audit'
 
+interface AuditEventContext {
+  ipAddress?: string | null
+  userAgent?: string | null
+}
+
+interface UserCreatedEvent {
+  createdBy?: string | null
+  user: { id: string; email: string; fullName?: string | null }
+}
+
+interface UserUpdatedEvent {
+  updatedBy?: string | null
+  user: { id: string }
+  changes: Record<string, unknown>
+}
+
+interface UserDeletedEvent {
+  deletedBy?: string | null
+  userId: string
+  soft?: boolean
+  reason?: string
+}
+
+interface UserRestoredEvent {
+  restoredBy?: string | null
+  userId: string
+}
+
+interface LoginSuccessEvent extends AuditEventContext {
+  userId: string
+  method?: string
+}
+
+interface LoginFailedEvent extends AuditEventContext {
+  email: string
+  reason?: string
+}
+
+interface LogoutEvent extends AuditEventContext {
+  userId: string
+}
+
+interface PasswordResetRequestedEvent extends AuditEventContext {
+  userId?: string | null
+  email: string
+}
+
+interface PasswordResetCompletedEvent extends AuditEventContext {
+  userId: string
+}
+
+interface PasswordChangedEvent extends AuditEventContext {
+  userId: string
+}
+
+interface OrganizationCreatedEvent {
+  createdBy: string
+  organization: { id: string; name: string }
+}
+
+interface OrganizationUpdatedEvent {
+  updatedBy: string
+  organization: { id: string }
+  changes: Record<string, unknown>
+}
+
+interface OrganizationDeletedEvent {
+  deletedBy: string
+  organizationId: string
+}
+
+interface OrganizationMemberAddedEvent {
+  addedBy: string
+  organizationId: string
+  memberId: string
+  role: string
+}
+
+interface OrganizationMemberRemovedEvent {
+  removedBy: string
+  organizationId: string
+  memberId: string
+}
+
+interface InvitationSentEvent {
+  sentBy: string
+  organizationId: string
+  invitationId: string
+  email: string
+  role: string
+}
+
+interface InvitationResolvedEvent {
+  userId: string
+  organizationId: string
+  invitationId: string
+}
+
+interface SubscriptionCreatedEvent {
+  userId: string
+  organizationId: string
+  subscriptionId: string
+  planId: string
+  amount: number
+}
+
+interface SubscriptionUpdatedEvent {
+  userId: string
+  organizationId: string
+  subscriptionId: string
+  changes: Record<string, unknown>
+}
+
+interface SubscriptionCancelledEvent {
+  userId: string
+  organizationId: string
+  subscriptionId: string
+  reason?: string
+}
+
+interface SubscriptionLifecycleEvent {
+  userId: string
+  organizationId: string
+  subscriptionId: string
+}
+
+interface DataExportRequestedEvent extends AuditEventContext {
+  userId: string
+}
+
+interface AccountDeletionRequestedEvent extends AuditEventContext {
+  userId: string
+  reason?: string
+  scheduledFor?: string | Date
+}
+
+interface AccountDeletionCancelledEvent extends AuditEventContext {
+  userId: string
+}
+
+interface FileUploadedEvent {
+  userId: string
+  organizationId?: string | null
+  uploadId: string
+  filename: string
+  size: number
+  mimeType: string
+}
+
+interface FileDeletedEvent {
+  userId: string
+  organizationId?: string | null
+  uploadId: string
+  filename: string
+}
+
 @injectable()
 export default class AuditLogListeners {
   constructor(
@@ -64,7 +220,7 @@ export default class AuditLogListeners {
   }
 
   // User handlers
-  private async handleUserCreated(data: any) {
+  private async handleUserCreated(data: UserCreatedEvent) {
     await this.auditLogService.log({
       userId: data.createdBy || null,
       action: AuditAction.USER_CREATED,
@@ -77,7 +233,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleUserUpdated(data: any) {
+  private async handleUserUpdated(data: UserUpdatedEvent) {
     await this.auditLogService.log({
       userId: data.updatedBy || data.user.id,
       action: AuditAction.USER_UPDATED,
@@ -89,7 +245,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleUserDeleted(data: any) {
+  private async handleUserDeleted(data: UserDeletedEvent) {
     await this.auditLogService.log({
       userId: data.deletedBy || null,
       action: AuditAction.USER_DELETED,
@@ -102,7 +258,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleUserRestored(data: any) {
+  private async handleUserRestored(data: UserRestoredEvent) {
     await this.auditLogService.log({
       userId: data.restoredBy || null,
       action: AuditAction.USER_RESTORED,
@@ -112,7 +268,7 @@ export default class AuditLogListeners {
   }
 
   // Auth handlers
-  private async handleLoginSuccess(data: any) {
+  private async handleLoginSuccess(data: LoginSuccessEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.LOGIN_SUCCESS,
@@ -124,7 +280,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleLoginFailed(data: any) {
+  private async handleLoginFailed(data: LoginFailedEvent) {
     await this.auditLogService.log({
       userId: null,
       action: AuditAction.LOGIN_FAILED,
@@ -137,7 +293,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleLogout(data: any) {
+  private async handleLogout(data: LogoutEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.LOGOUT,
@@ -146,7 +302,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handlePasswordResetRequested(data: any) {
+  private async handlePasswordResetRequested(data: PasswordResetRequestedEvent) {
     await this.auditLogService.log({
       userId: data.userId || null,
       action: AuditAction.PASSWORD_RESET_REQUESTED,
@@ -158,7 +314,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handlePasswordResetCompleted(data: any) {
+  private async handlePasswordResetCompleted(data: PasswordResetCompletedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.PASSWORD_RESET_COMPLETED,
@@ -167,7 +323,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handlePasswordChanged(data: any) {
+  private async handlePasswordChanged(data: PasswordChangedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.PASSWORD_CHANGED,
@@ -177,7 +333,7 @@ export default class AuditLogListeners {
   }
 
   // Organization handlers
-  private async handleOrganizationCreated(data: any) {
+  private async handleOrganizationCreated(data: OrganizationCreatedEvent) {
     await this.auditLogService.log({
       userId: data.createdBy,
       organizationId: data.organization.id,
@@ -190,7 +346,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleOrganizationUpdated(data: any) {
+  private async handleOrganizationUpdated(data: OrganizationUpdatedEvent) {
     await this.auditLogService.log({
       userId: data.updatedBy,
       organizationId: data.organization.id,
@@ -203,7 +359,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleOrganizationDeleted(data: any) {
+  private async handleOrganizationDeleted(data: OrganizationDeletedEvent) {
     await this.auditLogService.log({
       userId: data.deletedBy,
       organizationId: data.organizationId,
@@ -213,7 +369,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleOrganizationMemberAdded(data: any) {
+  private async handleOrganizationMemberAdded(data: OrganizationMemberAddedEvent) {
     await this.auditLogService.log({
       userId: data.addedBy,
       organizationId: data.organizationId,
@@ -226,7 +382,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleOrganizationMemberRemoved(data: any) {
+  private async handleOrganizationMemberRemoved(data: OrganizationMemberRemovedEvent) {
     await this.auditLogService.log({
       userId: data.removedBy,
       organizationId: data.organizationId,
@@ -237,7 +393,7 @@ export default class AuditLogListeners {
   }
 
   // Invitation handlers
-  private async handleInvitationSent(data: any) {
+  private async handleInvitationSent(data: InvitationSentEvent) {
     await this.auditLogService.log({
       userId: data.sentBy,
       organizationId: data.organizationId,
@@ -251,7 +407,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleInvitationAccepted(data: any) {
+  private async handleInvitationAccepted(data: InvitationResolvedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -261,7 +417,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleInvitationRejected(data: any) {
+  private async handleInvitationRejected(data: InvitationResolvedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -272,7 +428,7 @@ export default class AuditLogListeners {
   }
 
   // Subscription handlers
-  private async handleSubscriptionCreated(data: any) {
+  private async handleSubscriptionCreated(data: SubscriptionCreatedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -286,7 +442,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleSubscriptionUpdated(data: any) {
+  private async handleSubscriptionUpdated(data: SubscriptionUpdatedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -299,7 +455,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleSubscriptionCancelled(data: any) {
+  private async handleSubscriptionCancelled(data: SubscriptionCancelledEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -312,7 +468,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleSubscriptionPaused(data: any) {
+  private async handleSubscriptionPaused(data: SubscriptionLifecycleEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -322,7 +478,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleSubscriptionResumed(data: any) {
+  private async handleSubscriptionResumed(data: SubscriptionLifecycleEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -333,7 +489,7 @@ export default class AuditLogListeners {
   }
 
   // GDPR handlers
-  private async handleDataExportRequested(data: any) {
+  private async handleDataExportRequested(data: DataExportRequestedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.DATA_EXPORT_REQUESTED,
@@ -342,7 +498,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleAccountDeletionRequested(data: any) {
+  private async handleAccountDeletionRequested(data: AccountDeletionRequestedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.ACCOUNT_DELETION_REQUESTED,
@@ -355,7 +511,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleAccountDeletionCancelled(data: any) {
+  private async handleAccountDeletionCancelled(data: AccountDeletionCancelledEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       action: AuditAction.ACCOUNT_DELETION_CANCELLED,
@@ -365,7 +521,7 @@ export default class AuditLogListeners {
   }
 
   // Upload handlers
-  private async handleFileUploaded(data: any) {
+  private async handleFileUploaded(data: FileUploadedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
@@ -380,7 +536,7 @@ export default class AuditLogListeners {
     })
   }
 
-  private async handleFileDeleted(data: any) {
+  private async handleFileDeleted(data: FileDeletedEvent) {
     await this.auditLogService.log({
       userId: data.userId,
       organizationId: data.organizationId,
