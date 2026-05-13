@@ -3,7 +3,7 @@ import { Link } from '@adonisjs/inertia/react'
 import { usePage } from '@inertiajs/react'
 import AppLayout from '@/components/layouts/app-layout'
 import { PageHeader } from '@/components/core/page-header'
-import { User, Monitor, Settings, Shield, Lock } from 'lucide-react'
+import { User, Monitor, Settings, Shield, Lock, KeyRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/hooks/use-i18n'
 
@@ -31,6 +31,11 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
       title: t('account.layout.security'),
       href: '/account/security',
       icon: Lock,
+    },
+    {
+      title: t('account.layout.api_tokens'),
+      href: '/account/api-tokens',
+      icon: KeyRound,
     },
     {
       title: t('account.layout.preferences'),

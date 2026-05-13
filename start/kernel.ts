@@ -57,4 +57,6 @@ export const middleware = router.named({
   role: () => import('#middleware/role_middleware'),
   permission: () => import('#middleware/permission_middleware'),
   superAdmin: () => import('#middleware/super_admin_middleware'),
+  apiAuth: () => import('#middleware/api_auth_middleware'),
+  apiScope: () => import('#middleware/api_scope_middleware'),
 })

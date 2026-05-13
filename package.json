@@ -22,6 +22,7 @@
     "prepare": "husky"
   },
   "imports": {
+    "#api/*": "./app/api/*.ts",
     "#users/*": "./app/users/*.ts",
     "#organizations/*": "./app/organizations/*.ts",
     "#admin/*": "./app/admin/*.ts",

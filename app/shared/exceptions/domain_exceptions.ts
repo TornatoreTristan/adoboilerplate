@@ -287,3 +287,43 @@ export class QueueJobNotFoundException extends AppException {
     super(message, details)
   }
 }
+
+// =====================================================
+// EXCEPTIONS API
+// =====================================================
+
+export class ApiTokenInvalidException extends AppException {
+  readonly code = ERROR_CODES.API_TOKEN_INVALID
+  readonly status = 401
+
+  constructor(message = 'Token API invalide', details?: ErrorDetails) {
+    super(message, details)
+  }
+}
+
+export class ApiTokenRevokedException extends AppException {
+  readonly code = ERROR_CODES.API_TOKEN_REVOKED
+  readonly status = 401
+
+  constructor(message = 'Token API révoqué', details?: ErrorDetails) {
+    super(message, details)
+  }
+}
+
+export class ApiTokenExpiredException extends AppException {
+  readonly code = ERROR_CODES.API_TOKEN_EXPIRED
+  readonly status = 401
+
+  constructor(message = 'Token API expiré', details?: ErrorDetails) {
+    super(message, details)
+  }
+}
+
+export class InsufficientScopeException extends AppException {
+  readonly code = ERROR_CODES.API_INSUFFICIENT_SCOPE
+  readonly status = 403
+
+  constructor(missing: string[], details?: ErrorDetails) {
+    super(`Scopes manquants : ${missing.join(', ')}`, { ...details, missing })
+  }
+}

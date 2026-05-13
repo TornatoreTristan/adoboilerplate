@@ -40,6 +40,8 @@ export default class ThrottleMiddleware {
 
   private getIdentifier(ctx: HttpContext, strategy: string): string {
     switch (strategy) {
+      case 'token':
+        return ctx.apiToken?.id || ctx.user?.id || this.getIpAddress(ctx)
       case 'user':
         return ctx.user?.id || this.getIpAddress(ctx)
       case 'global':

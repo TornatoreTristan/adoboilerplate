@@ -14,6 +14,9 @@ import './routes/admin_routes.js'
 import './routes/account_routes.js'
 import './routes/organization_routes.js'
 import './routes/webhook_routes.js'
+import './routes/account_api_tokens_routes.js'
+import './routes/api_docs_routes.js'
+import './routes/api_v1_routes.js'
 import { middleware } from './kernel.js'
 
 // Register Transmit SSE endpoint (auth is handled by transmit.authorize() in start/transmit.ts)

@@ -23,6 +23,10 @@ import {
   QueueJobNotFoundException,
   TokenInvalidException,
   InternalServerException,
+  ApiTokenInvalidException,
+  ApiTokenRevokedException,
+  ApiTokenExpiredException,
+  InsufficientScopeException,
 } from './domain_exceptions.js'
 import type { ErrorDetails } from './app_exception.js'
 
@@ -243,6 +247,26 @@ export class ExceptionHelpers {
 
   static internal(message?: string, details?: ErrorDetails): never {
     throw new InternalServerException(message, details)
+  }
+
+  // =====================================================
+  // API HELPERS
+  // =====================================================
+
+  static apiTokenInvalid(message?: string, details?: ErrorDetails): never {
+    throw new ApiTokenInvalidException(message, details)
+  }
+
+  static apiTokenRevoked(message?: string, details?: ErrorDetails): never {
+    throw new ApiTokenRevokedException(message, details)
+  }
+
+  static apiTokenExpired(message?: string, details?: ErrorDetails): never {
+    throw new ApiTokenExpiredException(message, details)
+  }
+
+  static insufficientScope(missing: string[], details?: ErrorDetails): never {
+    throw new InsufficientScopeException(missing, details)
   }
 
   // =====================================================

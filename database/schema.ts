@@ -7,18 +7,41 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class ApiTokenSchema extends BaseModel {
+  static $columns = ['createdAt', 'deletedAt', 'expiresAt', 'id', 'lastUsedAt', 'name', 'organizationId', 'prefix', 'revokedAt', 'scopes', 'searchVector', 'tokenHash', 'updatedAt', 'userId'] as const
+  $columns = ApiTokenSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare deletedAt: DateTime | null
+  @column.dateTime()
+  declare expiresAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column.dateTime()
+  declare lastUsedAt: DateTime | null
+  @column()
+  declare name: string
+  @column()
+  declare organizationId: string | null
+  @column()
+  declare prefix: string
+  @column.dateTime()
+  declare revokedAt: DateTime | null
+  @column()
+  declare scopes: any
+  @column()
+  declare searchVector: string | null
+  @column()
+  declare tokenHash: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
 export class AppSettingSchema extends BaseModel {
-  static $columns = [
-    'appName',
-    'createdAt',
-    'faviconId',
-    'id',
-    'logoId',
-    'privacyPolicy',
-    'termsOfSale',
-    'termsOfService',
-    'updatedAt',
-  ] as const
+  static $columns = ['appName', 'createdAt', 'faviconId', 'id', 'logoId', 'privacyPolicy', 'termsOfSale', 'termsOfService', 'updatedAt'] as const
   $columns = AppSettingSchema.$columns
   @column()
   declare appName: string
@@ -41,19 +64,7 @@ export class AppSettingSchema extends BaseModel {
 }
 
 export class AuditLogSchema extends BaseModel {
-  static $columns = [
-    'action',
-    'createdAt',
-    'id',
-    'ipAddress',
-    'metadata',
-    'organizationId',
-    'resourceId',
-    'resourceType',
-    'searchVector',
-    'userAgent',
-    'userId',
-  ] as const
+  static $columns = ['action', 'createdAt', 'id', 'ipAddress', 'metadata', 'organizationId', 'resourceId', 'resourceType', 'searchVector', 'userAgent', 'userId'] as const
   $columns = AuditLogSchema.$columns
   @column()
   declare action: string
@@ -80,29 +91,7 @@ export class AuditLogSchema extends BaseModel {
 }
 
 export class EmailLogSchema extends BaseModel {
-  static $columns = [
-    'attachmentsMetadata',
-    'bounceData',
-    'category',
-    'clickedAt',
-    'clicksCount',
-    'complaintData',
-    'createdAt',
-    'deliveredAt',
-    'errorMessage',
-    'failedAt',
-    'id',
-    'metadata',
-    'openedAt',
-    'opensCount',
-    'providerId',
-    'recipient',
-    'sentAt',
-    'status',
-    'subject',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['attachmentsMetadata', 'bounceData', 'category', 'clickedAt', 'clicksCount', 'complaintData', 'createdAt', 'deliveredAt', 'errorMessage', 'failedAt', 'id', 'metadata', 'openedAt', 'opensCount', 'providerId', 'recipient', 'sentAt', 'status', 'subject', 'updatedAt', 'userId'] as const
   $columns = EmailLogSchema.$columns
   @column()
   declare attachmentsMetadata: any | null
@@ -149,17 +138,7 @@ export class EmailLogSchema extends BaseModel {
 }
 
 export class EmailVerificationTokenSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'email',
-    'expiresAt',
-    'id',
-    'token',
-    'type',
-    'updatedAt',
-    'userId',
-    'verifiedAt',
-  ] as const
+  static $columns = ['createdAt', 'email', 'expiresAt', 'id', 'token', 'type', 'updatedAt', 'userId', 'verifiedAt'] as const
   $columns = EmailVerificationTokenSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -197,15 +176,7 @@ export class HealthHistorySchema extends BaseModel {
 }
 
 export class IntegrationSchema extends BaseModel {
-  static $columns = [
-    'config',
-    'createdAt',
-    'id',
-    'isActive',
-    'metadata',
-    'provider',
-    'updatedAt',
-  ] as const
+  static $columns = ['config', 'createdAt', 'id', 'isActive', 'metadata', 'provider', 'updatedAt'] as const
   $columns = IntegrationSchema.$columns
   @column()
   declare config: any
@@ -224,20 +195,7 @@ export class IntegrationSchema extends BaseModel {
 }
 
 export class LogSchema extends BaseModel {
-  static $columns = [
-    'context',
-    'createdAt',
-    'id',
-    'ip',
-    'level',
-    'message',
-    'method',
-    'searchVector',
-    'statusCode',
-    'url',
-    'userAgent',
-    'userId',
-  ] as const
+  static $columns = ['context', 'createdAt', 'id', 'ip', 'level', 'message', 'method', 'searchVector', 'statusCode', 'url', 'userAgent', 'userId'] as const
   $columns = LogSchema.$columns
   @column()
   declare context: any | null
@@ -266,22 +224,7 @@ export class LogSchema extends BaseModel {
 }
 
 export class NotificationSchema extends BaseModel {
-  static $columns = [
-    'actions',
-    'createdAt',
-    'data',
-    'deletedAt',
-    'id',
-    'messageI18N',
-    'organizationId',
-    'priority',
-    'readAt',
-    'searchVector',
-    'titleI18N',
-    'type',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['actions', 'createdAt', 'data', 'deletedAt', 'id', 'messageI18N', 'organizationId', 'priority', 'readAt', 'searchVector', 'titleI18N', 'type', 'updatedAt', 'userId'] as const
   $columns = NotificationSchema.$columns
   @column()
   declare actions: any | null
@@ -314,18 +257,7 @@ export class NotificationSchema extends BaseModel {
 }
 
 export class OrganizationInvitationSchema extends BaseModel {
-  static $columns = [
-    'acceptedAt',
-    'createdAt',
-    'email',
-    'expiresAt',
-    'id',
-    'invitedById',
-    'organizationId',
-    'role',
-    'token',
-    'updatedAt',
-  ] as const
+  static $columns = ['acceptedAt', 'createdAt', 'email', 'expiresAt', 'id', 'invitedById', 'organizationId', 'role', 'token', 'updatedAt'] as const
   $columns = OrganizationInvitationSchema.$columns
   @column.dateTime()
   declare acceptedAt: DateTime | null
@@ -365,23 +297,7 @@ export class OrganizationUserRoleSchema extends BaseModel {
 }
 
 export class OrganizationSchema extends BaseModel {
-  static $columns = [
-    'address',
-    'createdAt',
-    'descriptionI18N',
-    'email',
-    'id',
-    'isActive',
-    'logoUrl',
-    'name',
-    'phone',
-    'searchVector',
-    'siret',
-    'slug',
-    'updatedAt',
-    'vatNumber',
-    'website',
-  ] as const
+  static $columns = ['address', 'createdAt', 'descriptionI18N', 'email', 'id', 'isActive', 'logoUrl', 'name', 'phone', 'searchVector', 'siret', 'slug', 'updatedAt', 'vatNumber', 'website'] as const
   $columns = OrganizationSchema.$columns
   @column()
   declare address: string | null
@@ -416,15 +332,7 @@ export class OrganizationSchema extends BaseModel {
 }
 
 export class PasswordResetTokenSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'email',
-    'expiresAt',
-    'id',
-    'token',
-    'updatedAt',
-    'usedAt',
-  ] as const
+  static $columns = ['createdAt', 'email', 'expiresAt', 'id', 'token', 'updatedAt', 'usedAt'] as const
   $columns = PasswordResetTokenSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -443,16 +351,7 @@ export class PasswordResetTokenSchema extends BaseModel {
 }
 
 export class PermissionSchema extends BaseModel {
-  static $columns = [
-    'action',
-    'createdAt',
-    'description',
-    'id',
-    'name',
-    'resource',
-    'slug',
-    'updatedAt',
-  ] as const
+  static $columns = ['action', 'createdAt', 'description', 'id', 'name', 'resource', 'slug', 'updatedAt'] as const
   $columns = PermissionSchema.$columns
   @column()
   declare action: string
@@ -473,29 +372,7 @@ export class PermissionSchema extends BaseModel {
 }
 
 export class PlanSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'currency',
-    'descriptionI18N',
-    'featuresI18N',
-    'id',
-    'isActive',
-    'isVisible',
-    'limits',
-    'nameI18N',
-    'priceMonthly',
-    'priceYearly',
-    'pricingModel',
-    'pricingTiers',
-    'searchVector',
-    'slug',
-    'sortOrder',
-    'stripePriceIdMonthly',
-    'stripePriceIdYearly',
-    'stripeProductId',
-    'trialDays',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'currency', 'descriptionI18N', 'featuresI18N', 'id', 'isActive', 'isVisible', 'limits', 'nameI18N', 'priceMonthly', 'priceYearly', 'pricingModel', 'pricingTiers', 'searchVector', 'slug', 'sortOrder', 'stripePriceIdMonthly', 'stripePriceIdYearly', 'stripeProductId', 'trialDays', 'updatedAt'] as const
   $columns = PlanSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -555,15 +432,7 @@ export class RolePermissionSchema extends BaseModel {
 }
 
 export class RoleSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'description',
-    'id',
-    'isSystem',
-    'name',
-    'slug',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'description', 'id', 'isSystem', 'name', 'slug', 'updatedAt'] as const
   $columns = RoleSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -582,27 +451,7 @@ export class RoleSchema extends BaseModel {
 }
 
 export class SubscriptionSchema extends BaseModel {
-  static $columns = [
-    'billingInterval',
-    'canceledAt',
-    'createdAt',
-    'currency',
-    'currentPeriodEnd',
-    'currentPeriodStart',
-    'id',
-    'organizationId',
-    'planId',
-    'price',
-    'quantity',
-    'status',
-    'stripeCustomerId',
-    'stripePriceId',
-    'stripeSubscriptionId',
-    'stripeSubscriptionItemId',
-    'trialEndsAt',
-    'updatedAt',
-    'userCount',
-  ] as const
+  static $columns = ['billingInterval', 'canceledAt', 'createdAt', 'currency', 'currentPeriodEnd', 'currentPeriodStart', 'id', 'organizationId', 'planId', 'price', 'quantity', 'status', 'stripeCustomerId', 'stripePriceId', 'stripeSubscriptionId', 'stripeSubscriptionItemId', 'trialEndsAt', 'updatedAt', 'userCount'] as const
   $columns = SubscriptionSchema.$columns
   @column()
   declare billingInterval: string
@@ -645,22 +494,7 @@ export class SubscriptionSchema extends BaseModel {
 }
 
 export class UploadSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'deletedAt',
-    'disk',
-    'filename',
-    'id',
-    'metadata',
-    'mimeType',
-    'size',
-    'storagePath',
-    'updatedAt',
-    'uploadableId',
-    'uploadableType',
-    'userId',
-    'visibility',
-  ] as const
+  static $columns = ['createdAt', 'deletedAt', 'disk', 'filename', 'id', 'metadata', 'mimeType', 'size', 'storagePath', 'updatedAt', 'uploadableId', 'uploadableType', 'userId', 'visibility'] as const
   $columns = UploadSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -693,16 +527,7 @@ export class UploadSchema extends BaseModel {
 }
 
 export class UserNotificationPreferenceSchema extends BaseModel {
-  static $columns = [
-    'channel',
-    'createdAt',
-    'deletedAt',
-    'enabled',
-    'id',
-    'notificationType',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['channel', 'createdAt', 'deletedAt', 'enabled', 'id', 'notificationType', 'updatedAt', 'userId'] as const
   $columns = UserNotificationPreferenceSchema.$columns
   @column()
   declare channel: string
@@ -723,15 +548,7 @@ export class UserNotificationPreferenceSchema extends BaseModel {
 }
 
 export class UserOrganizationSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'id',
-    'joinedAt',
-    'organizationId',
-    'role',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['createdAt', 'id', 'joinedAt', 'organizationId', 'role', 'updatedAt', 'userId'] as const
   $columns = UserOrganizationSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -778,28 +595,7 @@ export class UserRoleSchema extends BaseModel {
 }
 
 export class UserSessionSchema extends BaseModel {
-  static $columns = [
-    'browser',
-    'city',
-    'country',
-    'createdAt',
-    'deviceType',
-    'endedAt',
-    'id',
-    'ipAddress',
-    'isActive',
-    'lastActivity',
-    'os',
-    'referrer',
-    'region',
-    'startedAt',
-    'updatedAt',
-    'userAgent',
-    'userId',
-    'utmCampaign',
-    'utmMedium',
-    'utmSource',
-  ] as const
+  static $columns = ['browser', 'city', 'country', 'createdAt', 'deviceType', 'endedAt', 'id', 'ipAddress', 'isActive', 'lastActivity', 'os', 'referrer', 'region', 'startedAt', 'updatedAt', 'userAgent', 'userId', 'utmCampaign', 'utmMedium', 'utmSource'] as const
   $columns = UserSessionSchema.$columns
   @column()
   declare browser: string | null
@@ -844,26 +640,7 @@ export class UserSessionSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'avatarUrl',
-    'createdAt',
-    'deletedAt',
-    'email',
-    'emailVerifiedAt',
-    'fullName',
-    'googleId',
-    'id',
-    'newsletterEnabled',
-    'password',
-    'promotionalOffersEnabled',
-    'searchVector',
-    'tipsEnabled',
-    'twoFactorBackupCodes',
-    'twoFactorConfirmedAt',
-    'twoFactorEnabled',
-    'twoFactorSecret',
-    'updatedAt',
-  ] as const
+  static $columns = ['avatarUrl', 'createdAt', 'deletedAt', 'email', 'emailVerifiedAt', 'fullName', 'googleId', 'id', 'newsletterEnabled', 'password', 'promotionalOffersEnabled', 'searchVector', 'tipsEnabled', 'twoFactorBackupCodes', 'twoFactorConfirmedAt', 'twoFactorEnabled', 'twoFactorSecret', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare avatarUrl: string | null

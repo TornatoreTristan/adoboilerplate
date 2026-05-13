@@ -17,6 +17,7 @@ import type { ComponentProps } from '@adonisjs/inertia/types'
 
 declare module '@adonisjs/inertia/types' {
   interface InertiaPages {
+    'account/api-tokens': ComponentProps
     'account/data-privacy': ComponentProps
     'account/preferences': ComponentProps
     'account/profile': ComponentProps

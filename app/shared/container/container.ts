@@ -92,6 +92,10 @@ import AuditLogService from '#audit/services/audit_log_service'
 import AppSettingsRepository from '#app_settings/repositories/app_settings_repository'
 import AppSettingsService from '#app_settings/services/app_settings_service'
 
+// API
+import ApiTokenRepository from '#api/repositories/api_token_repository'
+import ApiTokenService from '#api/services/api_token_service'
+
 // Monitoring
 import SentryService from '#monitoring/services/sentry_service'
 
@@ -240,6 +244,8 @@ export function configureContainer(): Container {
   container.bind(TYPES.PlanRepository).to(PlanRepository)
   container.bind(TYPES.SubscriptionRepository).to(SubscriptionRepository)
   container.bind(TYPES.OrganizationInvitationRepository).to(OrganizationInvitationRepository)
+  container.bind(TYPES.ApiTokenRepository).to(ApiTokenRepository)
+  container.bind<ApiTokenService>(TYPES.ApiTokenService).to(ApiTokenService).inSingletonScope()
 
   // ==========================================
   // DOMAIN SERVICES

@@ -1,4 +1,4 @@
-export type RateLimitStrategy = 'ip' | 'user' | 'global'
+export type RateLimitStrategy = 'ip' | 'user' | 'global' | 'token'
 
 export interface RateLimitConfig {
   maxRequests: number

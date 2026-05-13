@@ -21,6 +21,8 @@ export const TYPES = {
   OrganizationInvitationRepository: Symbol.for('OrganizationInvitationRepository'),
   AuditLogRepository: Symbol.for('AuditLogRepository'),
   AppSettingsRepository: Symbol.for('AppSettingsRepository'),
+  ApiTokenRepository: Symbol.for('ApiTokenRepository'),
+  ApiTokenService: Symbol.for('ApiTokenService'),
 
   // Services
   AuthService: Symbol.for('AuthService'),
