@@ -47,7 +47,7 @@ export default class AuditLogService {
       organizationId?: string | null
       resourceType?: string
       resourceId?: string
-      metadata?: Record<string, any>
+      metadata?: Record<string, unknown>
     }
   ): Promise<AuditLog> {
     return this.log({

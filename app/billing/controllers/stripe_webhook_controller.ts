@@ -3,7 +3,9 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type PlanRepository from '#billing/repositories/plan_repository'
-import Stripe from 'stripe'
+import type StripeWebhookEventRepository from '#billing/repositories/stripe_webhook_event_repository'
+import type StripeClientService from '#billing/services/stripe_client_service'
+import type Stripe from 'stripe'
 import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
@@ -36,9 +38,6 @@ function getInvoiceSubscriptionId(invoice: Stripe.Invoice): string | null {
 }
 
 export default class StripeWebhookController {
-  /**
-   * Gérer les webhooks Stripe
-   */
   async handle({ request, response }: HttpContext) {
     const signature = request.header('stripe-signature')
     const webhookSecret = env.get('STRIPE_WEBHOOK_SECRET')
@@ -53,19 +52,16 @@ export default class StripeWebhookController {
       return response.internalServerError({ error: 'Webhook secret not configured' })
     }
 
-    const stripe = new Stripe(env.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2025-10-29.clover',
-    })
+    const stripeClient = getService<StripeClientService>(TYPES.StripeClientService).client
 
     let event: Stripe.Event
 
     try {
-      // Vérifier la signature du webhook
       const rawBody = request.raw()
       if (!rawBody) {
         return response.badRequest({ error: 'Empty request body' })
       }
-      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret)
+      event = stripeClient.webhooks.constructEvent(rawBody, signature, webhookSecret)
     } catch (err) {
       logger.warn({ err }, 'Signature webhook Stripe invalide')
       return response.badRequest({ error: 'Invalid signature' })
@@ -73,10 +69,25 @@ export default class StripeWebhookController {
 
     logger.info({ type: event.type }, 'Webhook Stripe reçu')
 
+    // Stripe delivers at-least-once; check the event_id before processing to
+    // prevent double-billing or duplicate side-effects on network retries.
+    const webhookEventRepo = getService<StripeWebhookEventRepository>(
+      TYPES.StripeWebhookEventRepository
+    )
+
+    const alreadyProcessed = await webhookEventRepo.hasBeenProcessed(event.id)
+    if (alreadyProcessed) {
+      logger.info({ eventId: event.id, type: event.type }, 'Webhook dupliqué ignoré')
+      return response.ok({ received: true })
+    }
+
     try {
       switch (event.type) {
         case 'checkout.session.completed':
-          await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
+          await this.handleCheckoutSessionCompleted(
+            event.data.object as Stripe.Checkout.Session,
+            stripeClient
+          )
           break
 
         case 'customer.subscription.updated':
@@ -99,6 +110,8 @@ export default class StripeWebhookController {
           logger.info({ type: event.type }, 'Événement webhook non géré')
       }
 
+      await webhookEventRepo.markProcessed(event.id, event.type)
+
       return response.ok({ received: true })
     } catch (error) {
       logger.error({ error, eventType: event.type }, 'Erreur lors du traitement du webhook')
@@ -106,10 +119,10 @@ export default class StripeWebhookController {
     }
   }
 
-  /**
-   * Gérer la fin d'un checkout (création d'abonnement)
-   */
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  private async handleCheckoutSessionCompleted(
+    session: Stripe.Checkout.Session,
+    stripeClient: Stripe
+  ) {
     logger.info({ sessionId: session.id }, 'Traitement checkout.session.completed')
 
     const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
@@ -136,18 +149,10 @@ export default class StripeWebhookController {
 
     logger.info({ stripeSubscriptionId }, 'Récupération de la subscription Stripe')
 
-    // Récupérer les détails de l'abonnement Stripe
-    const stripe = new Stripe(env.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2025-10-29.clover',
-    })
-    const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId)
-
+    const stripeSubscription = await stripeClient.subscriptions.retrieve(stripeSubscriptionId)
     const plan = await planRepo.findByIdOrFail(planId)
-
-    // Déterminer le billing interval
     const billingInterval = stripeSubscription.items.data[0].plan.interval as 'month' | 'year'
 
-    // Vérifier si un abonnement existe déjà
     const existingSubscription =
       await subscriptionRepo.findByStripeSubscriptionId(stripeSubscriptionId)
 
@@ -166,10 +171,8 @@ export default class StripeWebhookController {
           : null,
       })
     } else {
-      // Créer le nouvel abonnement
       logger.info({ organizationId, planId, billingInterval }, 'Création du nouvel abonnement')
 
-      // Récupérer le prix depuis le plan
       const price = billingInterval === 'month' ? plan.priceMonthly : plan.priceYearly
 
       try {
@@ -209,9 +212,6 @@ export default class StripeWebhookController {
     }
   }
 
-  /**
-   * Gérer la mise à jour d'un abonnement
-   */
   private async handleSubscriptionUpdated(stripeSubscription: Stripe.Subscription) {
     const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 
@@ -241,9 +241,6 @@ export default class StripeWebhookController {
     logger.info({ subscriptionId: subscription.id }, 'Abonnement mis à jour')
   }
 
-  /**
-   * Gérer la suppression d'un abonnement
-   */
   private async handleSubscriptionDeleted(stripeSubscription: Stripe.Subscription) {
     const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 
@@ -265,16 +262,10 @@ export default class StripeWebhookController {
     logger.info({ subscriptionId: subscription.id }, 'Abonnement annulé')
   }
 
-  /**
-   * Gérer le paiement réussi d'une facture
-   */
   private async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     logger.info({ invoiceId: invoice.id }, 'Paiement de facture réussi')
   }
 
-  /**
-   * Gérer l'échec de paiement d'une facture
-   */
   private async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
 

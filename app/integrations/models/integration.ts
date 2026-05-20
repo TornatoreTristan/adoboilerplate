@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import encryption from '@adonisjs/core/services/encryption'
 
 export default class Integration extends BaseModel {
   @column({ isPrimary: true })
@@ -12,27 +13,31 @@ export default class Integration extends BaseModel {
   declare isActive: boolean
 
   @column({
-    prepare: (value: Record<string, any>) => JSON.stringify(value),
-    consume: (value: string | Record<string, any>) => {
-      if (typeof value === 'string') {
-        return value ? JSON.parse(value) : {}
+    prepare: (value: Record<string, unknown>) =>
+      value && Object.keys(value).length > 0 ? encryption.encrypt(JSON.stringify(value)) : null,
+    consume: (value: string | null) => {
+      if (!value) return {}
+      try {
+        const decrypted = encryption.decrypt<string>(value)
+        return decrypted ? (JSON.parse(decrypted) as Record<string, unknown>) : {}
+      } catch {
+        return {}
       }
-      return value || {}
     },
   })
-  declare config: Record<string, any>
+  declare config: Record<string, unknown>
 
   @column({
-    prepare: (value: Record<string, any> | null) => (value ? JSON.stringify(value) : null),
-    consume: (value: string | Record<string, any> | null) => {
-      if (value === null) return null
+    prepare: (value: Record<string, unknown> | null) => (value ? JSON.stringify(value) : null),
+    consume: (value: string | Record<string, unknown> | null) => {
+      if (value === null || value === undefined) return null
       if (typeof value === 'string') {
-        return value ? JSON.parse(value) : null
+        return value ? (JSON.parse(value) as Record<string, unknown>) : null
       }
       return value || null
     },
   })
-  declare metadata: Record<string, any> | null
+  declare metadata: Record<string, unknown> | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

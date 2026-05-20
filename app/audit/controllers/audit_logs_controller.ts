@@ -35,16 +35,9 @@ export default class AuditLogsController {
       organizationId: filters.organizationId,
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any — Inertia's
-    // JSONDataTypes requires nominal types to expose an index signature, which
-    // our domain interfaces don't. Cast at the page boundary.
-    return inertia.render('admin/audit-logs/index', {
-      logs: data,
-      total,
-      hasMore,
-      filters,
-      stats,
-    } as any)
+    const payload = { logs: data, total, hasMore, filters, stats }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Inertia page boundary: domain interfaces lack JSONDataTypes index signature
+    return inertia.render('admin/audit-logs/index', payload as any)
   }
 
   /**

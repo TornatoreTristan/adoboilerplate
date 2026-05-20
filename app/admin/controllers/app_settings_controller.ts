@@ -105,7 +105,12 @@ export default class AppSettingsController {
     const appSettingsService = getService<AppSettingsService>(TYPES.AppSettingsService)
 
     try {
-      const fileBuffer = await readFile(file.tmpPath!)
+      if (!file.tmpPath) {
+        session.flash('error', i18n.t('admin.flash.no_file_provided'))
+        return response.redirect().back()
+      }
+
+      const fileBuffer = await readFile(file.tmpPath)
 
       const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
       const upload = await uploadService.uploadFile({
@@ -145,6 +150,11 @@ export default class AppSettingsController {
     const uploadService = getService<UploadService>(TYPES.UploadService)
     const appSettingsService = getService<AppSettingsService>(TYPES.AppSettingsService)
 
+    if (!file.tmpPath) {
+      session.flash('error', i18n.t('admin.flash.no_file_provided'))
+      return response.redirect().back()
+    }
+
     try {
       logger.info('📁 Uploading favicon', {
         filename: file.clientName,
@@ -152,7 +162,7 @@ export default class AppSettingsController {
         type: file.type,
       })
 
-      const fileBuffer = await readFile(file.tmpPath!)
+      const fileBuffer = await readFile(file.tmpPath)
 
       const safeName = file.clientName.replace(/[^a-zA-Z0-9._-]/g, '_')
       const upload = await uploadService.uploadFile({

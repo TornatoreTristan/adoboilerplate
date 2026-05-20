@@ -22,9 +22,9 @@ export default class extends BaseSchema {
       table.enum('channel', ['in_app', 'email', 'push']).notNullable()
       table.boolean('enabled').defaultTo(true).notNullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
-      table.timestamp('deleted_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
+      table.timestamp('deleted_at', { useTz: true }).nullable()
 
       table.unique(['user_id', 'notification_type', 'channel'])
       table.index(['user_id'])

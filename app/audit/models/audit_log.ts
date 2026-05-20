@@ -30,13 +30,13 @@ export default class AuditLog extends BaseModel {
   declare userAgent: string | null
 
   @column({
-    prepare: (value: Record<string, any> | null) => (value ? JSON.stringify(value) : null),
-    consume: (value: string | Record<string, any> | null) => {
+    prepare: (value: Record<string, unknown> | null) => (value ? JSON.stringify(value) : null),
+    consume: (value: string | Record<string, unknown> | null) => {
       if (value === null) return null
       return typeof value === 'string' ? JSON.parse(value) : value
     },
   })
-  declare metadata: Record<string, any> | null
+  declare metadata: Record<string, unknown> | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

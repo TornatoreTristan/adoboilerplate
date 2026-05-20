@@ -2,9 +2,9 @@ import { inject, injectable } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type PlanRepository from '#billing/repositories/plan_repository'
+import type StripeClientService from '#billing/services/stripe_client_service'
 import type Subscription from '#billing/models/subscription'
-import Stripe from 'stripe'
-import env from '#start/env'
+import type Stripe from 'stripe'
 import { E } from '#shared/exceptions/exception_helpers'
 import { DateTime } from 'luxon'
 
@@ -12,7 +12,8 @@ import { DateTime } from 'luxon'
 export default class SubscriptionService {
   constructor(
     @inject(TYPES.SubscriptionRepository) private subscriptionRepository: SubscriptionRepository,
-    @inject(TYPES.PlanRepository) private planRepository: PlanRepository
+    @inject(TYPES.PlanRepository) private planRepository: PlanRepository,
+    @inject(TYPES.StripeClientService) private stripeClientService: StripeClientService
   ) {}
 
   /**
@@ -45,7 +46,7 @@ export default class SubscriptionService {
     }
 
     // Mettre à jour l'abonnement dans Stripe
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
     const stripeSubscription = await stripe.subscriptions.retrieve(
       subscription.stripeSubscriptionId
     )
@@ -94,7 +95,7 @@ export default class SubscriptionService {
       return []
     }
 
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     const invoices = await stripe.invoices.list({
       customer: subscription.stripeCustomerId,
@@ -115,7 +116,7 @@ export default class SubscriptionService {
     cancelUrl: string
   ): Promise<string> {
     const plan = await this.planRepository.findByIdOrFail(planId)
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     // Déterminer le bon price ID selon l'interval
     const stripePriceId =
@@ -205,19 +206,8 @@ export default class SubscriptionService {
     return `${action}:${subscriptionId}:${minuteBucket}`
   }
 
-  /**
-   * Obtenir le client Stripe
-   */
-  private async getStripeClient(): Promise<Stripe> {
-    const secretKey = env.get('STRIPE_SECRET_KEY')
-
-    if (!secretKey) {
-      E.internal('STRIPE_SECRET_KEY not configured in .env')
-    }
-
-    return new Stripe(secretKey, {
-      apiVersion: '2025-10-29.clover',
-    })
+  private getStripeClient(): Stripe {
+    return this.stripeClientService.client
   }
 
   /**
@@ -239,7 +229,7 @@ export default class SubscriptionService {
       E.validationError('Impossible de mettre en pause un abonnement annulé', 'status')
     }
 
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     await stripe.subscriptions.update(
       subscription.stripeSubscriptionId,
@@ -274,7 +264,7 @@ export default class SubscriptionService {
       E.validationError('Seuls les abonnements en pause peuvent être repris', 'status')
     }
 
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     await stripe.subscriptions.update(
       subscription.stripeSubscriptionId,
@@ -308,7 +298,7 @@ export default class SubscriptionService {
       E.validationError('Cet abonnement est déjà annulé', 'status')
     }
 
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     await stripe.subscriptions.update(
       subscription.stripeSubscriptionId,
@@ -345,7 +335,7 @@ export default class SubscriptionService {
       E.validationError("Cet abonnement n'est pas en cours d'annulation", 'status')
     }
 
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     await stripe.subscriptions.update(
       subscription.stripeSubscriptionId,

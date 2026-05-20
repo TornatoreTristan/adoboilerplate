@@ -38,17 +38,20 @@ export default class extends BaseSchema {
         .notNullable()
         .defaultTo('active')
 
-      table.timestamp('current_period_start').nullable()
-      table.timestamp('current_period_end').nullable()
-      table.timestamp('trial_ends_at').nullable()
-      table.timestamp('canceled_at').nullable()
+      table.timestamp('current_period_start', { useTz: true }).nullable()
+      table.timestamp('current_period_end', { useTz: true }).nullable()
+      table.timestamp('trial_ends_at', { useTz: true }).nullable()
+      table.timestamp('canceled_at', { useTz: true }).nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('deleted_at', { useTz: true }).nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
 
       table.index(['organization_id'])
       table.index(['plan_id'])
       table.index(['status'])
+      table.index(['stripe_subscription_id'])
+      table.index(['stripe_customer_id'])
     })
   }
 

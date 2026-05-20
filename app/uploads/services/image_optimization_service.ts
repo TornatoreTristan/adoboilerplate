@@ -86,7 +86,7 @@ export default class ImageOptimizationService {
       })
 
       // Resize if needed
-      if (metadata.width! > maxWidth || metadata.height! > maxHeight) {
+      if ((metadata.width ?? 0) > maxWidth || (metadata.height ?? 0) > maxHeight) {
         pipeline = pipeline.resize(maxWidth, maxHeight, {
           fit,
           withoutEnlargement: true, // Don't upscale smaller images
@@ -140,9 +140,9 @@ export default class ImageOptimizationService {
 
       return {
         buffer: optimizedBuffer,
-        width: optimizedMetadata.width!,
-        height: optimizedMetadata.height!,
-        format: optimizedMetadata.format!,
+        width: optimizedMetadata.width ?? 0,
+        height: optimizedMetadata.height ?? 0,
+        format: optimizedMetadata.format ?? 'unknown',
         size: optimizedBuffer.length,
         originalSize,
         reductionPercent,

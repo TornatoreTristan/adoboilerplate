@@ -9,47 +9,35 @@ import {
   Button,
   Hr,
 } from '@react-email/components'
+import type { PasswordResetEmailTranslations } from './types.js'
 
 interface PasswordResetEmailProps {
-  userName: string
+  translations: PasswordResetEmailTranslations
   resetUrl: string
-  expiresIn: string
 }
 
-export default function PasswordResetEmail({
-  userName,
-  resetUrl,
-  expiresIn,
-}: PasswordResetEmailProps) {
+export default function PasswordResetEmail({ translations, resetUrl }: PasswordResetEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Réinitialisation de votre mot de passe</Preview>
+      <Preview>{translations.preview}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Réinitialisation de mot de passe</Heading>
+          <Heading style={h1}>{translations.heading}</Heading>
 
-          <Text style={text}>Bonjour {userName},</Text>
+          <Text style={text}>{translations.greeting}</Text>
 
-          <Text style={text}>
-            Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte.
-            Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe.
-          </Text>
+          <Text style={text}>{translations.body}</Text>
 
           <Button style={button} href={resetUrl}>
-            Réinitialiser mon mot de passe
+            {translations.cta}
           </Button>
 
-          <Text style={text}>
-            Ce lien expirera dans <strong>{expiresIn}</strong>.
-          </Text>
+          <Text style={text}>{translations.expires}</Text>
 
           <Hr style={hr} />
 
-          <Text style={footer}>
-            Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en
-            toute sécurité. Votre mot de passe ne sera pas modifié.
-          </Text>
+          <Text style={footer}>{translations.footer}</Text>
         </Container>
       </Body>
     </Html>

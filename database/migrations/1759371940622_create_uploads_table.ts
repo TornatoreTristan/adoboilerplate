@@ -22,9 +22,9 @@ export default class extends BaseSchema {
       // Métadonnées additionnelles (width, height pour images, etc.)
       table.jsonb('metadata').nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
-      table.timestamp('deleted_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
+      table.timestamp('deleted_at', { useTz: true }).nullable()
 
       // Index pour performances
       table.index(['user_id'])

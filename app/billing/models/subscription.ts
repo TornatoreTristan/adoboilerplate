@@ -66,6 +66,9 @@ export default class Subscription extends BaseModel {
   @column.dateTime()
   declare canceledAt: DateTime | null
 
+  @column.dateTime({ columnName: 'deleted_at' })
+  declare deletedAt: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

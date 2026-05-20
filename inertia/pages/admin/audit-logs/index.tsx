@@ -23,7 +23,7 @@ interface AuditLog {
   resourceId: string | null
   ipAddress: string | null
   userAgent: string | null
-  metadata: Record<string, any> | null
+  metadata: Record<string, unknown> | null
   createdAt: string
   user?: {
     id: string

@@ -71,7 +71,7 @@ export default class UserRepository extends BaseRepository<typeof UserModel> {
    * Vérifier si un email existe déjà
    */
   async emailExists(email: string, excludeId?: string | number): Promise<boolean> {
-    const criteria: Record<string, any> = { email }
+    const criteria: Record<string, string> = { email }
 
     if (excludeId) {
       // Pour les mises à jour, exclure l'ID actuel

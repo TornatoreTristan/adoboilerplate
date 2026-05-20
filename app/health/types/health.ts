@@ -3,7 +3,7 @@ export type HealthStatus = 'ok' | 'degraded' | 'down'
 export interface HealthCheckResult {
   status: HealthStatus
   latency?: number
-  details?: Record<string, any>
+  details?: Record<string, unknown>
   error?: string
 }
 

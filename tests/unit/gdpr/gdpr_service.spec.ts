@@ -87,9 +87,9 @@ test.group('GdprService - requestAccountDeletion', (group) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const fresh = await userRepo.findById(user.id, { includeDeleted: true })
     assert.isNotNull(fresh, 'user should still exist after scheduling deletion')
-    assert.isNotNull(fresh!.deleted_at)
+    assert.isNotNull(fresh!.deletedAt)
     // Doit être planifié dans ~30 jours (tolérance d'une minute pour le test)
-    const scheduledFor = fresh!.deleted_at!
+    const scheduledFor = fresh!.deletedAt!
     const expected = DateTime.now().plus({ days: 30 })
     assert.isTrue(Math.abs(scheduledFor.diff(expected).as('seconds')) < 60)
   })
@@ -107,7 +107,7 @@ test.group('GdprService - requestAccountDeletion', (group) => {
 test.group('GdprService - cancelAccountDeletion', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('clears the deleted_at flag', async ({ assert }) => {
+  test('clears the deletedAt flag', async ({ assert }) => {
     const user = await User.create({
       email: 'cancel@example.com',
       password: 'password123',
@@ -120,7 +120,7 @@ test.group('GdprService - cancelAccountDeletion', (group) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const fresh = await userRepo.findById(user.id)
     assert.isNotNull(fresh, 'user should be visible again after cancelling deletion')
-    assert.isNull(fresh!.deleted_at)
+    assert.isNull(fresh!.deletedAt)
   })
 })
 
@@ -208,7 +208,7 @@ test.group('GdprService - processScheduledDeletions', (group) => {
 
     // Antidate the scheduled deletion so it's already due
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
-    await userRepo.update(user.id, { deleted_at: DateTime.now().minus({ minutes: 1 }) })
+    await userRepo.update(user.id, { deletedAt: DateTime.now().minus({ minutes: 1 }) })
 
     const gdprService = getService<GdprService>(TYPES.GdprService)
     const count = await gdprService.processScheduledDeletions()
@@ -224,7 +224,7 @@ test.group('GdprService - processScheduledDeletions', (group) => {
     })
 
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
-    await userRepo.update(user.id, { deleted_at: DateTime.now().plus({ days: 30 }) })
+    await userRepo.update(user.id, { deletedAt: DateTime.now().plus({ days: 30 }) })
 
     const gdprService = getService<GdprService>(TYPES.GdprService)
     const count = await gdprService.processScheduledDeletions()

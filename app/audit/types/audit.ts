@@ -72,7 +72,7 @@ export interface CreateAuditLogData {
   resourceId?: string | null
   ipAddress?: string | null
   userAgent?: string | null
-  metadata?: Record<string, any> | null
+  metadata?: Record<string, unknown> | null
 }
 
 /**
@@ -103,7 +103,7 @@ export interface AuditLogWithRelations {
   resourceId: string | null
   ipAddress: string | null
   userAgent: string | null
-  metadata: Record<string, any> | null
+  metadata: Record<string, unknown> | null
   createdAt: Date | string
   user?: {
     id: string

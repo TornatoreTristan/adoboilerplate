@@ -39,11 +39,11 @@ export default class Notification extends BaseModel {
   declare messageI18n: TranslatableField
 
   @column()
-  declare data: Record<string, any> | null
+  declare data: Record<string, unknown> | null
 
   @column({
     prepare: (value: NotificationAction[] | null) => (value ? JSON.stringify(value) : null),
-    consume: (value: string | NotificationAction[] | null | any) => {
+    consume: (value: string | NotificationAction[] | null | unknown) => {
       if (value === null || value === undefined) return null
       if (Array.isArray(value)) return value
       if (typeof value === 'object') return value
@@ -68,8 +68,8 @@ export default class Notification extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @column.dateTime()
-  declare deleted_at: DateTime | null
+  @column.dateTime({ columnName: 'deleted_at' })
+  declare deletedAt: DateTime | null
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>

@@ -7,9 +7,14 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary().defaultTo(this.raw('gen_random_uuid()'))
       table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
-      table.string('role_slug').notNullable()
+      table
+        .string('role_slug')
+        .notNullable()
+        .references('slug')
+        .inTable('roles')
+        .onDelete('CASCADE')
 
-      table.timestamp('granted_at').notNullable()
+      table.timestamp('granted_at', { useTz: true }).notNullable()
 
       table.unique(['user_id', 'role_slug'])
       table.index(['user_id'])

@@ -17,6 +17,7 @@ export default class UserService {
       email: userData.email,
       password: hashedPassword,
       fullName: userData.fullName,
+      locale: userData.locale ?? 'fr',
     })
   }
 

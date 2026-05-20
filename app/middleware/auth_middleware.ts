@@ -30,7 +30,7 @@ export default class AuthMiddleware {
     })
 
     // Si l'utilisateur n'existe plus (ou suppression définitive arrivée à terme)
-    if (!user || (user.deleted_at && user.deleted_at.toMillis() <= Date.now())) {
+    if (!user || (user.deletedAt && user.deletedAt.toMillis() <= Date.now())) {
       // Nettoyer la session invalide
       ctx.session.forget('user_id')
       ctx.session.forget('session_id')

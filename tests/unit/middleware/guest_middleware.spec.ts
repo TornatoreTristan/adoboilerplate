@@ -23,7 +23,6 @@ test.group('GuestMiddleware', () => {
     const harness = buildCtx('user-id-123')
     let nextCalled = false
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any — harness ctx
     await middleware.handle(harness.ctx as any, async () => {
       nextCalled = true
     })
@@ -37,7 +36,6 @@ test.group('GuestMiddleware', () => {
     const harness = buildCtx(null)
     let nextCalled = false
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any — harness ctx
     await middleware.handle(harness.ctx as any, async () => {
       nextCalled = true
     })

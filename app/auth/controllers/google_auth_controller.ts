@@ -29,7 +29,7 @@ export default class GoogleAuthController {
     const oauthData: OAuthUserData = {
       providerId: googleUser.id,
       provider: 'google',
-      email: googleUser.email!,
+      email: googleUser.email ?? '',
       name: googleUser.name,
       avatar: googleUser.avatarUrl,
     }

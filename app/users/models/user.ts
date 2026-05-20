@@ -30,6 +30,9 @@ export default class User extends BaseModel {
   declare emailVerifiedAt: DateTime | null
 
   @column()
+  declare locale: 'fr' | 'en'
+
+  @column()
   declare newsletterEnabled: boolean
 
   @column()
@@ -38,8 +41,8 @@ export default class User extends BaseModel {
   @column()
   declare promotionalOffersEnabled: boolean
 
-  @column.dateTime()
-  declare deleted_at: DateTime | null
+  @column.dateTime({ columnName: 'deleted_at' })
+  declare deletedAt: DateTime | null
 
   @column({
     serializeAs: null,

@@ -84,8 +84,8 @@ export class AdminUserDto {
       avatarUrl: user.avatarUrl,
       googleId: user.googleId,
       isEmailVerified: user.isEmailVerified,
-      createdAt: user.createdAt.toISO()!,
-      updatedAt: user.updatedAt.toISO()!,
+      createdAt: user.createdAt.toISO() ?? '',
+      updatedAt: user.updatedAt.toISO() ?? '',
     }
   }
 
@@ -107,8 +107,8 @@ export class AdminUserDto {
       id: session.id,
       ipAddress: session.ipAddress,
       userAgent: session.userAgent,
-      startedAt: session.startedAt.toISO()!,
-      lastActivity: session.lastActivity.toISO()!,
+      startedAt: session.startedAt.toISO() ?? '',
+      lastActivity: session.lastActivity.toISO() ?? '',
       endedAt: session.endedAt?.toISO() ?? null,
       isActive: session.isActive,
       country: session.country,
@@ -135,7 +135,7 @@ export class AdminUserDto {
       resourceId: log.resourceId,
       ipAddress: log.ipAddress,
       metadata: log.metadata,
-      createdAt: log.createdAt.toISO()!,
+      createdAt: log.createdAt.toISO() ?? '',
     }
   }
 }

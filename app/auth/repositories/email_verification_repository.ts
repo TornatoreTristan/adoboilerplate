@@ -31,7 +31,7 @@ export default class EmailVerificationRepository extends BaseRepository<
     const query = this.buildBaseQuery()
       .where('user_id', userId)
       .where('type', type)
-      .where('expires_at', '>', DateTime.now().toSQL()!)
+      .where('expires_at', '>', DateTime.now().toSQL() ?? DateTime.now().toISO())
       .whereNull('verified_at')
 
     const result = await query.first()

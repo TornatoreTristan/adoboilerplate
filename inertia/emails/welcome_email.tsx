@@ -9,40 +9,33 @@ import {
   Button,
   Hr,
 } from '@react-email/components'
+import type { WelcomeEmailTranslations } from './types.js'
 
 interface WelcomeEmailProps {
-  userName: string
+  translations: WelcomeEmailTranslations
   loginUrl: string
 }
 
-export default function WelcomeEmail({ userName, loginUrl }: WelcomeEmailProps) {
+export default function WelcomeEmail({ translations, loginUrl }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Bienvenue sur notre plateforme !</Preview>
+      <Preview>{translations.preview}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Bienvenue {userName} ! 👋</Heading>
+          <Heading style={h1}>{translations.heading}</Heading>
 
-          <Text style={text}>
-            Nous sommes ravis de vous accueillir sur notre plateforme. Votre compte a été créé avec
-            succès et vous pouvez maintenant profiter de toutes nos fonctionnalités.
-          </Text>
+          <Text style={text}>{translations.body}</Text>
 
           <Button style={button} href={loginUrl}>
-            Accéder à mon compte
+            {translations.cta}
           </Button>
 
-          <Text style={text}>
-            Vous pouvez vous connecter à tout moment en utilisant l'email avec lequel vous vous êtes
-            inscrit.
-          </Text>
+          <Text style={text}>{translations.helper}</Text>
 
           <Hr style={hr} />
 
-          <Text style={footer}>
-            Si vous n'avez pas créé ce compte, vous pouvez ignorer cet email en toute sécurité.
-          </Text>
+          <Text style={footer}>{translations.footer}</Text>
         </Container>
       </Body>
     </Html>

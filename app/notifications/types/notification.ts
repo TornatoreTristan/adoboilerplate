@@ -5,7 +5,7 @@ export interface CreateNotificationData {
   priority?: NotificationPriority
   title: string
   message: string
-  data?: Record<string, any> | null
+  data?: Record<string, unknown> | null
   actions?: NotificationAction[] | null
 }
 

@@ -17,8 +17,8 @@ export default class extends BaseSchema {
       table.text('terms_of_sale').nullable()
       table.text('privacy_policy').nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').notNullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).notNullable()
     })
 
     // Foreign keys

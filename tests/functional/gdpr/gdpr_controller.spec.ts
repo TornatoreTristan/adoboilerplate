@@ -82,7 +82,7 @@ test.group('GdprController (account routes)', (group) => {
 
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const fresh = await userRepo.findById(user.id, { includeDeleted: true })
-    assert.isNotNull(fresh!.deleted_at, 'user must be flagged for deletion (deleted_at set)')
+    assert.isNotNull(fresh!.deletedAt, 'user must be flagged for deletion (deletedAt set)')
   })
 
   test('POST /account/cancel-deletion clears the deletion flag', async ({ client, assert }) => {
@@ -110,7 +110,7 @@ test.group('GdprController (account routes)', (group) => {
     const userRepo = getService<UserRepository>(TYPES.UserRepository)
     const fresh = await userRepo.findById(user.id)
     assert.isNotNull(fresh, 'user must be accessible again after cancellation')
-    assert.isNull(fresh!.deleted_at)
+    assert.isNull(fresh!.deletedAt)
   })
 
   test('POST /account/delete-request requires authentication', async ({ client }) => {

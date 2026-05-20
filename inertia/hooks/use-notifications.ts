@@ -8,7 +8,7 @@ export interface Notification {
   type: string
   titleI18n: { fr: string; en: string }
   messageI18n: { fr: string; en: string }
-  data: Record<string, any> | null
+  data: Record<string, unknown> | null
   readAt: string | null
   createdAt: string
 }

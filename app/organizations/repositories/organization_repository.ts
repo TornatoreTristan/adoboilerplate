@@ -72,7 +72,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
    * Vérifier si un slug existe déjà
    */
   async slugExists(slug: string, excludeId?: string | number): Promise<boolean> {
-    const criteria: Record<string, any> = { slug }
+    const criteria: Record<string, string> = { slug }
 
     if (excludeId) {
       const orgs = await this.findBy(criteria)
@@ -116,11 +116,10 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     // Skip cache in test environment to avoid stale data with database transactions
     if (!isTestEnvironment()) {
       const cacheKey = this.buildCacheKey(String(userId), 'user_org_count')
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       const cached = await this.cache!.get<number>(cacheKey)
       if (cached !== null) return cached
     }
-
-    const { default: db } = await import('@adonisjs/lucid/services/db')
 
     const result = await db
       .from('user_organizations')
@@ -133,6 +132,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     // Only cache in non-test environments
     if (!isTestEnvironment()) {
       const cacheKey = this.buildCacheKey(String(userId), 'user_org_count')
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.set(cacheKey, count, { ttl: 300, tags: ['user_organizations'] })
     }
 
@@ -242,6 +242,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
   async isUserMember(organizationId: string | number, userId: string | number): Promise<boolean> {
     const cacheKey = this.buildCacheKey(String(organizationId), 'member', userId)
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     const cached = await this.cache!.get<boolean>(cacheKey)
     if (cached !== null) return cached
 
@@ -251,6 +252,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const isMember = !!membership
 
     // Cache pendant 5 minutes
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.cache!.set(cacheKey, isMember, { ttl: 300, tags: ['org_members'] })
 
     return isMember
@@ -273,7 +275,6 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     page: number = 1,
     perPage: number = 20
   ): Promise<PaginatedOrganizations> {
-    const { default: db } = await import('@adonisjs/lucid/services/db')
     const offset = (page - 1) * perPage
 
     const [orgs, totalRow, memberRows] = await Promise.all([
@@ -308,7 +309,7 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
       descriptionI18n: org.descriptionI18n ?? null,
       website: org.website ?? null,
       isActive: Boolean(org.isActive),
-      createdAt: org.createdAt.toISO()!,
+      createdAt: org.createdAt.toISO() ?? '',
       membersCount: membersCountMap.get(String(org.id)) ?? 0,
     }))
 

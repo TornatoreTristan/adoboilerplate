@@ -48,8 +48,8 @@ export default class ApiToken extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @column.dateTime()
-  declare deleted_at: DateTime | null
+  @column.dateTime({ columnName: 'deleted_at' })
+  declare deletedAt: DateTime | null
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
@@ -66,7 +66,7 @@ export default class ApiToken extends BaseModel {
   }
 
   get isActive(): boolean {
-    return !this.isRevoked && !this.isExpired && this.deleted_at === null
+    return !this.isRevoked && !this.isExpired && this.deletedAt === null
   }
 
   hasScope(scope: ApiScope): boolean {

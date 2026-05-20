@@ -38,7 +38,7 @@ interface Props {
  * manage the subscription.
  */
 export function CurrentSubscriptionCard({ subscription, userRole }: Props) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const formatPrice = useFormatCurrency()
   const canManage = SUBSCRIPTION_MANAGER_ROLES.has(userRole)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
@@ -74,8 +74,9 @@ export function CurrentSubscriptionCard({ subscription, userRole }: Props) {
     )
   }
 
-  const planName = getTranslation(subscription.plan.nameI18n!, locale as 'fr' | 'en')
-  const planDescription = getTranslation(subscription.plan.descriptionI18n!, locale as 'fr' | 'en')
+  const typedLocale = (locale ?? 'fr') as 'fr' | 'en'
+  const planName = getTranslation(subscription.plan.nameI18n, typedLocale)
+  const planDescription = getTranslation(subscription.plan.descriptionI18n, typedLocale)
 
   return (
     <Card>

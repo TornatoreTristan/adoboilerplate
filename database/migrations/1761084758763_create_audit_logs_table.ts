@@ -34,6 +34,9 @@ export default class extends BaseSchema {
 
       // Timestamps (immutable logs - no updated_at)
       table.timestamp('created_at', { useTz: true }).notNullable()
+
+      table.index(['user_id', 'created_at'])
+      table.index(['organization_id', 'created_at'])
     })
 
     // Add Full-Text Search support

@@ -41,9 +41,8 @@ export default class PlansController {
       })
     )
 
-    return inertia.render('admin/plans/index', {
-      plans: plansWithStats,
-    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Inertia page boundary: TranslatableField lacks JSONDataTypes index signature
+    return inertia.render('admin/plans/index', { plans: plansWithStats } as any)
   }
 
   async show({ params, inertia }: HttpContext) {
@@ -53,7 +52,7 @@ export default class PlansController {
     const plan = await planService.getPlanById(params.id)
     const subscriptions = await subscriptionRepository.findByPlanId(params.id)
 
-    return inertia.render('admin/plans/show', {
+    const showPayload = {
       plan: {
         id: plan.id,
         nameI18n: plan.nameI18n,
@@ -85,7 +84,9 @@ export default class PlansController {
         currentPeriodEnd: sub.currentPeriodEnd?.toISO() || null,
         createdAt: sub.createdAt.toISO(),
       })),
-    })
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Inertia page boundary: TranslatableField lacks JSONDataTypes index signature
+    return inertia.render('admin/plans/show', showPayload as any)
   }
 
   async create({ inertia }: HttpContext) {
@@ -110,10 +111,7 @@ export default class PlansController {
     const planService = getService<PlanService>(TYPES.PlanService)
     const plan = await planService.getPlanById(params.id)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any — Inertia's
-    // JSONDataTypes requires nominal types (PricingTier, etc.) to expose an
-    // index signature. Cast at the page boundary.
-    return inertia.render('admin/plans/edit', {
+    const editPayload = {
       plan: {
         id: plan.id,
         name: plan.name,
@@ -134,7 +132,9 @@ export default class PlansController {
         stripePriceIdMonthly: plan.stripePriceIdMonthly,
         stripePriceIdYearly: plan.stripePriceIdYearly,
       },
-    } as any)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Inertia page boundary: PricingTier[] and Record<string,unknown> lack JSONDataTypes index signature
+    return inertia.render('admin/plans/edit', editPayload as any)
   }
 
   async update({ params, request, response, session }: HttpContext) {

@@ -245,19 +245,22 @@ export default class AdminService {
   }
 
   async getUsersGrowth(days: number = 30): Promise<GrowthData[]> {
-    const sinceDate = DateTime.now().minus({ days }).toSQL()!
+    const dt = DateTime.now().minus({ days })
+    const sinceDate = dt.toSQL() ?? dt.toISO()
     const rows = await this.userRepository.countByDay(sinceDate)
     return fillGrowthDays(rows, days)
   }
 
   async getSessionsGrowth(days: number = 30): Promise<GrowthData[]> {
-    const sinceDate = DateTime.now().minus({ days }).toSQL()!
+    const dt = DateTime.now().minus({ days })
+    const sinceDate = dt.toSQL() ?? dt.toISO()
     const rows = await this.sessionRepository.countByDayStarted(sinceDate)
     return fillGrowthDays(rows, days)
   }
 
   async getActiveUsersStats(days: number = 30): Promise<ActiveUsersStats> {
-    const thresholdDate = DateTime.now().minus({ days }).toSQL()!
+    const dt = DateTime.now().minus({ days })
+    const thresholdDate = dt.toSQL() ?? dt.toISO()
 
     const [totalUsers, activeUsers] = await Promise.all([
       this.userRepository.count(),
@@ -291,7 +294,7 @@ export default class AdminService {
         avatarUrl: user.avatarUrl ?? null,
         googleId: user.googleId ?? null,
         isEmailVerified: Boolean(user.isEmailVerified),
-        createdAt: user.createdAt.toISO()!,
+        createdAt: user.createdAt.toISO() ?? '',
         lastActivity: lastActivityMap.get(String(user.id)) ?? null,
       })),
       meta: paginated.meta,
@@ -360,8 +363,8 @@ export default class AdminService {
         descriptionI18n: organization.descriptionI18n ?? null,
         website: organization.website,
         isActive: organization.isActive,
-        createdAt: organization.createdAt.toISO()!,
-        updatedAt: organization.updatedAt.toISO()!,
+        createdAt: organization.createdAt.toISO() ?? '',
+        updatedAt: organization.updatedAt.toISO() ?? '',
       },
       members,
     }
@@ -377,12 +380,12 @@ export default class AdminService {
       E.userNotFound(userEmail)
     }
 
-    const isMember = await this.organizationRepository.isUserMember(organizationId, user!.id)
+    const isMember = await this.organizationRepository.isUserMember(organizationId, user.id)
     if (isMember) {
       E.validationError('Cet utilisateur est déjà membre de cette organisation')
     }
 
-    await this.organizationRepository.addUser(organizationId, user!.id, role)
+    await this.organizationRepository.addUser(organizationId, user.id, role)
   }
 
   async getRoles(): Promise<RoleWithPermissionsCount[]> {
@@ -397,7 +400,7 @@ export default class AdminService {
           slug: role.slug,
           description: role.description,
           isSystem: role.isSystem,
-          createdAt: role.createdAt.toISO()!,
+          createdAt: role.createdAt.toISO() ?? '',
           permissionsCount: permissions.length,
         }
       })
@@ -417,8 +420,8 @@ export default class AdminService {
         slug: role.slug,
         description: role.description,
         isSystem: role.isSystem,
-        createdAt: role.createdAt.toISO()!,
-        updatedAt: role.updatedAt?.toISO() ?? role.createdAt.toISO()!,
+        createdAt: role.createdAt.toISO() ?? '',
+        updatedAt: role.updatedAt?.toISO() ?? role.createdAt.toISO() ?? '',
       },
       permissions: permissions.map((permission) => ({
         id: permission.id,
@@ -441,6 +444,7 @@ export default class AdminService {
 
   async configureIntegration(
     provider: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config shape varies per integration provider
     config: Record<string, any>,
     isActive: boolean
   ): Promise<Integration> {

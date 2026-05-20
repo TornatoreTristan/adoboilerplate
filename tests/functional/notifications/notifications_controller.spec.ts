@@ -201,7 +201,7 @@ test.group('NotificationsController', (group) => {
     response.assertBodyContains({ success: true })
 
     const deleted = await repository.findById(notification.id, { includeDeleted: true })
-    assert.isNotNull(deleted?.deleted_at)
+    assert.isNotNull(deleted?.deletedAt)
   })
 
   test('GET /api/notifications - should return 401 if not authenticated', async ({ client }) => {

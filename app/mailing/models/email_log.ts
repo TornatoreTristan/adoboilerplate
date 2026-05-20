@@ -69,11 +69,11 @@ export default class EmailLog extends BaseModel {
   declare clickedAt: DateTime | null
 
   @column({
-    prepare: (value: Record<string, any> | null) =>
+    prepare: (value: Record<string, unknown> | null) =>
       value ? (typeof value === 'string' ? value : JSON.stringify(value)) : null,
     consume: (value: unknown) => (value && typeof value === 'string' ? JSON.parse(value) : value),
   })
-  declare metadata: Record<string, any> | null
+  declare metadata: Record<string, unknown> | null
 
   @column({
     prepare: (value: AttachmentMetadata[] | null) =>

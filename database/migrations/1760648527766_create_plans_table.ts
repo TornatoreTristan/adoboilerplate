@@ -34,8 +34,8 @@ export default class extends BaseSchema {
       table.boolean('is_visible').notNullable().defaultTo(true)
       table.integer('sort_order').notNullable().defaultTo(0)
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
     })
 
     // Add Full-Text Search support

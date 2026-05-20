@@ -68,7 +68,8 @@ export default class NotificationService {
           type: notification.type,
           titleI18n: notification.titleI18n,
           messageI18n: notification.messageI18n,
-          data: notification.data,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Transmit Broadcastable requires any for JSONB data payload
+          data: notification.data as any,
           readAt: notification.readAt?.toISO() ?? null,
           createdAt: notification.createdAt.toISO(),
         },

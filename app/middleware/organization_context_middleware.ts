@@ -11,8 +11,14 @@ export default class OrganizationContextMiddleware {
     const user = ctx.user
     E.assertUserExists(user)
 
-    // Charger les organisations de l'user
-    await user.load('organizations')
+    // Charger les organisations de l'user, ordre stable: la plus ancienne d'abord.
+    // Tie-breaker sur organizations.created_at (séquentiel par création) pour
+    // un ordre déterministe quand joined_at est identique au millième près.
+    await user.load('organizations', (query) => {
+      query
+        .orderBy('user_organizations.joined_at', 'asc')
+        .orderBy('organizations.created_at', 'asc')
+    })
 
     // Si l'user n'a aucune organisation, lever une exception
     if (user.organizations.length === 0) {

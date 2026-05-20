@@ -76,7 +76,7 @@ export default class SentryService {
   /**
    * Capture une exception avec contexte
    */
-  captureException(error: Error, context?: Record<string, any>): string {
+  captureException(error: Error, context?: Record<string, unknown>): string {
     if (!this.initialized) {
       return ''
     }
@@ -127,7 +127,7 @@ export default class SentryService {
     message: string
     category?: string
     level?: Sentry.SeverityLevel
-    data?: Record<string, any>
+    data?: Record<string, unknown>
   }): void {
     if (!this.initialized) {
       return
@@ -150,7 +150,7 @@ export default class SentryService {
   /**
    * Set contexte custom
    */
-  setContext(name: string, context: Record<string, any>): void {
+  setContext(name: string, context: Record<string, unknown>): void {
     if (!this.initialized) {
       return
     }

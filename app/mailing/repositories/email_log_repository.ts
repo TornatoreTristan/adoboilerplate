@@ -144,14 +144,14 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
   }
 
   async updateStatus(id: string | number, status: EmailLogStatus): Promise<EmailLog> {
-    const updates: Record<string, any> = { status }
+    const updates: Partial<EmailLog> = { status }
 
     if (status === 'sent') {
-      updates.sent_at = DateTime.now()
+      updates.sentAt = DateTime.now()
     } else if (status === 'delivered') {
-      updates.delivered_at = DateTime.now()
+      updates.deliveredAt = DateTime.now()
     } else if (status === 'failed') {
-      updates.failed_at = DateTime.now()
+      updates.failedAt = DateTime.now()
     }
 
     return this.update(id, updates)
@@ -163,13 +163,13 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
       E.notFound('Email log', id)
     }
 
-    const updates: Record<string, any> = {
-      opens_count: log.opensCount + 1,
+    const updates: Partial<EmailLog> = {
+      opensCount: log.opensCount + 1,
       status: 'opened',
     }
 
     if (!log.openedAt) {
-      updates.opened_at = DateTime.now()
+      updates.openedAt = DateTime.now()
     }
 
     return this.update(id, updates)
@@ -181,13 +181,13 @@ export default class EmailLogRepository extends BaseRepository<typeof EmailLog> 
       E.notFound('Email log', id)
     }
 
-    const updates: Record<string, any> = {
-      clicks_count: log.clicksCount + 1,
+    const updates: Partial<EmailLog> = {
+      clicksCount: log.clicksCount + 1,
       status: 'clicked',
     }
 
     if (!log.clickedAt) {
-      updates.clicked_at = DateTime.now()
+      updates.clickedAt = DateTime.now()
     }
 
     return this.update(id, updates)

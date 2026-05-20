@@ -21,7 +21,7 @@ function resolveAllowedOrigins(): string[] | boolean {
 const corsConfig = defineConfig({
   enabled: true,
   origin: resolveAllowedOrigins(),
-  methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   headers: true,
   exposeHeaders: [],
   credentials: true,

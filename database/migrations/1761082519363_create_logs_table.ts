@@ -13,9 +13,9 @@ export default class extends BaseSchema {
 
       table.uuid('user_id').nullable().index()
       table.string('ip', 45).nullable()
-      table.string('user_agent', 500).nullable()
+      table.text('user_agent').nullable()
       table.string('method', 10).nullable()
-      table.string('url', 1000).nullable()
+      table.text('url').nullable()
       table.integer('status_code').nullable()
 
       table.timestamp('created_at').notNullable().defaultTo(this.now())

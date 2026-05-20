@@ -2,7 +2,7 @@ export interface Log {
   id: string
   level: string
   message: string
-  context: Record<string, any> | null
+  context: Record<string, unknown> | null
   userId: string | null
   ip: string | null
   userAgent: string | null

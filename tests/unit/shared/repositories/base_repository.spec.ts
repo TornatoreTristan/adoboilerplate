@@ -130,4 +130,26 @@ test.group('BaseRepository', (group) => {
     assert.equal(updatedUser.id, userId)
     assert.equal(updatedUser.email, 'updated@repository.com')
   })
+
+  test('soft-delete on User leaves the row in DB with deletedAt set', async ({ assert }) => {
+    const userRepo = getService<UserRepository>(TYPES.UserRepository)
+
+    const user = await userRepo.create({
+      email: 'deletedatat@repository.com',
+      password: 'hashedpassword123',
+    } as any)
+
+    await userRepo.delete(user.id, { soft: true })
+
+    // Row must still exist
+    const row = await userRepo.findById(user.id, { includeDeleted: true })
+    assert.isNotNull(row, 'soft-deleted row must remain in DB')
+
+    // deletedAt must be populated (camelCase property, columnName: deleted_at)
+    assert.isNotNull(row!.deletedAt, 'deletedAt must be set after soft delete')
+
+    // Row must be invisible in a normal query
+    const invisible = await userRepo.findById(user.id)
+    assert.isNull(invisible, 'soft-deleted user must be excluded from normal queries')
+  })
 })

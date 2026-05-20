@@ -1,10 +1,13 @@
 import { injectable, inject } from 'inversify'
 import type { LucidModel, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
+import type { StrictValues } from '@adonisjs/lucid/types/querybuilder'
 import { DateTime } from 'luxon'
 import { TYPES } from '#shared/container/types'
 import type CacheService from '#shared/services/cache_service'
 import type EventBusService from '#shared/services/event_bus_service'
 import { E } from '#shared/exceptions/index'
+
+export type QueryCriteria = Record<string, StrictValues | null>
 
 export interface PaginationResult<T> {
   data: T[]
@@ -101,6 +104,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     const cacheKey = this.buildCacheKey(options.cache?.scope, 'id', id)
 
     if (options.cache) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       const cached = await this.cache!.get<InstanceType<TModel>>(cacheKey)
       if (cached) return cached
     }
@@ -109,6 +113,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     const result = await query.where('id', id).first()
 
     if (result && options.cache) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.set(cacheKey, result, options.cache)
     }
 
@@ -128,7 +133,8 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       E.notFound(this.getModelName(), id)
     }
 
-    return result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- E.notFound throws when result is null
+    return result!
   }
 
   /**
@@ -138,6 +144,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     const cacheKey = this.buildCacheKey(options.cache?.scope, 'all')
 
     if (options.cache) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       const cached = await this.cache!.get<InstanceType<TModel>[]>(cacheKey)
       if (cached) return cached
     }
@@ -146,6 +153,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     const results = await query
 
     if (options.cache) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.set(cacheKey, results, options.cache)
     }
 
@@ -156,13 +164,17 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * Trouver par critères
    */
   async findBy(
-    criteria: Record<string, any>,
+    criteria: QueryCriteria,
     options: FindOptions = {}
   ): Promise<InstanceType<TModel>[]> {
     const query = this.buildBaseQuery(options.includeDeleted)
 
     for (const [key, value] of Object.entries(criteria)) {
-      query.where(key, value)
+      if (value === null) {
+        query.whereNull(key)
+      } else {
+        query.where(key, value)
+      }
     }
 
     return await query
@@ -172,13 +184,17 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * Trouver un enregistrement par critères
    */
   async findOneBy(
-    criteria: Record<string, any>,
+    criteria: QueryCriteria,
     options: FindOptions = {}
   ): Promise<InstanceType<TModel> | null> {
     const query = this.buildBaseQuery(options.includeDeleted)
 
     for (const [key, value] of Object.entries(criteria)) {
-      query.where(key, value)
+      if (value === null) {
+        query.whereNull(key)
+      } else {
+        query.where(key, value)
+      }
     }
 
     return await query.first()
@@ -205,6 +221,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
 
     // Invalidation du cache
     if (options.cache?.tags) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.invalidateTags(options.cache.tags)
     }
     await this.invalidateListCaches()
@@ -237,8 +254,10 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     // Invalidation du cache
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.cache!.del(this.buildCacheKey(options.cache?.scope, 'id', id))
     if (options.cache?.tags) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.invalidateTags(options.cache.tags)
     }
     await this.invalidateListCaches(options.cache?.scope)
@@ -259,10 +278,10 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     if (soft && this.supportsSoftDelete()) {
-      // Soft delete — deleted_at is not in the static TModel signature, so we
+      // Soft delete — deletedAt is not in the static TModel signature, so we
       // cast via unknown. The supportsSoftDelete() check above guarantees the
       // column exists at runtime.
-      record.merge({ deleted_at: DateTime.now() } as unknown as Partial<InstanceType<TModel>>)
+      record.merge({ deletedAt: DateTime.now() } as unknown as Partial<InstanceType<TModel>>)
       await record.save()
     } else {
       // Hard delete
@@ -275,8 +294,10 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     }
 
     // Invalidation du cache
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.cache!.del(this.buildCacheKey(options.cache?.scope, 'id', id))
     if (options.cache?.tags) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
       await this.cache!.invalidateTags(options.cache.tags)
     }
     await this.invalidateListCaches(options.cache?.scope)
@@ -296,14 +317,18 @@ export abstract class BaseRepository<TModel extends LucidModel> {
       E.notFound(this.getModelName(), id)
     }
 
-    record.merge({ deleted_at: null } as unknown as Partial<InstanceType<TModel>>)
-    await record.save()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- E.notFound throws when record is null
+    record!.merge({ deletedAt: null } as unknown as Partial<InstanceType<TModel>>)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- E.notFound throws when record is null
+    await record!.save()
 
     // Invalidation du cache
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.cache!.del(this.buildCacheKey(scope, 'id', id))
     await this.invalidateListCaches(scope)
 
-    return record
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- E.notFound throws when record is null
+    return record!
   }
 
   // ==========================================
@@ -313,11 +338,15 @@ export abstract class BaseRepository<TModel extends LucidModel> {
   /**
    * Vérifier si un enregistrement existe
    */
-  async exists(criteria: Record<string, any>): Promise<boolean> {
+  async exists(criteria: QueryCriteria): Promise<boolean> {
     const query = this.buildBaseQuery()
 
     for (const [key, value] of Object.entries(criteria)) {
-      query.where(key, value)
+      if (value === null) {
+        query.whereNull(key)
+      } else {
+        query.where(key, value)
+      }
     }
 
     const result = await query.first()
@@ -327,11 +356,15 @@ export abstract class BaseRepository<TModel extends LucidModel> {
   /**
    * Compter les enregistrements
    */
-  async count(criteria: Record<string, any> = {}): Promise<number> {
+  async count(criteria: QueryCriteria = {}): Promise<number> {
     const query = this.buildBaseQuery()
 
     for (const [key, value] of Object.entries(criteria)) {
-      query.where(key, value)
+      if (value === null) {
+        query.whereNull(key)
+      } else {
+        query.where(key, value)
+      }
     }
 
     const result = await query.count('* as total')
@@ -348,12 +381,16 @@ export abstract class BaseRepository<TModel extends LucidModel> {
   async paginate(
     page: number = 1,
     perPage: number = 20,
-    criteria: Record<string, any> = {}
+    criteria: QueryCriteria = {}
   ): Promise<PaginationResult<InstanceType<TModel>>> {
     const query = this.buildBaseQuery()
 
     for (const [key, value] of Object.entries(criteria)) {
-      query.where(key, value)
+      if (value === null) {
+        query.whereNull(key)
+      } else {
+        query.where(key, value)
+      }
     }
 
     const result = await query.paginate(page, perPage)
@@ -370,11 +407,13 @@ export abstract class BaseRepository<TModel extends LucidModel> {
 
   protected async beforeCreate(data: Partial<InstanceType<TModel>>): Promise<void> {
     // Événement SYNC - peut être utilisé pour validation ou modification de données
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(`${this.getModelName().toLowerCase()}.before_create`, { data })
   }
 
   protected async afterCreate(record: InstanceType<TModel>): Promise<void> {
     // Événement ASYNC via Bull Queue - déclenche des workflows (emails, notifications, etc.)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(
       `${this.getModelName().toLowerCase()}.created`,
       { record },
@@ -388,6 +427,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     record: InstanceType<TModel>
   ): Promise<void> {
     // Événement SYNC - peut être utilisé pour validation ou modification de données
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(`${this.getModelName().toLowerCase()}.before_update`, {
       id,
       data,
@@ -397,6 +437,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
 
   protected async afterUpdate(record: InstanceType<TModel>): Promise<void> {
     // Événement ASYNC via Bull Queue - déclenche des workflows
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(
       `${this.getModelName().toLowerCase()}.updated`,
       { record },
@@ -406,11 +447,13 @@ export abstract class BaseRepository<TModel extends LucidModel> {
 
   protected async beforeDelete(record: InstanceType<TModel>): Promise<void> {
     // Événement SYNC - peut être utilisé pour validation
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(`${this.getModelName().toLowerCase()}.before_delete`, { record })
   }
 
   protected async afterDelete(record: InstanceType<TModel>): Promise<void> {
     // Événement ASYNC via Bull Queue - déclenche des workflows (cleanup, notifications, etc.)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.eventBus!.emit(
       `${this.getModelName().toLowerCase()}.deleted`,
       { record },
@@ -441,10 +484,12 @@ export abstract class BaseRepository<TModel extends LucidModel> {
    * Vérifier si le modèle supporte les soft deletes
    */
   protected supportsSoftDelete(): boolean {
-    // Vérifier si le modèle a une colonne deleted_at dans ses colonnes définies
+    // Lucid registers columns under their camelCase attribute name.
+    // @column.dateTime({ columnName: 'deleted_at' }) declares the attribute as
+    // 'deletedAt', so that is the key stored in $columnsDefinitions.
     const columns = (this.model as unknown as { $columnsDefinitions?: Map<string, unknown> })
       .$columnsDefinitions
-    return !!columns && columns.has('deleted_at')
+    return !!columns && columns.has('deletedAt')
   }
 
   /**
@@ -479,6 +524,7 @@ export abstract class BaseRepository<TModel extends LucidModel> {
     if (scope) {
       tags.push(`${base}_list@${scope}`, `${base}@${scope}`)
     }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed by constructor fallback
     await this.cache!.invalidateTags(tags)
   }
 

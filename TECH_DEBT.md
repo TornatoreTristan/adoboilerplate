@@ -2,16 +2,11 @@
 
 Suivi des dettes techniques connues et de leurs cibles de cleanup.
 
-## ESLint warnings (303 au 2026-05-10)
+## ESLint — règles strictes (2026-05-20)
 
-Visibles via `npm run lint`. Réparties sur ~83 fichiers, sans hotspot unique.
+`@typescript-eslint/no-explicit-any` et `@typescript-eslint/no-non-null-assertion` sont configurés en **`error`** dans `eslint.config.js`. Un dépassement bloque le commit (et le CI).
 
-| Règle                                      | Count | Cible                                    |
-| ------------------------------------------ | ----- | ---------------------------------------- |
-| `@typescript-eslint/no-explicit-any`       | ~225  | passer à `'error'` après cleanup complet |
-| `@typescript-eslint/no-non-null-assertion` | ~76   | passer à `'error'` après cleanup complet |
-
-**Action** : à chaque PR qui touche un fichier listé, profiter pour typer correctement et virer les `any`. Cible : 0 warnings d'ici fin Q2 → bascule des règles à `'error'` dans `eslint.config.js`.
+Cas légitimes (frontières) : `// eslint-disable-next-line @typescript-eslint/no-explicit-any -- <justification concrète>` avec raison précise (ex : "JSONB column, shape varies per provider", "Bull generic T untyped by design"). 10 dérogations actuelles, toutes auditables via `grep -rn "eslint-disable" app/`.
 
 ## Backend controllers — service-locator vs constructor injection
 
@@ -19,14 +14,12 @@ Les 6 contrôleurs admin (`admin_dashboard`, `admin_users`, `admin_mails`, `admi
 
 Les autres contrôleurs (~14) utilisent encore `getService<T>(TYPES.X)` (service-locator). Migration estimée à 2-3h en suivant le mode d'emploi documenté dans le bridge provider.
 
-## React Email templates non i18n
+## Tests — migration automatique (2026-05-20)
 
-`inertia/emails/**` contient des chaînes françaises hardcodées. Le pre-commit `check-no-hardcoded-french.sh` les ignore explicitement. À traiter dans une PR dédiée : passer le contenu des templates par `useI18n()` + clés FR/EN.
-
-## Tests — migration manuelle requise
-
-Aucun hook ne joue automatiquement les migrations avant la suite de tests. Un dev qui clone le repo doit exécuter manuellement `NODE_ENV=test node ace migration:run` une fois après l'installation. À documenter dans le README "Getting started" ou ajouter un hook dans `tests/bootstrap.ts`.
+`tests/bootstrap.ts` lance `testUtils.db().migrate()` au démarrage de la suite. Un clone fresh peut exécuter `npm run test` directement sans étape manuelle.
 
 ## Script i18n — angle mort
 
 `scripts/check-no-hardcoded-french.sh` ne détecte que les chaînes contenant des caractères accentués. Du français sans accent (`Connexion`, `Retour`, `Suivant`) passe sans alerte. Acceptable pour un filet de sécurité, mais ne remplace pas la code review.
+
+`inertia/emails/**` n'est plus exclu du script : les templates React Email utilisent désormais des props `translations` typées, construites côté backend via `i18nManager.locale(locale).t(...)`. Aucun texte accentué hardcodé ne subsiste dans ces fichiers.

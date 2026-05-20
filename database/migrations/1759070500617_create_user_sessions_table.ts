@@ -10,9 +10,9 @@ export default class extends BaseSchema {
       table.uuid('user_id').references('users.id').onDelete('CASCADE').notNullable()
       table.string('ip_address').notNullable()
       table.text('user_agent').notNullable()
-      table.timestamp('started_at').notNullable()
-      table.timestamp('ended_at').nullable()
-      table.timestamp('last_activity').notNullable()
+      table.timestamp('started_at', { useTz: true }).notNullable()
+      table.timestamp('ended_at', { useTz: true }).nullable()
+      table.timestamp('last_activity', { useTz: true }).notNullable()
       table.boolean('is_active').defaultTo(true)
 
       // Géolocalisation
@@ -31,8 +31,11 @@ export default class extends BaseSchema {
       table.string('utm_medium').nullable()
       table.string('utm_campaign').nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
+
+      table.index(['user_id', 'is_active'])
+      table.index(['last_activity'])
     })
   }
 

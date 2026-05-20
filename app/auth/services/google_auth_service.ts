@@ -35,7 +35,7 @@ export default class GoogleAuthService {
 
       if (existingUser) {
         // Si soft deleted, restaurer le compte
-        if (existingUser.deleted_at) {
+        if (existingUser.deletedAt) {
           user = await this.userRepository.restoreDeletedUser(existingUser.id)
         } else {
           user = existingUser

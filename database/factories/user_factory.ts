@@ -15,6 +15,7 @@ export const UserFactory = factory
       googleId: null,
       avatarUrl: null,
       emailVerifiedAt: null,
+      locale: 'fr' as const,
       newsletterEnabled: false,
       tipsEnabled: true,
       promotionalOffersEnabled: false,

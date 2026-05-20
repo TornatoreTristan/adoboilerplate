@@ -22,6 +22,18 @@ test.group('AdminSubscriptionsController - auth gating', (group) => {
     }
     const userService = getService<UserService>(TYPES.UserService)
     const user = await userService.create(userData)
+    await db
+      .table('roles')
+      .insert({
+        id: crypto.randomUUID(),
+        name: 'Super Admin',
+        slug: 'super-admin',
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .onConflict('slug')
+      .ignore()
     await db.table('user_roles').insert({
       id: crypto.randomUUID(),
       user_id: user.id,
@@ -56,9 +68,7 @@ test.group('AdminSubscriptionsController - auth gating', (group) => {
   })
 
   test('GET /admin/subscriptions responds 401 for an anonymous request', async ({ client }) => {
-    const response = await client
-      .get('/admin/subscriptions')
-      .header('accept', 'application/json')
+    const response = await client.get('/admin/subscriptions').header('accept', 'application/json')
     response.assertStatus(401)
   })
 

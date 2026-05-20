@@ -15,7 +15,7 @@ export default class CacheService {
   /**
    * Récupérer une valeur depuis le cache
    */
-  async get<T = any>(key: string): Promise<T | null> {
+  async get<T = unknown>(key: string): Promise<T | null> {
     try {
       const value = await this.redis.get(key)
       return value ? JSON.parse(value) : null

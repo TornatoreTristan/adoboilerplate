@@ -102,9 +102,10 @@ test.group('EmailService - Logging', (group) => {
     const log = logs[0]
 
     assert.isDefined(log.metadata)
-    assert.equal(log.metadata!.tags.campaign, 'launch')
-    assert.isDefined(log.metadata!.cc)
-    assert.isDefined(log.metadata!.bcc)
+    const metadata = log.metadata as { tags: { campaign: string }; cc: unknown; bcc: unknown }
+    assert.equal(metadata.tags.campaign, 'launch')
+    assert.isDefined(metadata.cc)
+    assert.isDefined(metadata.bcc)
 
     assert.isDefined(log.attachmentsMetadata)
     assert.equal(log.attachmentsMetadata!.length, 1)

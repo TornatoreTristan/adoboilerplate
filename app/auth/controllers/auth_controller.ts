@@ -91,20 +91,24 @@ export default class AuthController {
     // The frontend should then POST to /auth/2fa/challenge with the TOTP
     // code (or a backup code) to finish authenticating.
     const twoFactorService = getService<TwoFactorService>(TYPES.TwoFactorService)
-    if (twoFactorService.isEnabled(result.user!)) {
+    if (result.user && twoFactorService.isEnabled(result.user)) {
       session.regenerate()
-      session.put('pending_2fa_user_id', result.user!.id)
+      session.put('pending_2fa_user_id', result.user.id)
       if (this.isApiRequest(request)) {
         return response.json({ success: true, twoFactorRequired: true })
       }
       return response.redirect('/auth/2fa/challenge')
     }
 
+    if (!result.user) {
+      return response.redirect('/login')
+    }
+
     // Régénérer l'ID de session pour prévenir la session fixation
     session.regenerate()
 
     // Créer la session utilisateur
-    session.put('user_id', result.user!.id)
+    session.put('user_id', result.user.id)
 
     // Extraire les données UTM et referrer
     const utmSource = request.input('utm_source')
@@ -114,7 +118,7 @@ export default class AuthController {
 
     // Créer l'entrée de session dans la base
     const userSession = await sessionService.createSession({
-      userId: result.user!.id,
+      userId: result.user.id,
       ipAddress: request.ip(),
       userAgent: request.header('user-agent') || 'Unknown',
       referrer,
@@ -223,11 +227,15 @@ export default class AuthController {
       return response.redirect().back()
     }
 
+    if (!result.user) {
+      return response.redirect('/login')
+    }
+
     // Régénérer l'ID de session pour prévenir la session fixation
     session.regenerate()
 
     // Créer la session utilisateur automatiquement après inscription
-    session.put('user_id', result.user!.id)
+    session.put('user_id', result.user.id)
 
     // Extraire les données UTM et referrer
     const utmSource = request.input('utm_source')
@@ -237,7 +245,7 @@ export default class AuthController {
 
     // Créer l'entrée de session dans la base
     const userSession = await sessionService.createSession({
-      userId: result.user!.id,
+      userId: result.user.id,
       ipAddress: request.ip(),
       userAgent: request.header('user-agent') || 'Unknown',
       referrer,
@@ -254,7 +262,7 @@ export default class AuthController {
       const emailVerificationService = getService<EmailVerificationService>(
         TYPES.EmailVerificationService
       )
-      await emailVerificationService.sendVerificationEmail(result.user!.id)
+      await emailVerificationService.sendVerificationEmail(result.user.id)
     } catch (error) {
       logger.error({ err: error }, "Erreur lors de l'envoi de l'email de vérification")
     }

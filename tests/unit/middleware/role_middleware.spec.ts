@@ -19,9 +19,8 @@ interface CtxOverrides {
 
 function buildCtx(overrides: CtxOverrides = {}) {
   return {
-    session: { get: (key: string) => (key === 'user_id' ? overrides.userId ?? null : null) },
+    session: { get: (key: string) => (key === 'user_id' ? (overrides.userId ?? null) : null) },
     organization: overrides.organizationId ? { id: overrides.organizationId } : undefined,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any — harness ctx
   } as any
 }
 

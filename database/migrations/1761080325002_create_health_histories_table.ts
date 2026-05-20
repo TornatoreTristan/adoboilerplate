@@ -17,9 +17,16 @@ export default class extends BaseSchema {
     this.schema.raw(`
       CREATE INDEX health_history_created_at_idx ON ${this.tableName} (created_at DESC);
     `)
+
+    this.schema.raw(
+      `ALTER TABLE ${this.tableName} ADD CONSTRAINT health_history_status_check CHECK (status IN ('ok', 'degraded', 'down'))`
+    )
   }
 
   async down() {
+    this.schema.raw(
+      `ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS health_history_status_check`
+    )
     this.schema.dropTable(this.tableName)
   }
 }

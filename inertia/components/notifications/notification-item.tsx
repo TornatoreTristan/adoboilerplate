@@ -26,7 +26,7 @@ interface NotificationItemProps {
     priority: NotificationPriority
     titleI18n: TranslatableField
     messageI18n: TranslatableField
-    data: Record<string, any> | null
+    data: Record<string, unknown> | null
     actions: NotificationAction[] | null
     readAt: string | null
     createdAt: string

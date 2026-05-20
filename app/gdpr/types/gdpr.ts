@@ -20,7 +20,7 @@ export interface UserDataExport {
   notifications: Array<{
     id: string
     type: string
-    data: Record<string, any>
+    data: Record<string, unknown>
     readAt: string | null
     createdAt: string
   }>
@@ -60,5 +60,5 @@ export interface GdprAuditLog {
   requestedAt: string
   completedAt?: string
   ipAddress?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }

@@ -22,7 +22,7 @@ export default class ApiAuthMiddleware {
       cache: { ttl: 60, tags: [`user_${token.userId}`, 'users'] },
     })
 
-    if (!user || (user.deleted_at && user.deleted_at.toMillis() <= Date.now())) {
+    if (!user || (user.deletedAt && user.deletedAt.toMillis() <= Date.now())) {
       E.apiTokenInvalid('Utilisateur associé au token introuvable')
     }
 

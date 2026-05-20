@@ -50,7 +50,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
                   name: ctx.organization.name,
                   slug: ctx.organization.slug,
                   logoUrl: ctx.organization.logoUrl,
-                  role: userOrganizations.find((org) => org.id === ctx.organization!.id)
+                  role: userOrganizations.find((org) => org.id === ctx.organization?.id)
                     ?.pivot_role,
                 }
               : null,

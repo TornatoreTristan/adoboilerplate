@@ -13,7 +13,7 @@ interface Notification {
   type: string
   titleI18n: TranslatableField
   messageI18n: TranslatableField
-  data: Record<string, any> | null
+  data: Record<string, unknown> | null
   readAt: string | null
   createdAt: string
 }

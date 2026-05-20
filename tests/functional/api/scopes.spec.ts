@@ -53,8 +53,10 @@ test.group('API scope middleware', (group) => {
       .header('Authorization', `Bearer ${token.plainToken}`)
 
     response.assertStatus(403)
-    const body = response.body() as { code?: string; details?: { missing?: string[] } }
-    assert.equal(body.code, 'API_INSUFFICIENT_SCOPE')
-    assert.deepEqual(body.details?.missing, [API_SCOPES.USERS_READ])
+    const body = response.body() as {
+      error?: { code?: string; details?: { missing?: string[] } }
+    }
+    assert.equal(body.error?.code, 'API_INSUFFICIENT_SCOPE')
+    assert.deepEqual(body.error?.details?.missing, [API_SCOPES.USERS_READ])
   })
 })

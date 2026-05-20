@@ -1,10 +1,10 @@
 import { inject, injectable } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type PlanRepository from '#billing/repositories/plan_repository'
+import type StripeClientService from '#billing/services/stripe_client_service'
 import type Plan from '#billing/models/plan'
 import type { PricingModel, PricingTier } from '#billing/models/plan'
-import Stripe from 'stripe'
-import env from '#start/env'
+import type Stripe from 'stripe'
 import { E } from '#shared/exceptions/exception_helpers'
 
 interface CreatePlanData {
@@ -18,7 +18,7 @@ interface CreatePlanData {
   pricingTiers?: PricingTier[]
   trialDays?: number
   features?: string[]
-  limits?: Record<string, any>
+  limits?: Record<string, unknown>
   isActive?: boolean
   isVisible?: boolean
   sortOrder?: number
@@ -35,7 +35,7 @@ interface UpdatePlanData {
   pricingTiers?: PricingTier[]
   trialDays?: number
   features?: string[]
-  limits?: Record<string, any>
+  limits?: Record<string, unknown>
   isActive?: boolean
   isVisible?: boolean
   sortOrder?: number
@@ -43,7 +43,10 @@ interface UpdatePlanData {
 
 @injectable()
 export default class PlanService {
-  constructor(@inject(TYPES.PlanRepository) private planRepository: PlanRepository) {}
+  constructor(
+    @inject(TYPES.PlanRepository) private planRepository: PlanRepository,
+    @inject(TYPES.StripeClientService) private stripeClientService: StripeClientService
+  ) {}
 
   async createPlan(data: CreatePlanData): Promise<Plan> {
     let stripeProductId: string | null = null
@@ -127,7 +130,7 @@ export default class PlanService {
         (data.pricingTiers !== undefined &&
           JSON.stringify(data.pricingTiers) !== JSON.stringify(plan.pricingTiers))
 
-      const stripe = await this.getStripeClient()
+      const stripe = this.getStripeClient()
       if (!stripe) {
         E.internal('Stripe integration not configured')
       }
@@ -262,18 +265,8 @@ export default class PlanService {
     return this.planRepository.findBySlug(slug)
   }
 
-  private async getStripeClient(): Promise<Stripe | null> {
-    // Niveau A : Utiliser les clés Stripe de l'APPLICATION depuis .env
-    // Ceci permet de créer les plans de l'application que les organisations vont acheter
-    const secretKey = env.get('STRIPE_SECRET_KEY')
-
-    if (!secretKey) {
-      E.internal('STRIPE_SECRET_KEY not configured in .env')
-    }
-
-    return new Stripe(secretKey, {
-      apiVersion: '2025-10-29.clover',
-    })
+  private getStripeClient(): Stripe | null {
+    return this.stripeClientService.client
   }
 
   private async createStripeProduct(
@@ -285,9 +278,9 @@ export default class PlanService {
     pricingModel: PricingModel,
     pricingTiers?: PricingTier[],
     features?: string[],
-    limits?: Record<string, any>
+    limits?: Record<string, unknown>
   ): Promise<{ productId: string; priceIdMonthly: string; priceIdYearly: string }> {
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     if (!stripe) {
       E.internal('Stripe integration not configured')
@@ -414,9 +407,9 @@ export default class PlanService {
     name: string,
     description: string,
     features?: string[],
-    limits?: Record<string, any>
+    limits?: Record<string, unknown>
   ): Promise<void> {
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     if (!stripe) {
       E.internal('Stripe integration not configured')
@@ -448,7 +441,7 @@ export default class PlanService {
   }
 
   private async archiveStripeProduct(productId: string): Promise<void> {
-    const stripe = await this.getStripeClient()
+    const stripe = this.getStripeClient()
 
     if (!stripe) {
       return

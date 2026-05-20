@@ -243,7 +243,7 @@ test.group('NotificationService', (group) => {
     await service.deleteNotification(notification!.id)
 
     const deleted = await Notification.find(notification!.id)
-    assert.isNotNull(deleted?.deleted_at)
+    assert.isNotNull(deleted?.deletedAt)
   })
 
   test('devrait créer une notification avec actions', async ({ assert }) => {

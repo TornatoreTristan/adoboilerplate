@@ -5,10 +5,12 @@ import '../css/app.css'
 import { hydrateRoot } from 'react-dom/client'
 import { createInertiaApp } from '@inertiajs/react'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
+import { TuyauProvider } from '@adonisjs/inertia/react'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AppWrapper } from '@/components/app-wrapper'
 import { SentryErrorBoundary } from '@/components/sentry-error-boundary'
 import { initSentry } from '@/lib/sentry'
+import { tuyau } from '@/lib/tuyau'
 
 // Initialize Sentry as early as possible
 initSentry()
@@ -28,11 +30,13 @@ createInertiaApp({
     hydrateRoot(
       el,
       <SentryErrorBoundary>
-        <ThemeProvider defaultTheme="system" storageKey="app-theme">
-          <AppWrapper>
-            <App {...props} />
-          </AppWrapper>
-        </ThemeProvider>
+        <TuyauProvider client={tuyau}>
+          <ThemeProvider defaultTheme="system" storageKey="app-theme">
+            <AppWrapper>
+              <App {...props} />
+            </AppWrapper>
+          </ThemeProvider>
+        </TuyauProvider>
       </SentryErrorBoundary>
     )
   },

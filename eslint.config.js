@@ -6,11 +6,8 @@ export default [
     files: ['**/*.{ts,tsx}'],
     ignores: ['database/schema.ts', 'build/**', 'node_modules/**', 'tmp/**', '.adonisjs/**'],
     rules: {
-      // TODO: promote to 'error' once the ~225 pre-existing `any` violations
-      // are cleaned up (see `npm run lint`). Kept at 'warn' for now so the
-      // signal is visible without blocking commits on legacy debt.
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'error',
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },

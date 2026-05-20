@@ -37,9 +37,7 @@ test.group('updateOrganizationValidator', () => {
   })
 
   test('rejects a name shorter than 2 characters', async ({ assert }) => {
-    await assert.rejects(() =>
-      updateOrganizationValidator.validate({ name: 'A' })
-    )
+    await assert.rejects(() => updateOrganizationValidator.validate({ name: 'A' }))
   })
 
   test('rejects an invalid email', async ({ assert }) => {

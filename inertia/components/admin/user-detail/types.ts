@@ -30,6 +30,6 @@ export interface AuditLog {
   resourceType: string | null
   resourceId: string | null
   ipAddress: string | null
-  metadata: Record<string, any> | null
+  metadata: Record<string, unknown> | null
   createdAt: string
 }

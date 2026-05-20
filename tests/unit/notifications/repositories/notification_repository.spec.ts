@@ -217,7 +217,7 @@ test.group('NotificationRepository', (group) => {
     await repository.delete(notification.id, { soft: true })
 
     const deleted = await Notification.find(notification.id)
-    assert.isNotNull(deleted?.deleted_at)
+    assert.isNotNull(deleted?.deletedAt)
   })
 
   test('devrait restore une notification soft deleted', async ({ assert }) => {
@@ -227,14 +227,14 @@ test.group('NotificationRepository', (group) => {
       type: 'user.mentioned',
       titleI18n: { fr: 'Test', en: 'Test' },
       messageI18n: { fr: 'Test message', en: 'Test message' },
-      deleted_at: DateTime.now(),
+      deletedAt: DateTime.now(),
     })
 
-    assert.isNotNull(notification.deleted_at)
+    assert.isNotNull(notification.deletedAt)
 
     const restored = await repository.restore(notification.id)
 
-    assert.isTrue(restored.deleted_at === null || restored.deleted_at === undefined)
+    assert.isTrue(restored.deletedAt === null || restored.deletedAt === undefined)
   })
 
   test('devrait filtrer les notifications par type', async ({ assert }) => {

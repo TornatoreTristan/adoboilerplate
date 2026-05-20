@@ -9,65 +9,36 @@ import {
   Button,
   Hr,
 } from '@react-email/components'
+import type { OrganizationInvitationEmailTranslations } from './types.js'
 
 interface OrganizationInvitationEmailProps {
-  organizationName: string
-  inviterName: string
-  role: string
+  translations: OrganizationInvitationEmailTranslations
   invitationUrl: string
-  expiresAt: string
 }
 
 export default function OrganizationInvitationEmail({
-  organizationName,
-  inviterName,
-  role,
+  translations,
   invitationUrl,
-  expiresAt,
 }: OrganizationInvitationEmailProps) {
-  const getRoleLabel = (roleValue: string) => {
-    switch (roleValue) {
-      case 'owner':
-        return 'Propriétaire'
-      case 'admin':
-        return 'Administrateur'
-      case 'member':
-        return 'Membre'
-      default:
-        return roleValue
-    }
-  }
-
   return (
     <Html>
       <Head />
-      <Preview>
-        {inviterName} vous invite à rejoindre {organizationName}
-      </Preview>
+      <Preview>{translations.preview}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Vous êtes invité ! 🎉</Heading>
+          <Heading style={h1}>{translations.heading}</Heading>
 
-          <Text style={text}>
-            <strong>{inviterName}</strong> vous invite à rejoindre l'organisation{' '}
-            <strong>{organizationName}</strong> en tant que <strong>{getRoleLabel(role)}</strong>.
-          </Text>
+          <Text style={text}>{translations.body}</Text>
 
           <Button style={button} href={invitationUrl}>
-            Accepter l'invitation
+            {translations.cta}
           </Button>
 
-          <Text style={text}>
-            Cette invitation est valable jusqu'au <strong>{expiresAt}</strong>. Si vous ne
-            l'acceptez pas avant cette date, elle expirera automatiquement.
-          </Text>
+          <Text style={text}>{translations.expires}</Text>
 
           <Hr style={hr} />
 
-          <Text style={footer}>
-            Si vous n'attendiez pas cette invitation ou si vous pensez qu'il s'agit d'une erreur,
-            vous pouvez ignorer cet email en toute sécurité.
-          </Text>
+          <Text style={footer}>{translations.footer}</Text>
         </Container>
       </Body>
     </Html>

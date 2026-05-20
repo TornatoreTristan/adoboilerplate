@@ -10,11 +10,11 @@ export default class extends BaseSchema {
       table.string('email').notNullable()
       table.string('token').notNullable().unique()
       table.enum('type', ['registration', 'email_change']).notNullable()
-      table.timestamp('expires_at').notNullable()
-      table.timestamp('verified_at').nullable()
+      table.timestamp('expires_at', { useTz: true }).notNullable()
+      table.timestamp('verified_at', { useTz: true }).nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
 
       // Indexes
       table.index(['user_id'])

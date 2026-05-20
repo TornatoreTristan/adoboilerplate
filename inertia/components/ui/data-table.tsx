@@ -72,8 +72,8 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    ...(isServerDriven
-      ? { manualPagination: true, pageCount: serverPagination!.lastPage }
+    ...(serverPagination
+      ? { manualPagination: true, pageCount: serverPagination.lastPage }
       : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -89,8 +89,7 @@ export function DataTable<TData, TValue>({
   })
 
   const showSearch = !!serverSearch || !!searchKey
-  const placeholder =
-    serverSearch?.placeholder ?? searchPlaceholder ?? `${t('common.search')}...`
+  const placeholder = serverSearch?.placeholder ?? searchPlaceholder ?? `${t('common.search')}...`
 
   return (
     <div className="space-y-4">

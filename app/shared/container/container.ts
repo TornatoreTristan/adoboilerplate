@@ -32,6 +32,7 @@ import EmailLogRepository from '#mailing/repositories/email_log_repository'
 import IntegrationRepository from '#integrations/repositories/integration_repository'
 import PlanRepository from '#billing/repositories/plan_repository'
 import SubscriptionRepository from '#billing/repositories/subscription_repository'
+import StripeWebhookEventRepository from '#billing/repositories/stripe_webhook_event_repository'
 import OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 
 // Upload Services
@@ -58,6 +59,7 @@ import UserNotificationPreferenceService from '#notifications/services/user_noti
 import AuthorizationService from '#roles/services/authorization_service'
 import AdminService from '#admin/services/admin_service'
 import StripeConnectService from '#integrations/services/stripe_connect_service'
+import StripeClientService from '#billing/services/stripe_client_service'
 import PlanService from '#billing/services/plan_service'
 import SubscriptionService from '#billing/services/subscription_service'
 import PricingCalculatorService from '#billing/services/pricing_calculator_service'
@@ -243,6 +245,7 @@ export function configureContainer(): Container {
   container.bind(TYPES.IntegrationRepository).to(IntegrationRepository)
   container.bind(TYPES.PlanRepository).to(PlanRepository)
   container.bind(TYPES.SubscriptionRepository).to(SubscriptionRepository)
+  container.bind(TYPES.StripeWebhookEventRepository).to(StripeWebhookEventRepository)
   container.bind(TYPES.OrganizationInvitationRepository).to(OrganizationInvitationRepository)
   container.bind(TYPES.ApiTokenRepository).to(ApiTokenRepository)
   container.bind<ApiTokenService>(TYPES.ApiTokenService).to(ApiTokenService).inSingletonScope()
@@ -278,6 +281,10 @@ export function configureContainer(): Container {
   container
     .bind<StripeConnectService>(TYPES.StripeConnectService)
     .to(StripeConnectService)
+    .inSingletonScope()
+  container
+    .bind<StripeClientService>(TYPES.StripeClientService)
+    .to(StripeClientService)
     .inSingletonScope()
   container.bind<PlanService>(TYPES.PlanService).to(PlanService).inSingletonScope()
   container

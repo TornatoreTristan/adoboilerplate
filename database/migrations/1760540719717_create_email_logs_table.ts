@@ -35,20 +35,20 @@ export default class extends BaseSchema {
 
       table.integer('opens_count').defaultTo(0)
       table.integer('clicks_count').defaultTo(0)
-      table.timestamp('opened_at').nullable()
-      table.timestamp('clicked_at').nullable()
+      table.timestamp('opened_at', { useTz: true }).nullable()
+      table.timestamp('clicked_at', { useTz: true }).nullable()
 
-      table.json('metadata').nullable()
-      table.json('attachments_metadata').nullable()
+      table.jsonb('metadata').nullable()
+      table.jsonb('attachments_metadata').nullable()
 
-      table.json('bounce_data').nullable()
-      table.json('complaint_data').nullable()
+      table.jsonb('bounce_data').nullable()
+      table.jsonb('complaint_data').nullable()
 
-      table.timestamp('sent_at').nullable()
-      table.timestamp('delivered_at').nullable()
-      table.timestamp('failed_at').nullable()
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('sent_at', { useTz: true }).nullable()
+      table.timestamp('delivered_at', { useTz: true }).nullable()
+      table.timestamp('failed_at', { useTz: true }).nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
 
       table.index(['status', 'category', 'created_at'])
       table.index(['user_id', 'created_at'])

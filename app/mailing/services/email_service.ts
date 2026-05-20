@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify'
 import { render } from '@react-email/render'
+import i18nManager from '@adonisjs/i18n/services/main'
 import env from '#start/env'
 import { TYPES } from '#shared/container/types'
 import type QueueService from '#shared/services/queue_service'
@@ -10,7 +11,12 @@ import type {
   EmailResult,
   WelcomeEmailData,
   PasswordResetEmailData,
+  OrganizationInvitationEmailData,
   QueueEmailData,
+  SupportedLocale,
+  WelcomeEmailTranslations,
+  PasswordResetEmailTranslations,
+  OrganizationInvitationEmailTranslations,
 } from '#mailing/types/email'
 
 @injectable()
@@ -93,9 +99,6 @@ export default class EmailService {
     }
   }
 
-  /**
-   * Queue email via Bull (async, reliable, with retries)
-   */
   async queue(
     emailData: QueueEmailData,
     options?: { priority?: number; delay?: number }
@@ -111,57 +114,180 @@ export default class EmailService {
     )
   }
 
-  async sendWelcomeEmail(to: string, data: WelcomeEmailData): Promise<EmailResult> {
+  buildWelcomeTranslations(
+    locale: SupportedLocale,
+    vars: { userName: string }
+  ): WelcomeEmailTranslations {
+    const i18n = i18nManager.locale(locale)
+    return {
+      subject: i18n.t('emails.welcome.subject', vars),
+      preview: i18n.t('emails.welcome.preview', vars),
+      heading: i18n.t('emails.welcome.heading', vars),
+      body: i18n.t('emails.welcome.body', vars),
+      cta: i18n.t('emails.welcome.cta', vars),
+      helper: i18n.t('emails.welcome.helper', vars),
+      footer: i18n.t('emails.welcome.footer', vars),
+    }
+  }
+
+  buildPasswordResetTranslations(
+    locale: SupportedLocale,
+    vars: { userName: string; expiresIn: string }
+  ): PasswordResetEmailTranslations {
+    const i18n = i18nManager.locale(locale)
+    return {
+      subject: i18n.t('emails.password_reset.subject', vars),
+      preview: i18n.t('emails.password_reset.preview', vars),
+      heading: i18n.t('emails.password_reset.heading', vars),
+      greeting: i18n.t('emails.password_reset.greeting', vars),
+      body: i18n.t('emails.password_reset.body', vars),
+      cta: i18n.t('emails.password_reset.cta', vars),
+      expires: i18n.t('emails.password_reset.expires', vars),
+      footer: i18n.t('emails.password_reset.footer', vars),
+    }
+  }
+
+  buildOrganizationInvitationTranslations(
+    locale: SupportedLocale,
+    vars: { inviterName: string; organizationName: string; roleLabel: string; expiresAt: string }
+  ): OrganizationInvitationEmailTranslations {
+    const i18n = i18nManager.locale(locale)
+    return {
+      subject: i18n.t('emails.organization_invitation.subject', vars),
+      preview: i18n.t('emails.organization_invitation.preview', vars),
+      heading: i18n.t('emails.organization_invitation.heading', vars),
+      body: i18n.t('emails.organization_invitation.body', vars),
+      cta: i18n.t('emails.organization_invitation.cta', vars),
+      expires: i18n.t('emails.organization_invitation.expires', vars),
+      footer: i18n.t('emails.organization_invitation.footer', vars),
+    }
+  }
+
+  private resolveRoleLabel(locale: SupportedLocale, role: string): string {
+    const i18n = i18nManager.locale(locale)
+    const knownRoles = ['owner', 'admin', 'member']
+    if (knownRoles.includes(role)) {
+      return i18n.t(`emails.organization_invitation.role.${role}`)
+    }
+    return role
+  }
+
+  async sendWelcomeEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: WelcomeEmailData
+  ): Promise<EmailResult> {
     const { default: WelcomeEmail } = await import('../../../inertia/emails/welcome_email.js')
+    const translations = this.buildWelcomeTranslations(locale, { userName: data.userName })
     return this.send({
       to,
-      subject: 'Bienvenue sur notre plateforme !',
-      react: WelcomeEmail(data),
-      tags: {
-        category: 'welcome',
-      },
+      subject: translations.subject,
+      react: WelcomeEmail({ translations, loginUrl: data.loginUrl }),
+      tags: { category: 'welcome' },
     })
   }
 
-  async sendPasswordResetEmail(to: string, data: PasswordResetEmailData): Promise<EmailResult> {
+  async sendPasswordResetEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: PasswordResetEmailData
+  ): Promise<EmailResult> {
     const { default: PasswordResetEmail } =
       await import('../../../inertia/emails/password_reset_email.js')
+    const translations = this.buildPasswordResetTranslations(locale, {
+      userName: data.userName,
+      expiresIn: data.expiresIn,
+    })
     return this.send({
       to,
-      subject: 'Réinitialisation de votre mot de passe',
-      react: PasswordResetEmail(data),
-      tags: {
-        category: 'password-reset',
-      },
+      subject: translations.subject,
+      react: PasswordResetEmail({ translations, resetUrl: data.resetUrl }),
+      tags: { category: 'password-reset' },
     })
   }
 
-  async queueWelcomeEmail(to: string, data: WelcomeEmailData): Promise<void> {
+  async sendOrganizationInvitationEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: OrganizationInvitationEmailData
+  ): Promise<EmailResult> {
+    const { default: OrganizationInvitationEmail } =
+      await import('../../../inertia/emails/organization_invitation_email.js')
+    const roleLabel = this.resolveRoleLabel(locale, data.role)
+    const translations = this.buildOrganizationInvitationTranslations(locale, {
+      inviterName: data.inviterName,
+      organizationName: data.organizationName,
+      roleLabel,
+      expiresAt: data.expiresAt,
+    })
+    return this.send({
+      to,
+      subject: translations.subject,
+      react: OrganizationInvitationEmail({ translations, invitationUrl: data.invitationUrl }),
+      tags: { category: 'organization-invite' },
+    })
+  }
+
+  async queueWelcomeEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: WelcomeEmailData
+  ): Promise<void> {
     const { default: WelcomeEmail } = await import('../../../inertia/emails/welcome_email.js')
+    const translations = this.buildWelcomeTranslations(locale, { userName: data.userName })
     await this.queue(
       {
         to,
-        subject: 'Bienvenue sur notre plateforme !',
-        react: WelcomeEmail(data),
-        tags: {
-          category: 'welcome',
-        },
+        subject: translations.subject,
+        react: WelcomeEmail({ translations, loginUrl: data.loginUrl }),
+        tags: { category: 'welcome' },
       },
       { priority: 0 }
     )
   }
 
-  async queuePasswordResetEmail(to: string, data: PasswordResetEmailData): Promise<void> {
+  async queuePasswordResetEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: PasswordResetEmailData
+  ): Promise<void> {
     const { default: PasswordResetEmail } =
       await import('../../../inertia/emails/password_reset_email.js')
+    const translations = this.buildPasswordResetTranslations(locale, {
+      userName: data.userName,
+      expiresIn: data.expiresIn,
+    })
     await this.queue(
       {
         to,
-        subject: 'Réinitialisation de votre mot de passe',
-        react: PasswordResetEmail(data),
-        tags: {
-          category: 'password-reset',
-        },
+        subject: translations.subject,
+        react: PasswordResetEmail({ translations, resetUrl: data.resetUrl }),
+        tags: { category: 'password-reset' },
+      },
+      { priority: 1 }
+    )
+  }
+
+  async queueOrganizationInvitationEmail(
+    to: string,
+    locale: SupportedLocale,
+    data: OrganizationInvitationEmailData
+  ): Promise<void> {
+    const { default: OrganizationInvitationEmail } =
+      await import('../../../inertia/emails/organization_invitation_email.js')
+    const roleLabel = this.resolveRoleLabel(locale, data.role)
+    const translations = this.buildOrganizationInvitationTranslations(locale, {
+      inviterName: data.inviterName,
+      organizationName: data.organizationName,
+      roleLabel,
+      expiresAt: data.expiresAt,
+    })
+    await this.queue(
+      {
+        to,
+        subject: translations.subject,
+        react: OrganizationInvitationEmail({ translations, invitationUrl: data.invitationUrl }),
+        tags: { category: 'organization-invite' },
       },
       { priority: 1 }
     )

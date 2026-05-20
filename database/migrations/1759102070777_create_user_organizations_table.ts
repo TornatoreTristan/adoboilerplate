@@ -10,10 +10,10 @@ export default class extends BaseSchema {
       table.uuid('user_id').references('users.id').onDelete('CASCADE').notNullable()
       table.uuid('organization_id').references('organizations.id').onDelete('CASCADE').notNullable()
       table.string('role').notNullable().defaultTo('member')
-      table.timestamp('joined_at').notNullable()
+      table.timestamp('joined_at', { useTz: true }).notNullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
 
       table.unique(['user_id', 'organization_id'])
     })

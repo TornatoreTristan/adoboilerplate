@@ -26,6 +26,19 @@ test.group('AdminQueuesController', (group) => {
     const userService = getService<UserService>(TYPES.UserService)
     const user = await userService.create(userData)
 
+    await db
+      .table('roles')
+      .insert({
+        id: crypto.randomUUID(),
+        name: 'Super Admin',
+        slug: 'super-admin',
+        is_system: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .onConflict('slug')
+      .ignore()
+
     await db.table('user_roles').insert({
       id: crypto.randomUUID(),
       user_id: user.id,

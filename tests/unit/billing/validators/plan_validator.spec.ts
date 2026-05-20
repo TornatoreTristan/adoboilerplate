@@ -94,8 +94,6 @@ test.group('updatePlanValidator', () => {
   })
 
   test('rejects an unknown pricing model even on update', async ({ assert }) => {
-    await assert.rejects(() =>
-      updatePlanValidator.validate({ pricingModel: 'invented' })
-    )
+    await assert.rejects(() => updatePlanValidator.validate({ pricingModel: 'invented' }))
   })
 })

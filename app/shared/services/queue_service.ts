@@ -85,6 +85,7 @@ export default class QueueService {
       this.queues.set(name, queue)
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by has() + set() above
     return this.queues.get(name)!
   }
 
@@ -106,6 +107,7 @@ export default class QueueService {
       })
       this.deadLetterQueues.set(dlqName, dlq)
     }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by has() + set() above
     return this.deadLetterQueues.get(dlqName)!
   }
 
@@ -128,6 +130,7 @@ export default class QueueService {
    * Process jobs from queue. Wraps the handler with a logger so timing /
    * failure observability is consistent across queues.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Bull.ProcessCallbackFunction generic T is untyped by design at this abstraction level
   process(queueName: string, jobName: string, handler: Bull.ProcessCallbackFunction<any>): void {
     const queue = this.getQueue(queueName)
     queue.process(jobName, async (job, done) => {
@@ -313,9 +316,11 @@ export default class QueueService {
    */
   private resolveQueue(name: string): Bull.Queue {
     if (this.queues.has(name)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by has() above
       return this.queues.get(name)!
     }
     if (this.deadLetterQueues.has(name)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by has() above
       return this.deadLetterQueues.get(name)!
     }
     E.queueNotFound(name)

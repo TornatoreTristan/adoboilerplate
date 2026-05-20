@@ -36,7 +36,7 @@ export default class RedisHealthCheck extends BaseHealthCheck {
     }
   }
 
-  private async getMemoryInfo(): Promise<Record<string, any>> {
+  private async getMemoryInfo(): Promise<{ used: string; max: string }> {
     try {
       const info = await this.redis.info('memory')
       const usedMemoryMatch = info.match(/used_memory_human:(.+)/)
@@ -47,7 +47,7 @@ export default class RedisHealthCheck extends BaseHealthCheck {
         max: maxMemoryMatch ? maxMemoryMatch[1].trim() : 'unlimited',
       }
     } catch {
-      return {}
+      return { used: 'unknown', max: 'unknown' }
     }
   }
 }

@@ -15,7 +15,7 @@ export default class OrganizationInvitation extends BaseModel {
   declare organizationId: string
 
   @column()
-  declare invitedById: string
+  declare invitedById: string | null
 
   @column()
   declare role: string

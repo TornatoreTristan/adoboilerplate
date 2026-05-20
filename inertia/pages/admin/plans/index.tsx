@@ -32,7 +32,7 @@ interface Plan {
   currency: string
   trialDays: number | null
   features: string[] | null
-  limits: Record<string, any> | null
+  limits: Record<string, unknown> | null
   isActive: boolean
   isVisible: boolean
   sortOrder: number

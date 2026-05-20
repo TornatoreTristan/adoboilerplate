@@ -1,0 +1,35 @@
+{
+  "welcome": {
+    "subject": "Bienvenue sur notre plateforme !",
+    "preview": "Bienvenue sur notre plateforme !",
+    "heading": "Bienvenue { userName } !",
+    "body": "Nous sommes ravis de vous accueillir sur notre plateforme. Votre compte a été créé avec succès et vous pouvez maintenant profiter de toutes nos fonctionnalités.",
+    "cta": "Accéder à mon compte",
+    "helper": "Vous pouvez vous connecter à tout moment en utilisant l'email avec lequel vous vous êtes inscrit.",
+    "footer": "Si vous n'avez pas créé ce compte, vous pouvez ignorer cet email en toute sécurité."
+  },
+  "password_reset": {
+    "subject": "Réinitialisation de votre mot de passe",
+    "preview": "Réinitialisation de votre mot de passe",
+    "heading": "Réinitialisation de mot de passe",
+    "greeting": "Bonjour { userName },",
+    "body": "Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte. Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe.",
+    "cta": "Réinitialiser mon mot de passe",
+    "expires": "Ce lien expirera dans { expiresIn }.",
+    "footer": "Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité. Votre mot de passe ne sera pas modifié."
+  },
+  "organization_invitation": {
+    "subject": "{ inviterName } vous invite à rejoindre { organizationName }",
+    "preview": "{ inviterName } vous invite à rejoindre { organizationName }",
+    "heading": "Vous êtes invité !",
+    "body": "{ inviterName } vous invite à rejoindre l'organisation { organizationName } en tant que { roleLabel }.",
+    "cta": "Accepter l'invitation",
+    "expires": "Cette invitation est valable jusqu'au { expiresAt }. Si vous ne l'acceptez pas avant cette date, elle expirera automatiquement.",
+    "footer": "Si vous n'attendiez pas cette invitation ou si vous pensez qu'il s'agit d'une erreur, vous pouvez ignorer cet email en toute sécurité.",
+    "role": {
+      "owner": "Propriétaire",
+      "admin": "Administrateur",
+      "member": "Membre"
+    }
+  }
+}

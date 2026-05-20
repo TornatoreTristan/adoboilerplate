@@ -103,7 +103,7 @@ export default class EmailVerificationController {
     if (!existingSessionId) {
       const sessionService = getService<SessionService>(TYPES.SessionService)
       const userSession = await sessionService.createSession({
-        userId: result.userId!,
+        userId: result.userId,
         ipAddress: request.ip(),
         userAgent: request.header('user-agent') || 'Unknown',
         referrer: request.header('referer'),

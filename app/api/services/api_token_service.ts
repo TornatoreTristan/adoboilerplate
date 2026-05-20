@@ -68,7 +68,7 @@ export default class ApiTokenService {
       E.apiTokenExpired()
     }
 
-    if (token.deleted_at !== null) {
+    if (token.deletedAt !== null) {
       E.apiTokenInvalid()
     }
 

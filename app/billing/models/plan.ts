@@ -86,8 +86,8 @@ export default class Plan extends BaseModel {
   declare featuresI18n: TranslatableFieldNullable | null
 
   @column({
-    prepare: (value: Record<string, any> | null) => (value ? JSON.stringify(value) : null),
-    consume: (value: string | Record<string, any> | null) => {
+    prepare: (value: Record<string, unknown> | null) => (value ? JSON.stringify(value) : null),
+    consume: (value: string | Record<string, unknown> | null) => {
       if (value === null) return null
       if (typeof value === 'string') {
         return value ? JSON.parse(value) : null
@@ -95,7 +95,7 @@ export default class Plan extends BaseModel {
       return value || null
     },
   })
-  declare limits: Record<string, any> | null
+  declare limits: Record<string, unknown> | null
 
   @column()
   declare isActive: boolean

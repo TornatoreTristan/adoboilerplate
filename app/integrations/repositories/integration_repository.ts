@@ -12,8 +12,10 @@ export default class IntegrationRepository extends BaseRepository<typeof Integra
 
   async upsertIntegration(
     provider: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config shape varies per integration provider
     config: Record<string, any>,
     isActive: boolean,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- metadata shape varies per integration provider
     metadata?: Record<string, any>
   ): Promise<Integration> {
     const existing = await this.findByProvider(provider)

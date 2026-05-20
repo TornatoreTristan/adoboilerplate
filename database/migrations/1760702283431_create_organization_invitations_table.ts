@@ -9,14 +9,14 @@ export default class extends BaseSchema {
 
       table.string('email').notNullable()
       table.uuid('organization_id').references('organizations.id').onDelete('CASCADE').notNullable()
-      table.uuid('invited_by_id').references('users.id').onDelete('CASCADE').notNullable()
+      table.uuid('invited_by_id').references('users.id').onDelete('SET NULL').nullable()
       table.string('role').notNullable().defaultTo('member')
       table.string('token').unique().notNullable()
-      table.timestamp('expires_at').notNullable()
-      table.timestamp('accepted_at').nullable()
+      table.timestamp('expires_at', { useTz: true }).notNullable()
+      table.timestamp('accepted_at', { useTz: true }).nullable()
 
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
 
       table.unique(['email', 'organization_id'])
       table.index(['token'])

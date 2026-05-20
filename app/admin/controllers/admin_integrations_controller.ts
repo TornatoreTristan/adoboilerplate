@@ -32,10 +32,11 @@ export default class AdminIntegrationsController {
 
     const existingIntegration = await this.adminService.getIntegration('stripe')
 
+    const existingConfig = existingIntegration?.config ?? {}
     const config: Record<string, string> = {
       publicKey: data.publicKey,
-      secretKey: data.secretKey || existingIntegration?.config.secretKey || '',
-      webhookSecret: data.webhookSecret || existingIntegration?.config.webhookSecret || '',
+      secretKey: data.secretKey || (existingConfig.secretKey as string) || '',
+      webhookSecret: data.webhookSecret || (existingConfig.webhookSecret as string) || '',
     }
 
     await this.adminService.configureIntegration('stripe', config, data.isActive)
@@ -96,7 +97,7 @@ export default class AdminIntegrationsController {
       const integration = await this.adminService.getIntegration('stripe')
 
       if (integration?.config.stripeUserId) {
-        await this.stripeConnectService.disconnectAccount(integration.config.stripeUserId)
+        await this.stripeConnectService.disconnectAccount(integration.config.stripeUserId as string)
       }
 
       await this.adminService.configureIntegration('stripe', {}, false)

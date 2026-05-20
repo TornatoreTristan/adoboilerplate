@@ -4,12 +4,14 @@ import { TYPES } from '#shared/container/types'
 import type PasswordResetService from '#auth/services/password_reset_service'
 import type PasswordStrengthService from '#auth/services/password_strength_service'
 import type EmailService from '#mailing/services/email_service'
+import type UserRepository from '#users/repositories/user_repository'
 import {
   forgotPasswordValidator,
   resetPasswordValidator,
 } from '#auth/validators/password_reset_validator'
 import { errors } from '@vinejs/vine'
 import env from '#start/env'
+import type { SupportedLocale } from '#mailing/types/email'
 
 export default class PasswordResetController {
   /**
@@ -28,12 +30,18 @@ export default class PasswordResetController {
 
       if (tokenData) {
         const emailService = getService<EmailService>(TYPES.EmailService)
+        const userRepo = getService<UserRepository>(TYPES.UserRepository)
         const appUrl = env.get('APP_URL')
 
-        await emailService.sendPasswordResetEmail(email, {
-          userName: email,
+        const user = await userRepo.findByEmail(email)
+        const locale: SupportedLocale = user?.locale ?? 'fr'
+
+        const expiresIn = locale === 'en' ? '1 hour' : '1 heure'
+
+        await emailService.sendPasswordResetEmail(email, locale, {
+          userName: user?.fullName || email,
           resetUrl: `${appUrl}/password/reset/${tokenData.token}`,
-          expiresIn: '1 heure',
+          expiresIn,
         })
       }
 

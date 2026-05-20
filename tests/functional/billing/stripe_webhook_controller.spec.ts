@@ -8,6 +8,7 @@ import { TYPES } from '#shared/container/types'
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type PlanRepository from '#billing/repositories/plan_repository'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
+import type StripeWebhookEventRepository from '#billing/repositories/stripe_webhook_event_repository'
 
 /**
  * Sign a Stripe webhook payload with the test secret so the controller's
@@ -197,6 +198,153 @@ test.group('StripeWebhookController - customer.subscription.deleted', (group) =>
     const updated = await subscriptionRepo.findById(subscription.id)
     assert.equal(updated!.status, 'canceled')
     assert.isNotNull(updated!.canceledAt)
+  })
+})
+
+test.group('StripeWebhookController - idempotency (deduplication)', (group) => {
+  group.each.setup(() => testUtils.db().withGlobalTransaction())
+
+  test('should mark event as processed after a successful delivery', async ({ client, assert }) => {
+    const secret = env.get('STRIPE_WEBHOOK_SECRET')
+    const webhookEventRepo = getService<StripeWebhookEventRepository>(
+      TYPES.StripeWebhookEventRepository
+    )
+
+    const event = buildEvent('customer.subscription.updated', {
+      id: 'sub_idempotency_mark',
+      status: 'active',
+      items: { data: [{ current_period_start: 1700000000, current_period_end: 1702592000 }] },
+      trial_end: null,
+      canceled_at: null,
+    })
+
+    const { signature } = signWebhook(event, secret)
+    const response = await client
+      .post('/webhooks/stripe')
+      .header('stripe-signature', signature)
+      .json(event)
+
+    response.assertStatus(200)
+
+    const processed = await webhookEventRepo.hasBeenProcessed(event.id)
+    assert.isTrue(processed, 'event.id should be marked as processed after handling')
+  })
+
+  test('should ignore a duplicate event.id and return 200', async ({ client, assert }) => {
+    const secret = env.get('STRIPE_WEBHOOK_SECRET')
+    const webhookEventRepo = getService<StripeWebhookEventRepository>(
+      TYPES.StripeWebhookEventRepository
+    )
+    const subscriptionRepo = getService<SubscriptionRepository>(TYPES.SubscriptionRepository)
+    const planRepo = getService<PlanRepository>(TYPES.PlanRepository)
+    const orgRepo = getService<OrganizationRepository>(TYPES.OrganizationRepository)
+
+    const plan = await planRepo.create({
+      nameI18n: { fr: 'Pro', en: 'Pro' },
+      slug: `plan-dedup-${Date.now()}`,
+      pricingModel: 'flat',
+      priceMonthly: 29,
+      priceYearly: 290,
+      currency: 'EUR',
+      isActive: true,
+      isVisible: true,
+      sortOrder: 1,
+    })
+
+    const org = await orgRepo.create({
+      name: 'Test Org Dedup',
+      slug: `org-dedup-${Date.now()}`,
+      isActive: true,
+    })
+
+    await subscriptionRepo.create({
+      organizationId: org.id,
+      planId: plan.id,
+      stripeSubscriptionId: 'sub_dedup_target',
+      stripeCustomerId: 'cus_dedup',
+      stripePriceId: 'price_dedup',
+      quantity: 1,
+      userCount: 1,
+      billingInterval: 'month',
+      price: 29,
+      currency: 'EUR',
+      status: 'active',
+    })
+
+    const event = buildEvent('customer.subscription.updated', {
+      id: 'sub_dedup_target',
+      status: 'past_due',
+      items: { data: [{ current_period_start: 1700000000, current_period_end: 1702592000 }] },
+      trial_end: null,
+      canceled_at: null,
+    })
+
+    const { signature } = signWebhook(event, secret)
+
+    const firstResponse = await client
+      .post('/webhooks/stripe')
+      .header('stripe-signature', signature)
+      .json(event)
+
+    firstResponse.assertStatus(200)
+
+    const sub = await subscriptionRepo.findByStripeSubscriptionId('sub_dedup_target')
+    assert.equal(sub!.status, 'past_due', 'first delivery should have updated status')
+
+    await subscriptionRepo.update(sub!.id, { status: 'active' })
+
+    const secondEvent = { ...event, id: event.id }
+    const { signature: sig2 } = signWebhook(secondEvent, secret)
+    const secondResponse = await client
+      .post('/webhooks/stripe')
+      .header('stripe-signature', sig2)
+      .json(secondEvent)
+
+    secondResponse.assertStatus(200)
+
+    const afterDedup = await subscriptionRepo.findByStripeSubscriptionId('sub_dedup_target')
+    assert.equal(
+      afterDedup!.status,
+      'active',
+      'duplicate webhook must NOT re-apply the handler (status should stay active)'
+    )
+
+    const processed = await webhookEventRepo.hasBeenProcessed(event.id)
+    assert.isTrue(processed)
+  })
+
+  test('should return 200 on a duplicate event even when the event type is unhandled', async ({
+    client,
+    assert,
+  }) => {
+    const secret = env.get('STRIPE_WEBHOOK_SECRET')
+    const webhookEventRepo = getService<StripeWebhookEventRepository>(
+      TYPES.StripeWebhookEventRepository
+    )
+
+    const event = buildEvent('invoice.payment_succeeded', {
+      id: 'in_dedup_unhandled',
+    })
+
+    const { signature } = signWebhook(event, secret)
+
+    const first = await client
+      .post('/webhooks/stripe')
+      .header('stripe-signature', signature)
+      .json(event)
+    first.assertStatus(200)
+
+    const secondEvent = { ...event }
+    const { signature: sig2 } = signWebhook(secondEvent, secret)
+    const second = await client
+      .post('/webhooks/stripe')
+      .header('stripe-signature', sig2)
+      .json(secondEvent)
+
+    second.assertStatus(200)
+
+    const processed = await webhookEventRepo.hasBeenProcessed(event.id)
+    assert.isTrue(processed)
   })
 })
 

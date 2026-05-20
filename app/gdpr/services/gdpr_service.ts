@@ -52,12 +52,12 @@ export default class GdprService {
     const subscriptions = subscriptionLists.flat()
 
     const exportData: UserDataExport = {
-      exportDate: DateTime.now().toISO()!,
+      exportDate: DateTime.now().toISO() ?? '',
       user: {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
-        createdAt: user.createdAt.toISO()!,
+        createdAt: user.createdAt.toISO() ?? '',
         isEmailVerified: user.isEmailVerified,
       },
       profile: {
@@ -70,28 +70,28 @@ export default class GdprService {
         id: org.id,
         name: org.name,
         role: org.pivot_role,
-        joinedAt: org.createdAt.toISO()!,
+        joinedAt: org.createdAt.toISO() ?? '',
       })),
       notifications: notifications.map((notif) => ({
         id: notif.id,
         type: notif.type,
         data: notif.data ?? {},
         readAt: notif.readAt?.toISO() || null,
-        createdAt: notif.createdAt.toISO()!,
+        createdAt: notif.createdAt.toISO() ?? '',
       })),
       uploads: uploads.map((upload) => ({
         id: upload.id,
         filename: upload.filename,
         mimeType: upload.mimeType,
         size: upload.size,
-        uploadedAt: upload.createdAt.toISO()!,
+        uploadedAt: upload.createdAt.toISO() ?? '',
       })),
       sessions: sessions.map((session) => ({
         id: session.id,
         ipAddress: session.ipAddress,
         userAgent: session.userAgent,
-        lastActivityAt: session.lastActivity.toISO()!,
-        createdAt: session.createdAt.toISO()!,
+        lastActivityAt: session.lastActivity.toISO() ?? '',
+        createdAt: session.createdAt.toISO() ?? '',
       })),
       subscriptions: subscriptions.map((sub) => ({
         id: sub.id,
@@ -123,13 +123,13 @@ export default class GdprService {
     const scheduledFor = DateTime.now().plus({ days: 30 })
 
     await this.userRepo.update(userId, {
-      deleted_at: scheduledFor,
+      deletedAt: scheduledFor,
     })
 
     const request: AccountDeletionRequest = {
       userId,
-      requestedAt: DateTime.now().toISO()!,
-      scheduledFor: scheduledFor.toISO()!,
+      requestedAt: DateTime.now().toISO() ?? '',
+      scheduledFor: scheduledFor.toISO() ?? '',
       reason,
     }
 
@@ -229,7 +229,7 @@ export default class GdprService {
 
     const usersToDelete = await User.query()
       .whereNotNull('deleted_at')
-      .where('deleted_at', '<=', now.toSQL() ?? now.toISO()!)
+      .where('deleted_at', '<=', now.toSQL() ?? now.toISO() ?? now.toString())
 
     let count = 0
     for (const user of usersToDelete) {

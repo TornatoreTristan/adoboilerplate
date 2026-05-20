@@ -16,10 +16,10 @@ export default class extends BaseSchema {
       table.jsonb('data').nullable()
       table.jsonb('actions').nullable()
 
-      table.timestamp('read_at').nullable()
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
-      table.timestamp('deleted_at').nullable()
+      table.timestamp('read_at', { useTz: true }).nullable()
+      table.timestamp('created_at', { useTz: true }).notNullable()
+      table.timestamp('updated_at', { useTz: true }).nullable()
+      table.timestamp('deleted_at', { useTz: true }).nullable()
 
       table.index(['user_id', 'read_at'])
       table.index(['organization_id'])

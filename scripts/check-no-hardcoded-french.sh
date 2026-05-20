@@ -6,7 +6,6 @@
 # Pass file paths as arguments; with no args, scan the whole inertia/ tree.
 #
 # Excluded by design:
-# - inertia/emails/**: React Email templates are a separate i18n track (TODO).
 # - <option value="fr|en">…</option>: language picker labels are intentionally
 #   in their own language.
 #
@@ -17,12 +16,11 @@
 set -e
 
 if [ "$#" -eq 0 ]; then
-  files=$(git ls-files 'inertia/**/*.tsx' | grep -v '^inertia/emails/' || true)
+  files=$(git ls-files 'inertia/**/*.tsx' || true)
 else
   files=()
   for f in "$@"; do
     case "$f" in
-      inertia/emails/*) ;;
       inertia/*.tsx | inertia/*/*.tsx | inertia/*/*/*.tsx | inertia/*/*/*/*.tsx)
         files+=("$f")
         ;;

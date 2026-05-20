@@ -37,6 +37,8 @@ export interface EmailResult {
 
 export type EmailTemplate = 'welcome' | 'password-reset' | 'organization-invite' | 'session-alert'
 
+export type SupportedLocale = 'fr' | 'en'
+
 export interface WelcomeEmailData {
   userName: string
   loginUrl: string
@@ -46,6 +48,14 @@ export interface PasswordResetEmailData {
   userName: string
   resetUrl: string
   expiresIn: string
+}
+
+export interface OrganizationInvitationEmailData {
+  organizationName: string
+  inviterName: string
+  role: string
+  invitationUrl: string
+  expiresAt: string
 }
 
 export interface OrganizationInviteEmailData {
@@ -62,4 +72,35 @@ export interface SessionAlertEmailData {
   location: string
   timestamp: string
   secureAccountUrl: string
+}
+
+export interface WelcomeEmailTranslations {
+  subject: string
+  preview: string
+  heading: string
+  body: string
+  cta: string
+  helper: string
+  footer: string
+}
+
+export interface PasswordResetEmailTranslations {
+  subject: string
+  preview: string
+  heading: string
+  greeting: string
+  body: string
+  cta: string
+  expires: string
+  footer: string
+}
+
+export interface OrganizationInvitationEmailTranslations {
+  subject: string
+  preview: string
+  heading: string
+  body: string
+  cta: string
+  expires: string
+  footer: string
 }

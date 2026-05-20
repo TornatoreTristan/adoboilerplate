@@ -53,7 +53,7 @@ export default class OrganizationInvitationRepository extends BaseRepository<
 
   async deleteExpired(): Promise<number> {
     const { default: db } = await import('@adonisjs/lucid/services/db')
-    const nowSql = DateTime.now().toSQL() ?? DateTime.now().toISO()!
+    const nowSql = DateTime.now().toSQL() ?? DateTime.now().toISO() ?? DateTime.now().toString()
 
     const result = (await db
       .from('organization_invitations')

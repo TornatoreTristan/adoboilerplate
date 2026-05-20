@@ -9,6 +9,7 @@ import { join } from 'node:path'
 @injectable()
 export default class LocaleService {
   private defaultLocale: 'fr' | 'en' = 'fr'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- i18n messages are arbitrary JSON, shape varies per namespace
   private cache: Map<string, Record<string, any>> = new Map()
 
   getCurrentLocale(): 'fr' | 'en' {
@@ -44,13 +45,16 @@ export default class LocaleService {
     return { fr, en }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- i18n messages are arbitrary JSON, shape varies per namespace
   async getMessages(locale: string): Promise<Record<string, any>> {
     const cacheKey = locale
 
     if (this.cache.has(cacheKey)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guarded by has() check above
       return this.cache.get(cacheKey)!
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- i18n messages are arbitrary JSON, shape varies per namespace
     const messages: Record<string, any> = {}
     const languagePath = join(app.languageFilesPath(), locale)
 

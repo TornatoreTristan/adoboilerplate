@@ -1,10 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import type { HealthStatus } from '#health/types/health'
-import type {
-  MonitoringHealth,
-  MonitoringMetrics,
-} from '#health/services/monitoring_service'
+import type { MonitoringHealth, MonitoringMetrics } from '#health/services/monitoring_service'
 
 export default class HealthHistory extends BaseModel {
   static table = 'health_history'
