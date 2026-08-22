@@ -2,6 +2,9 @@ import { test } from '@japa/runner'
 import PasswordResetService from '#auth/services/password_reset_service'
 import type PasswordResetRepository from '#auth/repositories/password_reset_repository'
 import type UserRepository from '#users/repositories/user_repository'
+import type EventBusService from '#shared/services/event_bus_service'
+import { getService } from '#shared/container/container'
+import { TYPES } from '#shared/container/types'
 import { DateTime } from 'luxon'
 import crypto from 'node:crypto'
 
@@ -34,7 +37,11 @@ test.group('PasswordResetService', () => {
       deleteExpiredTokens: async () => {},
     } as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.createPasswordResetToken(email)
@@ -66,7 +73,11 @@ test.group('PasswordResetService', () => {
 
     passwordResetRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act — ne doit PAS throw, retourne null silencieusement
     const result = await service.createPasswordResetToken(email)
@@ -93,7 +104,11 @@ test.group('PasswordResetService', () => {
 
     userRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.validateToken(token)
@@ -122,7 +137,11 @@ test.group('PasswordResetService', () => {
 
     userRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.validateToken(token)
@@ -151,7 +170,11 @@ test.group('PasswordResetService', () => {
 
     userRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.validateToken(token)
@@ -171,7 +194,11 @@ test.group('PasswordResetService', () => {
 
     userRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.validateToken(token)
@@ -214,7 +241,11 @@ test.group('PasswordResetService', () => {
       },
     } as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const result = await service.resetPassword(token, newPassword)
@@ -237,7 +268,11 @@ test.group('PasswordResetService', () => {
 
     userRepository = {} as any
 
-    service = new PasswordResetService(passwordResetRepository, userRepository)
+    service = new PasswordResetService(
+      passwordResetRepository,
+      userRepository,
+      getService<EventBusService>(TYPES.EventBus)
+    )
 
     // Act
     const count = await service.cleanupExpiredTokens()

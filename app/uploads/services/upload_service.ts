@@ -6,6 +6,7 @@ import StorageService from '#uploads/services/storage_service'
 import AntivirusService from '#uploads/services/antivirus_service'
 import ImageOptimizationService from '#uploads/services/image_optimization_service'
 import Upload from '#uploads/models/upload'
+import type EventBusService from '#shared/services/event_bus_service'
 import type { UploadFilters, UploadMetadata, DiskType, VisibilityType } from '#uploads/types/upload'
 import logger from '@adonisjs/core/services/logger'
 import { E } from '#shared/exceptions/index'
@@ -58,7 +59,8 @@ export default class UploadService {
     @inject(TYPES.StorageService) private storageService: StorageService,
     @inject(TYPES.AntivirusService) private antivirusService: AntivirusService,
     @inject(TYPES.ImageOptimizationService)
-    private imageOptimizationService: ImageOptimizationService
+    private imageOptimizationService: ImageOptimizationService,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   async uploadFile(options: UploadFileOptions): Promise<Upload> {
@@ -178,6 +180,14 @@ export default class UploadService {
       metadata,
     })
 
+    await this.eventBus.emit('upload:created', {
+      userId: options.userId,
+      uploadId: upload.id,
+      filename: upload.filename,
+      size: upload.size,
+      mimeType: upload.mimeType,
+    })
+
     return upload
   }
 
@@ -219,6 +229,12 @@ export default class UploadService {
 
     await this.storageService.delete(upload.storagePath, upload.disk)
     await this.uploadRepo.delete(id)
+
+    await this.eventBus.emit('upload:deleted', {
+      userId: upload.userId,
+      uploadId: upload.id,
+      filename: upload.filename,
+    })
   }
 
   private generateStoragePath(filename: string): string {

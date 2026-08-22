@@ -6,6 +6,7 @@ import { TYPES } from '#shared/container/types'
 import { E } from '#shared/exceptions/index'
 import type TwoFactorService from '#auth/services/two_factor_service'
 import type UserRepository from '#users/repositories/user_repository'
+import type EventBusService from '#shared/services/event_bus_service'
 
 const codeValidator = vine.compile(
   vine.object({
@@ -138,13 +139,30 @@ export default class TwoFactorController {
       twoFactorService.verifyCode(user, code) ||
       (await twoFactorService.verifyBackupCode(user, code))
 
+    const eventBus = getService<EventBusService>(TYPES.EventBus)
+
     if (!ok) {
+      await eventBus.emit('auth:login:failed', {
+        email: user.email,
+        reason: 'Code 2FA invalide',
+        ipAddress: request.ip(),
+        userAgent: request.header('user-agent') || null,
+      })
       E.invalidCredentials('Code 2FA invalide')
     }
 
     session.regenerate()
     session.forget('pending_2fa_user_id')
     session.put('user_id', user.id)
+
+    // C'est ici que le login aboutit réellement pour un compte 2FA : le
+    // contrôleur d'auth s'est arrêté au challenge sans écrire user_id.
+    await eventBus.emit('auth:login:success', {
+      userId: user.id,
+      method: '2fa',
+      ipAddress: request.ip(),
+      userAgent: request.header('user-agent') || null,
+    })
 
     return response.json({ success: true })
   }

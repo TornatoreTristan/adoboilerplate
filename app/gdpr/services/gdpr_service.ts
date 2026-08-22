@@ -8,6 +8,7 @@ import type SessionRepository from '#sessions/repositories/session_repository'
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type LogService from '#logs/services/log_service'
 import type EmailService from '#mailing/services/email_service'
+import type EventBusService from '#shared/services/event_bus_service'
 import type { UserDataExport, AccountDeletionRequest } from '#gdpr/types/gdpr'
 import User from '#users/models/user'
 import { DateTime } from 'luxon'
@@ -24,7 +25,8 @@ export default class GdprService {
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.SubscriptionRepository) private subscriptionRepo: SubscriptionRepository,
     @inject(TYPES.LogService) private logService: LogService,
-    @inject(TYPES.EmailService) private emailService: EmailService
+    @inject(TYPES.EmailService) private emailService: EmailService,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   /**
@@ -107,6 +109,8 @@ export default class GdprService {
       action: 'data_export',
     })
 
+    await this.eventBus.emit('gdpr:data:export:requested', { userId })
+
     return exportData
   }
 
@@ -149,6 +153,12 @@ export default class GdprService {
       reason,
     })
 
+    await this.eventBus.emit('gdpr:account:deletion:requested', {
+      userId,
+      reason,
+      scheduledFor: scheduledFor.toISO(),
+    })
+
     return request
   }
 
@@ -168,6 +178,8 @@ export default class GdprService {
     await this.userRepo.restore(userId)
 
     await this.logService.info('GDPR: Account deletion cancelled', { userId })
+
+    await this.eventBus.emit('gdpr:account:deletion:cancelled', { userId })
 
     await this.emailService.send({
       to: user.email,
