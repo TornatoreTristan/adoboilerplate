@@ -167,11 +167,13 @@ export default class SentryService {
     }
 
     // Set user si authentifié
-    if (ctx.auth.user) {
+    // ctx.user et non ctx.auth.user : le guard natif n'est jamais alimenté
+    // ici, les rapports d'erreur partiraient sans utilisateur attaché.
+    if (ctx.user) {
       this.setUser({
-        id: ctx.auth.user.id,
-        email: ctx.auth.user.email,
-        username: ctx.auth.user.fullName || undefined,
+        id: ctx.user.id,
+        email: ctx.user.email,
+        username: ctx.user.fullName || undefined,
       })
     }
 

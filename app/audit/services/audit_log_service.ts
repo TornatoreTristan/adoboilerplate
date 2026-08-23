@@ -51,7 +51,12 @@ export default class AuditLogService {
     }
   ): Promise<AuditLog> {
     return this.log({
-      userId: ctx.auth.user?.id || null,
+      // ctx.user (posé par AuthMiddleware) et non ctx.auth.user : le guard
+      // natif d'AdonisJS n'est jamais alimenté dans cette application — rien
+      // n'appelle auth.login(), et SilentAuthMiddleware, seul appelant de
+      // auth.check(), n'est pas enregistré dans start/kernel.ts. Lire
+      // auth.user ici attribuerait chaque entrée d'audit à « personne ».
+      userId: ctx.user?.id || null,
       organizationId: options?.organizationId || null,
       action,
       resourceType: options?.resourceType,

@@ -3,6 +3,8 @@ import db from '@adonisjs/lucid/services/db'
 import Organization from '#organizations/models/organization'
 import { BaseRepository } from '#shared/repositories/base_repository'
 import type { TranslatableFieldNullable } from '#shared/helpers/translatable'
+import { TYPES } from '#shared/container/types'
+import type AuthorizationService from '#roles/services/authorization_service'
 
 export interface CreateOrganizationWithOwnerData {
   name: string
@@ -174,6 +176,13 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
         trx
       )
 
+      // Le rôle RBAC du propriétaire doit être créé dans la même transaction
+      // que la ligne de tenance : sans ça, un échec partiel pourrait laisser
+      // une organisation exister sans propriétaire autorisé (voir
+      // AuthorizationService.syncRoleForTenancy).
+      const authService = await this.getAuthorizationService()
+      await authService.syncRoleForTenancy(String(ownerUserId), created.id, 'owner', trx)
+
       return created
     })
 
@@ -204,6 +213,12 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
       },
     })
 
+    // Garder le rôle RBAC (organization_user_roles) synchronisé avec le
+    // rôle de tenance qu'on vient d'attribuer — sinon le middleware de
+    // permissions refuse ce nouveau membre indéfiniment.
+    const authService = await this.getAuthorizationService()
+    await authService.syncRoleForTenancy(String(userId), String(organizationId), role)
+
     // Invalider les caches
     await this.cache?.invalidateTags(['organizations', 'org_members', 'user_organizations'])
   }
@@ -215,6 +230,11 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const org = await this.findByIdOrFail(organizationId)
 
     await org.related('users').detach([userId])
+
+    // Un ancien membre ne doit conserver aucune permission sur l'organisation
+    // qu'il vient de quitter.
+    const authService = await this.getAuthorizationService()
+    await authService.removeAllRoles(String(userId), String(organizationId))
 
     // Invalider les caches
     await this.cache?.invalidateTags(['organizations', 'org_members', 'user_organizations'])
@@ -231,6 +251,11 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
     const org = await this.findByIdOrFail(organizationId)
 
     await org.related('users').pivotQuery().where('user_id', userId).update({ role })
+
+    // Un changement de rôle de tenance doit changer le rôle RBAC en
+    // conséquence, sinon les deux notions de rôle divergent de nouveau.
+    const authService = await this.getAuthorizationService()
+    await authService.syncRoleForTenancy(String(userId), String(organizationId), role)
 
     // Invalider les caches
     await this.cache?.invalidateTags(['organizations', 'org_members'])
@@ -345,6 +370,19 @@ export default class OrganizationRepository extends BaseRepository<typeof Organi
         joinedAt,
       }
     })
+  }
+
+  /**
+   * Lazily resolve AuthorizationService from the container instead of
+   * constructor injection: this repository is instantiated directly (no DI)
+   * in several unit tests (`new OrganizationRepository()`), and BaseRepository
+   * already falls back to `getService` for its own dependencies when that
+   * happens — this follows the same pattern rather than forcing every call
+   * site to know about the container.
+   */
+  private async getAuthorizationService(): Promise<AuthorizationService> {
+    const { getService } = await import('#shared/container/container')
+    return getService<AuthorizationService>(TYPES.AuthorizationService)
   }
 
   /**
