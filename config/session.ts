@@ -26,7 +26,15 @@ const sessionConfig = defineConfig({
     path: '/',
     httpOnly: true,
     secure: app.inProduction,
-    sameSite: 'strict',
+    /**
+     * 'lax' et non 'strict' : les callbacks OAuth (Google) arrivent via une
+     * redirection cross-site depuis accounts.google.com. En 'strict', Chrome
+     * refuse d'envoyer le cookie de session sur toute la chaîne de redirection,
+     * l'utilisateur est authentifié côté serveur mais renvoyé sur /login.
+     * 'lax' n'autorise que les navigations GET de premier niveau : les POST
+     * cross-site restent sans cookie, la protection CSRF est conservée.
+     */
+    sameSite: 'lax',
   },
 
   /**

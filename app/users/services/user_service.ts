@@ -3,12 +3,16 @@ import { TYPES } from '#shared/container/types'
 import type { CreateUserData } from '#shared/types/user'
 import type UserRepository from '#users/repositories/user_repository'
 import type User from '#users/models/user'
+import type EventBusService from '#shared/services/event_bus_service'
 import hash from '@adonisjs/core/services/hash'
 import { E } from '#shared/exceptions/index'
 
 @injectable()
 export default class UserService {
-  constructor(@inject(TYPES.UserRepository) private userRepo: UserRepository) {}
+  constructor(
+    @inject(TYPES.UserRepository) private userRepo: UserRepository,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
+  ) {}
 
   async create(userData: CreateUserData): Promise<User> {
     const hashedPassword = await hash.make(userData.password)
@@ -30,11 +34,25 @@ export default class UserService {
   }
 
   async updateProfile(userId: string, data: { fullName?: string }): Promise<User> {
-    return await this.userRepo.update(userId, data)
+    const user = await this.userRepo.update(userId, data)
+
+    await this.eventBus.emit('user:updated', {
+      updatedBy: userId,
+      user: { id: userId },
+      changes: data,
+    })
+
+    return user
   }
 
   async deleteAccount(userId: string): Promise<void> {
     await this.userRepo.delete(userId, { soft: true })
+
+    await this.eventBus.emit('user:deleted', {
+      deletedBy: userId,
+      userId,
+      soft: true,
+    })
   }
 
   async updateAdmin(
@@ -48,6 +66,16 @@ export default class UserService {
       }
     }
 
-    return this.userRepo.update(userId, data)
+    const user = await this.userRepo.update(userId, data)
+
+    // updatedBy null : mise à jour par un administrateur sur le compte d'un
+    // tiers, l'auteur n'est pas connu de ce service.
+    await this.eventBus.emit('user:updated', {
+      updatedBy: null,
+      user: { id: userId },
+      changes: data,
+    })
+
+    return user
   }
 }

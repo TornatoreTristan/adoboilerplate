@@ -3,6 +3,7 @@ import GoogleAuthService from '#auth/services/google_auth_service'
 import type UserRepository from '#users/repositories/user_repository'
 import type SessionService from '#sessions/services/session_service'
 import type { OAuthUserData } from '#shared/types/oauth'
+import type EventBusService from '#shared/services/event_bus_service'
 import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 
@@ -13,7 +14,8 @@ test.group('GoogleAuthService', (group) => {
   group.setup(() => {
     googleAuthService = new GoogleAuthService(
       getService<UserRepository>(TYPES.UserRepository),
-      getService<SessionService>(TYPES.SessionService)
+      getService<SessionService>(TYPES.SessionService),
+      getService<EventBusService>(TYPES.EventBus)
     )
     userRepository = getService<UserRepository>(TYPES.UserRepository)
   })

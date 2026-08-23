@@ -13,6 +13,7 @@ import type OrganizationInvitationRepository from '#organizations/repositories/o
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type PlanRepository from '#billing/repositories/plan_repository'
 import type SubscriptionService from '#billing/services/subscription_service'
+import type EventBusService from '#shared/services/event_bus_service'
 import { DateTime } from 'luxon'
 import { randomBytes, randomUUID } from 'node:crypto'
 
@@ -97,6 +98,12 @@ export default class OrganizationSettingsController {
         cache: { tags: ['organizations', `org_${organization.id}`] },
       }
     )
+
+    await getService<EventBusService>(TYPES.EventBus).emit('organization:updated', {
+      updatedBy: user.id,
+      organization: { id: organization.id },
+      changes: data,
+    })
 
     session.flash('success', 'Organisation mise à jour avec succès')
 
@@ -359,13 +366,21 @@ export default class OrganizationSettingsController {
     const token = randomBytes(32).toString('hex')
     const expiresAt = DateTime.now().plus({ days: 7 })
 
-    await invitationRepo.create({
+    const invitation = await invitationRepo.create({
       email: data.email,
       organizationId: organization.id,
       invitedById: user.id,
       role: data.role,
       token,
       expiresAt,
+    })
+
+    await getService<EventBusService>(TYPES.EventBus).emit('invitation:sent', {
+      sentBy: user.id,
+      organizationId: organization.id,
+      invitationId: invitation.id,
+      email: data.email,
+      role: data.role,
     })
 
     session.flash('success', `Invitation créée pour ${data.email}`)
@@ -441,6 +456,12 @@ export default class OrganizationSettingsController {
     }
 
     await orgRepo.removeUser(organization.id, data.userId)
+
+    await getService<EventBusService>(TYPES.EventBus).emit('organization:member:removed', {
+      removedBy: user.id,
+      organizationId: organization.id,
+      memberId: data.userId,
+    })
 
     session.flash('success', 'Membre supprimé avec succès')
 

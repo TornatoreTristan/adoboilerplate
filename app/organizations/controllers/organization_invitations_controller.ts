@@ -4,6 +4,7 @@ import { TYPES } from '#shared/container/types'
 import type OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
 import type UserRepository from '#users/repositories/user_repository'
+import type EventBusService from '#shared/services/event_bus_service'
 
 export default class OrganizationInvitationsController {
   async accept({ params, response, session }: HttpContext) {
@@ -70,6 +71,21 @@ export default class OrganizationInvitationsController {
     await orgRepo.addUser(invitation.organizationId, user.id, invitation.role)
 
     await invitationRepo.markAsAccepted(invitation.id)
+
+    const eventBus = getService<EventBusService>(TYPES.EventBus)
+
+    await eventBus.emit('invitation:accepted', {
+      userId: user.id,
+      organizationId: invitation.organizationId,
+      invitationId: invitation.id,
+    })
+
+    await eventBus.emit('organization:member:added', {
+      addedBy: invitation.invitedById,
+      organizationId: invitation.organizationId,
+      memberId: user.id,
+      role: invitation.role,
+    })
 
     await invitation.load('organization')
     const organizationName = invitation.organization.name

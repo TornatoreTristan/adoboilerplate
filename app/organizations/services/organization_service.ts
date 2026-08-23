@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import OrganizationRepository from '#organizations/repositories/organization_repository'
+import type EventBusService from '#shared/services/event_bus_service'
 import type {
   CreateOrganizationData,
   OrganizationData,
@@ -14,7 +15,8 @@ interface CreateOrganizationDataWithEn extends CreateOrganizationData {
 @injectable()
 export default class OrganizationService {
   constructor(
-    @inject(TYPES.OrganizationRepository) private organizationRepo: OrganizationRepository
+    @inject(TYPES.OrganizationRepository) private organizationRepo: OrganizationRepository,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   /**
@@ -42,6 +44,11 @@ export default class OrganizationService {
       },
       ownerUserId
     )
+
+    await this.eventBus.emit('organization:created', {
+      createdBy: ownerUserId,
+      organization: { id: organization.id, name: organization.name },
+    })
 
     return {
       id: organization.id,

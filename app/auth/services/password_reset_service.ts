@@ -5,6 +5,7 @@ import { TYPES } from '#shared/container/types'
 import PasswordResetRepository from '#auth/repositories/password_reset_repository'
 import UserRepository from '#users/repositories/user_repository'
 import { E } from '#shared/exceptions/exception_helpers'
+import type EventBusService from '#shared/services/event_bus_service'
 import hash from '@adonisjs/core/services/hash'
 
 export interface CreateTokenResult {
@@ -29,7 +30,8 @@ export interface ResetPasswordResult {
 export default class PasswordResetService {
   constructor(
     @inject(TYPES.PasswordResetRepository) private passwordResetRepository: PasswordResetRepository,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   /**
@@ -39,6 +41,13 @@ export default class PasswordResetService {
    */
   async createPasswordResetToken(email: string): Promise<CreateTokenResult | null> {
     const user = await this.userRepository.findByEmail(email)
+
+    // Émis même quand l'email est inconnu : une rafale de demandes sur des
+    // comptes inexistants est justement le signal qu'un audit doit capturer.
+    await this.eventBus.emit('auth:password:reset:requested', {
+      userId: user?.id ?? null,
+      email,
+    })
 
     if (!user) {
       await new Promise((resolve) => setTimeout(resolve, 250))
@@ -125,6 +134,8 @@ export default class PasswordResetService {
 
     // Marquer le token comme utilisé
     await this.passwordResetRepository.markAsUsed(passwordResetToken.id)
+
+    await this.eventBus.emit('auth:password:reset:completed', { userId: user.id })
 
     return {
       success: true,

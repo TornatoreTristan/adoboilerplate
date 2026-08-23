@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { TYPES } from '#shared/container/types'
 import UserRepository from '#users/repositories/user_repository'
 import SessionService from '#sessions/services/session_service'
+import type EventBusService from '#shared/services/event_bus_service'
 import type { OAuthUserData, OAuthCallbackResult } from '#shared/types/oauth'
 import User from '#users/models/user'
 
@@ -19,7 +20,8 @@ interface SessionContext {
 export default class GoogleAuthService {
   constructor(
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
-    @inject(TYPES.SessionService) private sessionService: SessionService
+    @inject(TYPES.SessionService) private sessionService: SessionService,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   async handleGoogleCallback(
@@ -37,6 +39,10 @@ export default class GoogleAuthService {
         // Si soft deleted, restaurer le compte
         if (existingUser.deletedAt) {
           user = await this.userRepository.restoreDeletedUser(existingUser.id)
+          await this.eventBus.emit('user:restored', {
+            restoredBy: null,
+            userId: user.id,
+          })
         } else {
           user = existingUser
         }
@@ -64,6 +70,23 @@ export default class GoogleAuthService {
       })
       sessionId = session.id
     }
+
+    if (isNewUser) {
+      await this.eventBus.emit('user:created', {
+        createdBy: null,
+        user: { id: user.id, email: user.email, fullName: user.fullName },
+      })
+    }
+
+    // Émis ici et non dans le contrôleur : contrairement au login local, le
+    // callback OAuth n'a pas de challenge 2FA intermédiaire, l'utilisateur est
+    // authentifié dès le retour de cette méthode.
+    await this.eventBus.emit('auth:login:success', {
+      userId: user.id,
+      method: 'google',
+      ipAddress: sessionContext?.ipAddress ?? null,
+      userAgent: sessionContext?.userAgent ?? null,
+    })
 
     return {
       user,

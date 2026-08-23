@@ -15,6 +15,7 @@ import type IntegrationRepository from '#integrations/repositories/integration_r
 import type SubscriptionRepository from '#billing/repositories/subscription_repository'
 import type { AdminSubscriptionFilters } from '#billing/repositories/subscription_repository'
 import type Integration from '#integrations/models/integration'
+import type EventBusService from '#shared/services/event_bus_service'
 import { E } from '#shared/exceptions/index'
 import { DateTime } from 'luxon'
 
@@ -147,7 +148,8 @@ export default class AdminService {
     @inject(TYPES.OrganizationRepository) private organizationRepository: OrganizationRepository,
     @inject(TYPES.RoleRepository) private roleRepository: RoleRepository,
     @inject(TYPES.IntegrationRepository) private integrationRepository: IntegrationRepository,
-    @inject(TYPES.SubscriptionRepository) private subscriptionRepository: SubscriptionRepository
+    @inject(TYPES.SubscriptionRepository) private subscriptionRepository: SubscriptionRepository,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   async getAllSubscriptions(filters?: AdminSubscriptionFilters): Promise<AdminSubscriptionRow[]> {
@@ -373,7 +375,8 @@ export default class AdminService {
   async addUserToOrganization(
     organizationId: string,
     userEmail: string,
-    role: string
+    role: string,
+    actorUserId?: string | null
   ): Promise<void> {
     const user = await this.userRepository.findByEmail(userEmail)
     if (!user) {
@@ -386,6 +389,13 @@ export default class AdminService {
     }
 
     await this.organizationRepository.addUser(organizationId, user.id, role)
+
+    await this.eventBus.emit('organization:member:added', {
+      addedBy: actorUserId ?? null,
+      organizationId,
+      memberId: user.id,
+      role,
+    })
   }
 
   async getRoles(): Promise<RoleWithPermissionsCount[]> {

@@ -5,6 +5,7 @@ import type SubscriptionRepository from '#billing/repositories/subscription_repo
 import type PlanRepository from '#billing/repositories/plan_repository'
 import type StripeWebhookEventRepository from '#billing/repositories/stripe_webhook_event_repository'
 import type StripeClientService from '#billing/services/stripe_client_service'
+import type EventBusService from '#shared/services/event_bus_service'
 import type Stripe from 'stripe'
 import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
@@ -202,6 +203,16 @@ export default class StripeWebhookController {
           { subscriptionId: newSubscription.id, organizationId, planId },
           'Nouvel abonnement créé avec succès'
         )
+
+        // userId null : un webhook Stripe n'a pas d'utilisateur authentifié,
+        // l'action est le fait du système.
+        await getService<EventBusService>(TYPES.EventBus).emit('subscription:created', {
+          userId: null,
+          organizationId,
+          subscriptionId: newSubscription.id,
+          planId,
+          amount: price,
+        })
       } catch (error) {
         logger.error(
           { error, organizationId, planId },
@@ -236,6 +247,13 @@ export default class StripeWebhookController {
       canceledAt: stripeSubscription.canceled_at
         ? DateTime.fromSeconds(stripeSubscription.canceled_at)
         : null,
+    })
+
+    await getService<EventBusService>(TYPES.EventBus).emit('subscription:updated', {
+      userId: null,
+      organizationId: subscription.organizationId,
+      subscriptionId: subscription.id,
+      changes: { status: stripeSubscription.status },
     })
 
     logger.info({ subscriptionId: subscription.id }, 'Abonnement mis à jour')

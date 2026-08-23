@@ -71,7 +71,7 @@ export default class SubscriptionsController {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
-    await subscriptionService.cancelSubscription(subscriptionId, organization.id)
+    await subscriptionService.cancelSubscription(subscriptionId, organization.id, user.id)
 
     session.flash(
       'success',
@@ -108,7 +108,7 @@ export default class SubscriptionsController {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
-    await subscriptionService.pauseSubscription(subscriptionId, organization.id)
+    await subscriptionService.pauseSubscription(subscriptionId, organization.id, user.id)
 
     session.flash(
       'success',
@@ -128,7 +128,7 @@ export default class SubscriptionsController {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
-    await subscriptionService.resumeSubscription(subscriptionId, organization.id)
+    await subscriptionService.resumeSubscription(subscriptionId, organization.id, user.id)
 
     session.flash('success', "L'abonnement a été repris. Les factures seront à nouveau générées.")
 

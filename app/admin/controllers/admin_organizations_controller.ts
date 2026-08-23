@@ -42,11 +42,16 @@ export default class AdminOrganizationsController {
     )
   }
 
-  async addUserToOrganization({ params, request, response, session, i18n }: HttpContext) {
+  async addUserToOrganization({ params, request, response, session, i18n, user }: HttpContext) {
     const data = await request.validateUsing(addUserToOrganizationValidator)
 
     try {
-      await this.adminService.addUserToOrganization(params.id, data.email, data.role)
+      await this.adminService.addUserToOrganization(
+        params.id,
+        data.email,
+        data.role,
+        user?.id ?? null
+      )
       session.flash('success', i18n.t('admin.flash.user_added_to_organization'))
     } catch (error) {
       session.flashErrors({ email: error.message })
