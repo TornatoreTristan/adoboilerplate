@@ -126,7 +126,9 @@ export function extractAuditContext(ctx: HttpContext): {
   userAgent: string | null
 } {
   return {
-    userId: ctx.auth.user?.id || null,
+    // Voir audit_log_service.ts : ctx.auth.user est toujours undefined dans
+    // cette application, seul ctx.user est peuplé.
+    userId: ctx.user?.id || null,
     organizationId: null, // Organization context should be provided explicitly
     ipAddress: ctx.request.ip() || null,
     userAgent: ctx.request.header('user-agent') || null,

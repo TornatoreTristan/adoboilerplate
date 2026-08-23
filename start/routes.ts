@@ -37,6 +37,20 @@ if (process.env.NODE_ENV === 'test') {
       return response.ok({ id: organization.id, name: organization.name })
     })
     .use([middleware.auth(), middleware.requireOrganization(), middleware.organizationContext()])
+
+  // Seule route du dépôt qui exerce middleware.permission de bout en bout.
+  // C'est précisément parce qu'aucune route applicative ne l'utilisait que le
+  // RBAC a pu rester non alimenté sans que rien ne le signale : le middleware
+  // fonctionnait sur des données qui n'existaient pas. Cette route sert de
+  // harnais à tests/functional/organizations/organization_rbac_e2e.spec.ts.
+  router
+    .get('/debug/permission-protected', ({ response }) => response.ok({ ok: true }))
+    .use([
+      middleware.auth(),
+      middleware.requireOrganization(),
+      middleware.organizationContext(),
+      middleware.permission(['billing.manage']),
+    ])
 }
 
 // Page d'accueil (protégée par authentification et nécessite une organisation)

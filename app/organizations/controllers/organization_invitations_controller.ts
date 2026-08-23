@@ -3,10 +3,11 @@ import { getService } from '#shared/container/container'
 import { TYPES } from '#shared/container/types'
 import type OrganizationInvitationRepository from '#organizations/repositories/organization_invitation_repository'
 import type OrganizationRepository from '#organizations/repositories/organization_repository'
+import type UserRepository from '#users/repositories/user_repository'
 import type EventBusService from '#shared/services/event_bus_service'
 
 export default class OrganizationInvitationsController {
-  async accept({ params, response, session, auth }: HttpContext) {
+  async accept({ params, response, session }: HttpContext) {
     const { token } = params
 
     const invitationRepo = getService<OrganizationInvitationRepository>(
@@ -31,7 +32,20 @@ export default class OrganizationInvitationsController {
       return response.redirect('/')
     }
 
-    const user = auth.user
+    // Cette route ne passe volontairement pas par middleware.auth() : un
+    // visiteur anonyme doit obtenir le parcours « connectez-vous ou créez un
+    // compte pour accepter », pas une redirection sèche vers /login.
+    // L'utilisateur courant doit donc être résolu depuis la session, comme le
+    // fait AuthMiddleware. Lire auth.user — le guard natif d'AdonisJS —
+    // renvoyait toujours undefined : rien dans le parcours de connexion de
+    // cette application ne l'alimente (AuthController.login écrit seulement
+    // session.put('user_id', ...)), et SilentAuthMiddleware, seul appelant de
+    // auth.check(), n'est pas enregistré dans start/kernel.ts. Tout
+    // utilisateur déjà connecté était donc renvoyé sur /login au lieu de
+    // rejoindre l'organisation.
+    const userId = session.get('user_id')
+    const userRepo = getService<UserRepository>(TYPES.UserRepository)
+    const user = userId ? await userRepo.findById(userId) : null
 
     if (!user) {
       session.put('invitation_token', token)

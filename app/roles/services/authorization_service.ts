@@ -2,6 +2,22 @@ import { injectable, inject } from 'inversify'
 import { TYPES } from '#shared/container/types'
 import type CacheService from '#shared/services/cache_service'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
+
+/**
+ * Maps `user_organizations.role` (the multi-tenancy pivot role — owner /
+ * admin / member / viewer, see `app/shared/types/organization.ts`) to the
+ * RBAC role slug it must mirror in `organization_user_roles` (see
+ * `database/seeders/role_permission_seeder.ts` for the seeded slugs). There
+ * is no RBAC role called "owner": an owner is simply an admin for
+ * permission-checking purposes.
+ */
+const TENANCY_ROLE_TO_RBAC_SLUG: Record<string, string> = {
+  owner: 'admin',
+  admin: 'admin',
+  member: 'member',
+  viewer: 'viewer',
+}
 
 @injectable()
 export default class AuthorizationService {
@@ -203,6 +219,81 @@ export default class AuthorizationService {
       .delete()
 
     // Invalider les caches d'autorisation pour cet utilisateur
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+  }
+
+  /**
+   * Keep the RBAC role (`organization_user_roles`) in sync with the
+   * multi-tenancy pivot role (`user_organizations.role`). This is the single
+   * place that translates a tenancy role into the RBAC slug it maps to (see
+   * `TENANCY_ROLE_TO_RBAC_SLUG`) — callers (repositories, controllers,
+   * services) must never write to `organization_user_roles` directly to
+   * reflect a tenancy role change, or the two notions of role will drift
+   * apart again.
+   *
+   * Replaces any existing RBAC role assignment for this user/organization so
+   * a user only ever carries the RBAC role matching their current tenancy
+   * role (no stale roles left behind after a promotion/demotion).
+   *
+   * Pass `trx` to run inside an existing transaction — e.g. organization
+   * creation, where the owner's RBAC row must be created atomically with the
+   * `user_organizations` row, so a partial failure can never leave an
+   * organization without an authorized owner.
+   *
+   * No-ops (does not throw) if the mapped RBAC role slug isn't seeded yet —
+   * a tenancy write should never fail because the RBAC tables are empty.
+   */
+  async syncRoleForTenancy(
+    userId: string,
+    organizationId: string,
+    tenancyRole: string,
+    trx?: TransactionClientContract
+  ): Promise<void> {
+    const client = trx ?? db
+    const rbacSlug = TENANCY_ROLE_TO_RBAC_SLUG[tenancyRole] ?? tenancyRole
+
+    const role = await client.from('roles').where('slug', rbacSlug).first()
+
+    if (!role) {
+      return
+    }
+
+    await client
+      .from('organization_user_roles')
+      .where('user_id', userId)
+      .where('organization_id', organizationId)
+      .delete()
+
+    await client.table('organization_user_roles').insert({
+      id: crypto.randomUUID(),
+      user_id: userId,
+      organization_id: organizationId,
+      role_id: role.id,
+      created_at: new Date(),
+    })
+
+    await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
+  }
+
+  /**
+   * Remove every RBAC role assigned to a user in an organization. Called
+   * whenever a user leaves an organization's tenancy (member removed,
+   * account deleted via GDPR, ...) so they don't keep permissions on an
+   * organization they're no longer part of.
+   */
+  async removeAllRoles(
+    userId: string,
+    organizationId: string,
+    trx?: TransactionClientContract
+  ): Promise<void> {
+    const client = trx ?? db
+
+    await client
+      .from('organization_user_roles')
+      .where('user_id', userId)
+      .where('organization_id', organizationId)
+      .delete()
+
     await this.cache?.invalidateTags(['auth', `auth_user_${userId}`, `auth_org_${organizationId}`])
   }
 
