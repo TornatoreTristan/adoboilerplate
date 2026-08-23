@@ -426,6 +426,19 @@ Check that:
 3. Database connection is working
 4. No errors in server logs
 
+> ⚠️ **Two event-name conventions coexist in this codebase.** Audit events use
+> colons (`user:created`) and are emitted explicitly by services and controllers.
+> `BaseRepository` auto-emits CRUD events with dots (`user.created`), which is what
+> `NotificationListeners` subscribes to. The two never overlap, so an emit written
+> with the wrong separator is silently dropped — no error, just an empty table.
+>
+> The audit system shipped broken for exactly this reason: the listeners were
+> written against `:` while nothing in the app emitted anything but the
+> repository's `.` events. `tests/unit/audit/audit_event_wiring.spec.ts` now
+> fails the build if an audited event has no producer. When adding a listener,
+> add its producer in the same change, or add it to that test's
+> `KNOWN_WITHOUT_PRODUCER` allowlist with a comment explaining why.
+
 ### Slow queries
 
 If queries are slow:

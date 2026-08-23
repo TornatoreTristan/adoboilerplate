@@ -12,6 +12,7 @@ import type AccountLockoutService from '#auth/services/account_lockout_service'
 import type TwoFactorService from '#auth/services/two_factor_service'
 import type PasswordStrengthService from '#auth/services/password_strength_service'
 import RateLimitService from '#shared/services/rate_limit_service'
+import type EventBusService from '#shared/services/event_bus_service'
 import logger from '@adonisjs/core/services/logger'
 
 const EMAIL_RATE_LIMIT_MAX_REQUESTS = 5
@@ -65,6 +66,13 @@ export default class AuthController {
 
     // Si l'authentification échoue
     if (!result.success) {
+      await getService<EventBusService>(TYPES.EventBus).emit('auth:login:failed', {
+        email: normalizedEmail,
+        reason: result.error,
+        ipAddress: request.ip(),
+        userAgent: request.header('user-agent') || null,
+      })
+
       const failure = await accountLockoutService.recordFailure(normalizedEmail)
       if (failure.locked) {
         response.header('Retry-After', failure.ttlSeconds.toString())
@@ -130,6 +138,13 @@ export default class AuthController {
     // Stocker l'ID de session pour pouvoir la ferme au logout
     session.put('session_id', userSession.id)
 
+    await getService<EventBusService>(TYPES.EventBus).emit('auth:login:success', {
+      userId: result.user.id,
+      method: 'credentials',
+      ipAddress: request.ip(),
+      userAgent: request.header('user-agent') || null,
+    })
+
     // Pour les requêtes API, retourner JSON
     if (this.isApiRequest(request)) {
       return response.json({ success: true })
@@ -153,10 +168,19 @@ export default class AuthController {
 
   async logout({ request, response, session }: HttpContext) {
     const sessionId = session.get('session_id')
+    const userId = session.get('user_id')
     const sessionService = getService<SessionService>(TYPES.SessionService)
 
     if (sessionId) {
       await sessionService.endSession(sessionId)
+    }
+
+    if (userId) {
+      await getService<EventBusService>(TYPES.EventBus).emit('auth:logout', {
+        userId,
+        ipAddress: request.ip(),
+        userAgent: request.header('user-agent') || null,
+      })
     }
 
     session.forget('user_id')
@@ -256,6 +280,26 @@ export default class AuthController {
 
     // Stocker l'ID de session
     session.put('session_id', userSession.id)
+
+    const eventBus = getService<EventBusService>(TYPES.EventBus)
+
+    // L'auto-inscription n'a pas d'auteur tiers : createdBy reste null, le
+    // compte concerné est porté par resourceId.
+    await eventBus.emit('user:created', {
+      createdBy: null,
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        fullName: result.user.fullName,
+      },
+    })
+
+    await eventBus.emit('auth:login:success', {
+      userId: result.user.id,
+      method: 'registration',
+      ipAddress: request.ip(),
+      userAgent: request.header('user-agent') || null,
+    })
 
     // Envoyer l'email de vérification
     try {

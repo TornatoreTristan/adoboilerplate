@@ -43,12 +43,12 @@ export default class AdminSubscriptionsController {
   /**
    * Mettre en pause un abonnement (Admin uniquement)
    */
-  async pause({ response, session, params, i18n }: HttpContext) {
+  async pause({ response, session, params, i18n, user }: HttpContext) {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
     try {
-      await subscriptionService.pauseSubscription(subscriptionId)
+      await subscriptionService.pauseSubscription(subscriptionId, undefined, user?.id ?? null)
       session.flash('success', i18n.t('admin.flash.subscription_paused'))
     } catch (error) {
       session.flash(
@@ -60,12 +60,12 @@ export default class AdminSubscriptionsController {
     return response.redirect().back()
   }
 
-  async resume({ response, session, params, i18n }: HttpContext) {
+  async resume({ response, session, params, i18n, user }: HttpContext) {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
     try {
-      await subscriptionService.resumeSubscription(subscriptionId)
+      await subscriptionService.resumeSubscription(subscriptionId, undefined, user?.id ?? null)
       session.flash('success', i18n.t('admin.flash.subscription_resumed'))
     } catch (error) {
       session.flash(
@@ -77,12 +77,12 @@ export default class AdminSubscriptionsController {
     return response.redirect().back()
   }
 
-  async cancel({ response, session, params, i18n }: HttpContext) {
+  async cancel({ response, session, params, i18n, user }: HttpContext) {
     const subscriptionId = params.id
     const subscriptionService = getService<SubscriptionService>(TYPES.SubscriptionService)
 
     try {
-      await subscriptionService.cancelSubscription(subscriptionId)
+      await subscriptionService.cancelSubscription(subscriptionId, undefined, user?.id ?? null)
       session.flash('success', i18n.t('admin.flash.subscription_canceled'))
     } catch (error) {
       session.flash(

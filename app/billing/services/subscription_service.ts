@@ -5,6 +5,7 @@ import type PlanRepository from '#billing/repositories/plan_repository'
 import type StripeClientService from '#billing/services/stripe_client_service'
 import type Subscription from '#billing/models/subscription'
 import type Stripe from 'stripe'
+import type EventBusService from '#shared/services/event_bus_service'
 import { E } from '#shared/exceptions/exception_helpers'
 import { DateTime } from 'luxon'
 
@@ -13,7 +14,8 @@ export default class SubscriptionService {
   constructor(
     @inject(TYPES.SubscriptionRepository) private subscriptionRepository: SubscriptionRepository,
     @inject(TYPES.PlanRepository) private planRepository: PlanRepository,
-    @inject(TYPES.StripeClientService) private stripeClientService: StripeClientService
+    @inject(TYPES.StripeClientService) private stripeClientService: StripeClientService,
+    @inject(TYPES.EventBus) private eventBus: EventBusService
   ) {}
 
   /**
@@ -216,7 +218,11 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async pauseSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
+  async pauseSubscription(
+    subscriptionId: string,
+    organizationId?: string,
+    actorUserId?: string | null
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -241,9 +247,17 @@ export default class SubscriptionService {
       { idempotencyKey: this.buildIdempotencyKey('pause', subscriptionId) }
     )
 
-    return this.subscriptionRepository.update(subscriptionId, {
+    const updated = await this.subscriptionRepository.update(subscriptionId, {
       status: 'paused',
     })
+
+    await this.eventBus.emit('subscription:paused', {
+      userId: actorUserId ?? null,
+      organizationId: subscription.organizationId,
+      subscriptionId,
+    })
+
+    return updated
   }
 
   /**
@@ -251,7 +265,11 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async resumeSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
+  async resumeSubscription(
+    subscriptionId: string,
+    organizationId?: string,
+    actorUserId?: string | null
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -274,9 +292,17 @@ export default class SubscriptionService {
       { idempotencyKey: this.buildIdempotencyKey('resume', subscriptionId) }
     )
 
-    return this.subscriptionRepository.update(subscriptionId, {
+    const updated = await this.subscriptionRepository.update(subscriptionId, {
       status: 'active',
     })
+
+    await this.eventBus.emit('subscription:resumed', {
+      userId: actorUserId ?? null,
+      organizationId: subscription.organizationId,
+      subscriptionId,
+    })
+
+    return updated
   }
 
   /**
@@ -285,7 +311,11 @@ export default class SubscriptionService {
    *
    * @param organizationId Si fourni, vérifie l'appartenance avant action (contexte org member). Omettre pour contexte admin.
    */
-  async cancelSubscription(subscriptionId: string, organizationId?: string): Promise<Subscription> {
+  async cancelSubscription(
+    subscriptionId: string,
+    organizationId?: string,
+    actorUserId?: string | null
+  ): Promise<Subscription> {
     const subscription = await this.subscriptionRepository.findByIdOrFail(subscriptionId)
 
     this.assertSubscriptionInOrganization(subscription, organizationId)
@@ -308,9 +338,17 @@ export default class SubscriptionService {
       { idempotencyKey: this.buildIdempotencyKey('cancel', subscriptionId) }
     )
 
-    return this.subscriptionRepository.update(subscriptionId, {
+    const updated = await this.subscriptionRepository.update(subscriptionId, {
       canceledAt: DateTime.now(),
     })
+
+    await this.eventBus.emit('subscription:cancelled', {
+      userId: actorUserId ?? null,
+      organizationId: subscription.organizationId,
+      subscriptionId,
+    })
+
+    return updated
   }
 
   /**
